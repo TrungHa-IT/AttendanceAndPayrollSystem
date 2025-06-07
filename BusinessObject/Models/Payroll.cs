@@ -17,5 +17,7 @@ public partial class Payroll
 
     public decimal? TotalSalary { get; set; }
 
+    public decimal? HourlyRate { get; set; }
+
     public virtual Employee Employee { get; set; } = null!;
 }
