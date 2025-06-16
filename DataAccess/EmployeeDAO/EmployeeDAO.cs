@@ -23,7 +23,7 @@ namespace DataAccess.EmployeeDAO
             {
                 using (var context = new FunattendanceAndPayrollSystemContext())
                 {
-                    listEmployees = context.Employees.ToList();
+                    listEmployees = context.Employees.Where(ep => ep.Position.Equals("Employee")).ToList();
                 }
             }
             catch (Exception e)

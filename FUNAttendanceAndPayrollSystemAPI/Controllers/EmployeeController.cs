@@ -6,12 +6,12 @@ using System.Collections;
 
 namespace FUNAttendanceAndPayrollSystemAPI.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("Employee/")]
     [ApiController]
     public class EmployeeController : Controller
     {
         private readonly IEmployeeRepository repository = new EmployeeRepository();
-        [HttpGet("/ListEmployees")]
+        [HttpGet("ListEmployees")]
         public ActionResult<IEnumerable<Employee>> GetEmployees() => repository.GetEmployees();
     }
 }
