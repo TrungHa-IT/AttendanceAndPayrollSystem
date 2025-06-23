@@ -1,6 +1,7 @@
 ﻿using BusinessObject.Models;
 using DataAccess.EmployeeDAO;
 using DataTransferObject.AttendanceDTO;
+using DataTransferObject.AuthDTO;
 using DataTransferObject.EmployeeDTO;
 using System;
 using System.Collections.Generic;
@@ -14,5 +15,9 @@ namespace Repository.EmployeeRepository
     {
         public List<AttendanceDTO> getAttendanceById(int emp) => EmployeeDAO.getAttendanceById(emp);
         public List<EmployeeDTO> GetEmployees() => EmployeeDAO.GetEmployees();
+
+        public Employee? Login(LoginDTO loginDTO) => EmployeeDAO.Login(loginDTO);
+        
+        public bool Register(RegisterDTO registerDTO) => EmployeeDAO.Register(registerDTO);
     }
 }
