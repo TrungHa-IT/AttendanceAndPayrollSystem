@@ -1,5 +1,6 @@
 ﻿using BusinessObject.Models;
 using DataTransferObject.AttendanceDTO;
+using DataTransferObject.AuthDTO;
 using DataTransferObject.EmployeeDTO;
 using System;
 using System.Collections.Generic;
@@ -13,6 +14,8 @@ namespace Repository.EmployeeRepository
     {
         List<EmployeeDTO> GetEmployees();
         List<AttendanceDTO> getAttendanceById(int emp);
+        bool Register(RegisterDTO registerDTO);
+        Employee? Login(LoginDTO loginDTO);
     }
 
 
