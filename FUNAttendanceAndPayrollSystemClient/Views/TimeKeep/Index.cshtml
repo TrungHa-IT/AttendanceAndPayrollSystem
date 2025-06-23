@@ -1,0 +1,192 @@
+﻿@using DataTransferObject.DateTimeDTO
+@{
+    ViewData["Title"] = "Timekeeping";
+    var year = ViewBag.Year;
+    var weekOptions = ViewBag.WeekOptions as List<WeekOption>;
+    var selectedWeek = ViewBag.SelectedWeek as string;
+    var days = ViewBag.DaysInWeek as List<DateTime>;
+}
+
+<h2>Timekeeping</h2>
+
+<form method="get" asp-action="Index">
+    <label style="color:red">YEAR</label>
+    <select name="year" onchange="this.form.submit()">
+        @for (int y = DateTime.Now.Year - 1; y <= DateTime.Now.Year + 1; y++)
+        {
+            <option value="@y" selected="@(y == year)">@y</option>
+        }
+    </select>
+
+    <label style="margin-left: 20px;">WEEK</label>
+    <select name="week" onchange="this.form.submit()">
+        @foreach (var item in weekOptions)
+        {
+            <option value="@item.Display" selected="@(item.Display == selectedWeek)">
+                @item.Display
+            </option>
+        }
+    </select>
+</form>
+
+<table class="table table-bordered mt-3 text-center" style="background-color: #6c9cd1; color: black;">
+    <thead>
+        <tr>
+            @foreach (var d in days)
+            {
+                <th>@d.ToString("ddd").ToUpper()</th>
+            }
+        </tr>
+    </thead>
+    <tbody>
+        <tr>
+            @foreach (var d in days)
+            {
+                <td>@d.ToString("dd/MM")</td>
+            }
+        </tr>
+        <tr>
+            @foreach (var d in days)
+            {
+                <td>
+                    @if (d.DayOfWeek >= DayOfWeek.Monday && d.DayOfWeek <= DayOfWeek.Friday)
+                    {
+                        var idSuffix = d.ToString("yyyyMMdd");
+
+                        if (d.Date == DateTime.Today)
+                        {
+                            <button class="btn btn-success btn-sm" id="checkInBtn_@idSuffix" onclick="handleCheckIn()" type="button">Check In</button>
+                            <button class="btn btn-secondary btn-sm mt-1" id="checkOutBtn_@idSuffix" onclick="handleCheckOut()" type="button" disabled>Check Out</button>
+                        }
+                        else if (d.Date < DateTime.Today)
+                        {
+                            <span>✔ Past</span>
+                        }
+                        else
+                        {
+                            <button class="btn btn-success btn-sm" id="checkInBtn_@idSuffix" type="button" disabled>Check In</button>
+                            <button class="btn btn-secondary btn-sm mt-1" id="checkOutBtn_@idSuffix" type="button" disabled>Check Out</button>
+                        }
+                    }
+                    else
+                    {
+                        <span>—</span>
+                    }
+                </td>
+            }
+        </tr>
+    </tbody>
+</table>
+
+@section Scripts {
+    <script>
+        // Khi load trang, kiểm tra trạng thái Check-in hôm nay
+        window.onload = function () {
+            fetch('/ManageSchedule/CheckInStatus')
+                .then(res => res.json())
+                .then(data => {
+                    if (data.hasCheckedIn) {
+                        const today = new Date();
+                        const idSuffix = today.toISOString().split('T')[0].replaceAll('-', '');
+
+                        const checkInBtn = document.getElementById("checkInBtn_" + idSuffix);
+                        const checkOutBtn = document.getElementById("checkOutBtn_" + idSuffix);
+
+                        if (checkInBtn) {
+                            checkInBtn.disabled = true;
+                            checkInBtn.innerText = "✔ Already Checked In";
+                        }
+
+                        if (checkOutBtn) {
+                            checkOutBtn.disabled = false;
+                            checkOutBtn.classList.remove("btn-secondary");
+                            checkOutBtn.classList.add("btn-primary");
+                        }
+                    }
+                })
+                .catch(err => console.error("CheckInStatus error:", err));
+        };
+
+        function handleCheckIn() {
+            fetch('/ManageSchedule/CheckIn', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(async res => {
+                    const data = await res.json();
+                    const today = new Date();
+                    const idSuffix = today.toISOString().split('T')[0].replaceAll('-', '');
+
+                    const checkInBtn = document.getElementById("checkInBtn_" + idSuffix);
+                    const checkOutBtn = document.getElementById("checkOutBtn_" + idSuffix);
+
+                    if (res.ok) {
+                        if (checkInBtn) {
+                            checkInBtn.disabled = true;
+                            checkInBtn.innerText = "✔ Checked In";
+                        }
+
+                        if (checkOutBtn) {
+                            checkOutBtn.disabled = false;
+                            checkOutBtn.classList.remove("btn-secondary");
+                            checkOutBtn.classList.add("btn-primary");
+                        }
+                    } else {
+                        alert(data.message || "Check-in failed.");
+
+                        if (data.message === "Already checked in today.") {
+                            if (checkInBtn) {
+                                checkInBtn.disabled = true;
+                                checkInBtn.innerText = "✔ Already Checked In";
+                            }
+
+                            if (checkOutBtn) {
+                                checkOutBtn.disabled = false;
+                                checkOutBtn.classList.remove("btn-secondary");
+                                checkOutBtn.classList.add("btn-primary");
+                            }
+                        }
+                    }
+                })
+                .catch(error => {
+                    console.error("Error:", error);
+                    alert("Something went wrong. Please try again.");
+                });
+        }
+
+        function handleCheckOut() {
+            fetch('/ManageSchedule/CheckOut', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                }
+            })
+                .then(async res => {
+                    const data = await res.json();
+                    if (res.ok) {
+                        const today = new Date();
+                        const idSuffix = today.toISOString().split('T')[0].replaceAll('-', '');
+                        const checkOutBtn = document.getElementById("checkOutBtn_" + idSuffix);
+
+                        if (checkOutBtn) {
+                            checkOutBtn.innerText = "✔ Checked Out (" + new Date().toLocaleTimeString() + ")";
+                            checkOutBtn.classList.remove("btn-primary");
+                            checkOutBtn.classList.add("btn-success");
+
+                            // ✅ Không disable để người dùng có thể check-out lần nữa
+                            // checkOutBtn.disabled = true;
+                        }
+                    } else {
+                        alert(data.message || "Check-out failed.");
+                    }
+                })
+                .catch(error => {
+                    console.error("Check-out error:", error);
+                    alert("Something went wrong. Please try again.");
+                });
+        }
+
+    </script>
+}

@@ -1,4 +1,6 @@
 ﻿using BusinessObject.Models;
+using DataTransferObject.AttendanceDTO;
+using DataTransferObject.EmployeeDTO;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,6 +11,9 @@ namespace Repository.EmployeeRepository
 {
     public interface IEmployeeRepository
     {
-        List<Employee> GetEmployees();
+        List<EmployeeDTO> GetEmployees();
+        List<AttendanceDTO> getAttendanceById(int emp);
     }
+
+
 }

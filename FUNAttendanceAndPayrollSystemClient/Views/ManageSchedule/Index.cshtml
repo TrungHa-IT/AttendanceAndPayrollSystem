@@ -1,0 +1,266 @@
+﻿@using System.Text.Json
+@using DataTransferObject.EmployeeDTO
+@using DataTransferObject.ManagerDTO
+
+@{
+    var employees = ViewBag.employees as List<EmployeeDTO>;
+    var schedules = ViewBag.Schedules as List<ScheduleDTO> ?? new List<ScheduleDTO>();
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-5">
+    <div class="text-center mb-4">
+        <h3>Employee List</h3>
+        <button class="btn btn-outline-success mt-3" data-bs-toggle="modal" data-bs-target="#generateScheduleModal">
+            Create Schedule For All Employees
+        </button>
+
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped text-center rounded shadow">
+            <thead class="table-light">
+                <tr>
+                    <th>ID</th>
+                    <th>Name</th>
+                    <th>Position</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var emp in employees)
+                {
+                    <tr>
+                        <td>@emp.EmployId</td>
+                        <td>@emp.EmployeeName</td>
+                        <td>@emp.Position</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary me-1" onclick="openModal(@emp.EmployId, false)">Create</button>
+                            <button class="btn btn-sm btn-danger" onclick="openModal(@emp.EmployId, true)">Delete</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+@if (TempData["Message"] != null)
+{
+    <div class="alert alert-success">
+        @TempData["Message"]
+    </div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">
+        @TempData["Error"]
+    </div>
+}
+
+@if (ViewBag.SkippedSchedules != null)
+{
+    <div class="alert alert-warning mt-3">
+        <strong>Skipped Schedules:</strong>
+        <ul>
+            @foreach (var item in (List<string>)ViewBag.SkippedSchedules)
+            {
+                <li>@item</li>
+            }
+        </ul>
+    </div>
+}
+<!-- Modal -->
+<div class="modal fade" id="scheduleModal" tabindex="-1" aria-labelledby="scheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content rounded-4 shadow">
+            <div class="modal-header bg-dark text-white rounded-top-4">
+                <h5 class="modal-title" id="scheduleModalLabel">Create Schedule</h5>
+                <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <form id="scheduleForm">
+                    <input type="hidden" id="employeeId" />
+                    <input type="hidden" id="isDeleteAction" value="false" />
+
+                    <div class="mb-3">
+                        <label class="form-label">Existing Schedules</label>
+                        <ul id="existingSchedules" class="list-group mb-3"></ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="startDate" class="form-label">Start Date</label>
+                        <input type="date" class="form-control" id="startDate" required />
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="endDate" class="form-label">End Date</label>
+                        <input type="date" class="form-control" id="endDate" required />
+                    </div>
+
+                    <div id="error" class="text-danger mb-2"></div>
+
+                    <button type="submit" class="btn w-100" id="submitBtn">Save</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="generateScheduleModal" tabindex="-1" aria-labelledby="generateScheduleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="generateScheduleModalLabel">Generate Schedule</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="weekStart">Select Week Start (Monday):</label>
+                <input type="date" class="form-control" id="weekStartInput" required />
+                <small class="text-muted">Only Monday will be accepted for correct schedule.</small>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-primary" onclick="generateSchedule()">Generate</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- Scripts -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+    function generateSchedule() {
+        const dateInput = document.getElementById("weekStartInput").value;
+        if (!dateInput) {
+            alert("Please select a date.");
+            return;
+        }
+
+        const date = new Date(dateInput);
+        const formattedDate = date.toISOString().split('T')[0]; 
+
+        fetch(`/ManageSchedule/generateWeek`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formattedDate)
+        })
+            .then(response => {
+                if (response.ok) {
+                    alert("Schedule generated successfully!");
+                    location.reload();
+                } else {
+                    alert("Failed to generate schedule.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("An error occurred.");
+            });
+    }
+
+
+
+    const modal = new bootstrap.Modal(document.getElementById('scheduleModal'));
+
+    function openModal(id, isDelete) {
+        document.getElementById("employeeId").value = id;
+        document.getElementById("startDate").value = '';
+        document.getElementById("endDate").value = '';
+        document.getElementById("error").innerText = '';
+        document.getElementById("isDeleteAction").value = isDelete;
+        document.getElementById("scheduleModalLabel").innerText = isDelete ? "Delete Schedule" : "Create Schedule";
+
+        const btn = document.getElementById("submitBtn");
+        btn.className = isDelete ? "btn btn-danger w-100" : "btn btn-success w-100";
+        btn.innerText = isDelete ? "Delete" : "Save";
+
+        const existingUl = document.getElementById("existingSchedules");
+        existingUl.innerHTML = "<li class='list-group-item text-muted'>Loading...</li>";
+
+        fetch(`/ManageSchedule/GetSchedulesByEmployee?employeeId=${id}`)
+            .then(res => res.json())
+            .then(schedules => {
+                existingUl.innerHTML = ""; // clear loading text
+
+                if (schedules.length === 0) {
+                    existingUl.innerHTML = "<li class='list-group-item text-muted'>No schedules found.</li>";
+                    return;
+                }
+
+                schedules.forEach(sch => {
+                    const li = document.createElement("li");
+                    li.className = "list-group-item";
+
+                    const workDate = sch.workDate !== "0001-01-01" ? sch.workDate : "";
+                    const start = sch.startTime?.substring(0, 5);
+                    const end = sch.endTime?.substring(0, 5);
+                    const timeRange = `${start} - ${end}`;
+
+                    li.textContent = workDate ? `${workDate} | ${timeRange}` : `${timeRange}`;
+                    existingUl.appendChild(li);
+                });
+            })
+            .catch(err => {
+                console.error("Error loading schedules:", err);
+                existingUl.innerHTML = "<li class='list-group-item text-danger'>Failed to load schedules.</li>";
+            });
+
+        modal.show();
+    }
+
+
+
+    document.getElementById("scheduleForm").addEventListener("submit", async function (e) {
+        e.preventDefault();
+
+        const empId = document.getElementById("employeeId").value;
+        const start = document.getElementById("startDate").value;
+        const end = document.getElementById("endDate").value;
+        const isDelete = document.getElementById("isDeleteAction").value === "true";
+        const errorDiv = document.getElementById("error");
+
+        if (!start || !end) {
+            errorDiv.innerText = "Please choose both start and end date.";
+            return;
+        }
+
+        if (end < start) {
+            errorDiv.innerText = "End date cannot be before start date.";
+            return;
+        }
+
+        const scheduleData = {
+            employeeId: parseInt(empId),
+            startDate: start,
+            endDate: end
+        };
+
+        const url = isDelete ? "/ManageSchedule/DeleteSchedule" : "/ManageSchedule/CreateSchedule";
+        const method = "POST";
+
+        const response = await fetch(url, {
+            method: method,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(scheduleData)
+        });
+
+        const result = await response.json();
+        if (response.ok) {
+            if (!isDelete && result.duplicated?.length > 0) {
+                errorDiv.innerText = "The following dates already exist:\n" + result.duplicated.join("\n");
+            } else {
+                alert(isDelete ? "Schedule deleted successfully!" : "Schedule created successfully!");
+                modal.hide();
+                location.reload();
+            }
+        } else {
+            errorDiv.innerText = result.message || (isDelete ? "Failed to delete schedule." : "Failed to create schedule.");
+        }
+    });
+</script>
