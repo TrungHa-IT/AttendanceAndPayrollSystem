@@ -1,13 +1,9 @@
-﻿
-@{
+﻿@{
     ViewData["Title"] = "Show TimeSheet";
     var attendances = ViewBag.attendances as List<DataTransferObject.AttendanceDTO.AttendanceDTO>;
-
-    // Rainbow row colors
     string[] rowColors = new[] { "table-primary", "table-secondary", "table-success", "table-danger", "table-warning", "table-info", "table-light" };
 }
 
-<!-- Make sure Bootstrap is included in your _Layout or here -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
 <div class="container mt-5">
@@ -24,6 +20,7 @@
                         <th>Work Date</th>
                         <th>Check In</th>
                         <th>Check Out</th>
+                        <th>Total Time (hrs)</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -32,7 +29,11 @@
                         int i = 0;
                         foreach (var item in attendances)
                         {
-                            var colorClass = rowColors[i % rowColors.Length]; // Cycle through 7 colors
+                            var colorClass = rowColors[i % rowColors.Length];
+                            TimeSpan? totalTime = (item.CheckOut.HasValue && item.CheckIn != null)
+                            ? item.CheckOut.Value - item.CheckIn
+                            : null;
+
                             <tr class="@colorClass">
                                 <td>@item.EmployeeId</td>
                                 <td>@item.EmployeeName</td>
@@ -40,6 +41,7 @@
                                 <td>@item.WorkDate.ToString("yyyy-MM-dd")</td>
                                 <td>@item.CheckIn.ToString("HH:mm")</td>
                                 <td>@item.CheckOut?.ToString("HH:mm")</td>
+                                <td>@(totalTime?.TotalHours.ToString("0.00") ?? "-")</td>
                             </tr>
                             i++;
                         }
@@ -47,11 +49,54 @@
                     else
                     {
                         <tr>
-                            <td colspan="6" class="text-danger">No attendance records found.</td>
+                            <td colspan="8" class="text-danger">No attendance records found.</td>
                         </tr>
                     }
                 </tbody>
             </table>
+            <div class="text-center mt-4">
+                <button class="btn btn-success" onclick="calculateMonthlySalary()">Tính lương tháng</button>
+            </div>
+            <a id="exportExcelBtn" class="btn btn-success">Xuất file Excel</a>
+            <div class="text-center mt-4">
+                <h5 id="salaryResult" class="text-primary fw-bold"></h5>
+            </div>
+
         </div>
     </div>
 </div>
+
+<script>
+        function calculateMonthlySalary() {
+            const row = document.querySelector("tbody tr");
+            if (!row || row.cells.length < 4) {
+                document.getElementById("salaryResult").innerText = "Không tìm thấy dữ liệu chấm công.";
+                return;
+            }
+
+            const employeeId = row.cells[0].textContent.trim();
+            const workDate = row.cells[3].textContent.trim(); 
+            const [year, month] = workDate.split('-');
+            fetch(`/Attendance/CaculateSalary?employeeId=${employeeId}&month=${parseInt(month)}&year=${year}`, {
+                method: 'POST'
+            })
+                .then(response => {
+                    if (!response.ok) throw new Error("Lỗi từ server");
+                    return response.json();
+                })
+                .then(data => {
+                    document.getElementById("salaryResult").innerText = "✅ " + data.message;
+                })
+                .catch(error => {
+                    document.getElementById("salaryResult").innerText = "❌ Tính lương thất bại: " + error.message;
+                });
+        }
+    window.onload = () => {
+        const row = document.querySelector("tbody tr");
+        if (row && row.cells.length >= 1) {
+            const employeeId = row.cells[0].textContent.trim();
+            document.getElementById("exportExcelBtn").href = `/Attendance/ExportTimeSheetToExcel?EmployId=${employeeId}`;
+        }
+    }
+</script>
+
