@@ -1,5 +1,8 @@
 
+using BusinessObject.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Repository.DateTimeSchedule;
 using System.Text;
@@ -29,6 +32,9 @@ namespace FUNAttendanceAndPayrollSystemAPI
                               .AllowAnyMethod();
                     });
             });
+
+            builder.Services.AddDbContext<FunattendanceAndPayrollSystemContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Mycnn")));
 
             builder.Services.AddAuthentication(options =>
             {
