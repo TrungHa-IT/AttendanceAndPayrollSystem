@@ -8,6 +8,7 @@ namespace FUNAttendanceAndPayrollSystemClient
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+            builder.Services.AddHttpClient();
 
             var app = builder.Build();
 
@@ -28,7 +29,7 @@ namespace FUNAttendanceAndPayrollSystemClient
 
             app.MapControllerRoute(
                 name: "default",
-                pattern: "{controller=Home}/{action=Index}/{id?}");
+                pattern: "{controller=Auth}/{action=Login}");
 
             app.Run();
         }

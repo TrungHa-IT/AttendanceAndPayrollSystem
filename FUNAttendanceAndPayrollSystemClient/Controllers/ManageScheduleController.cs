@@ -3,40 +3,38 @@ using DataTransferObject.ManagerDTO;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
-using static System.Net.WebRequestMethods;
 
 namespace FUNAttendanceAndPayrollSystemClient.Controllers
 {
     public class ManageScheduleController : Controller
     {
+        private readonly string _baseUrl;
+        private readonly JsonSerializerOptions _jsonOptions;
+
+        public ManageScheduleController(IConfiguration configuration)
+        {
+            _baseUrl = configuration["ApiUrls:Base"]!;
+            _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+        }
+
         public async Task<IActionResult> Index(int? id)
         {
-            HttpClient client = new HttpClient();
-            var option = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-
-            string url = "https://localhost:7192/Employee/ListEmployees";
-            HttpResponseMessage response = await client.GetAsync(url);
-            var strData = await response.Content.ReadAsStringAsync();
-            List<EmployeeDTO> employees = JsonSerializer.Deserialize<List<EmployeeDTO>>(strData, option);
+            using HttpClient client = new();
+            var employeeRes = await client.GetAsync($"{_baseUrl}/Employee/ListEmployees");
+            var employeeJson = await employeeRes.Content.ReadAsStringAsync();
+            var employees = JsonSerializer.Deserialize<List<EmployeeDTO>>(employeeJson, _jsonOptions);
             ViewBag.Employees = employees;
+
             if (id.HasValue)
             {
-                string urlListSchedule = $"https://localhost:7192/ManageSchedule/GetScheduleByEmployee/{id}";
-                HttpResponseMessage scheduleResponse = await client.GetAsync(urlListSchedule);
-
-                if (scheduleResponse.IsSuccessStatusCode)
+                var scheduleRes = await client.GetAsync($"{_baseUrl}/ManageSchedule/GetScheduleByEmployee/{id}");
+                if (scheduleRes.IsSuccessStatusCode)
                 {
-                    var scheduleData = await scheduleResponse.Content.ReadAsStringAsync();
-                    List<ScheduleDTO> schedules = JsonSerializer.Deserialize<List<ScheduleDTO>>(scheduleData, option);
+                    var scheduleJson = await scheduleRes.Content.ReadAsStringAsync();
+                    var schedules = JsonSerializer.Deserialize<List<ScheduleDTO>>(scheduleJson, _jsonOptions);
                     ViewBag.Schedules = schedules;
                 }
-                else
-                {
-                    ViewBag.Schedules = new List<ScheduleDTO>();
-                }
+                else ViewBag.Schedules = new List<ScheduleDTO>();
             }
 
             return View();
@@ -45,24 +43,14 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
         [HttpGet]
         public async Task<IActionResult> GetSchedulesByEmployee(int employeeId)
         {
-            string url = $"https://localhost:7192/ManageSchedule/GetScheduleByEmployee/{employeeId}";
-            HttpClient client = new HttpClient();
-            HttpResponseMessage response = await client.GetAsync(url);
-            var option = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-            if (response.IsSuccessStatusCode)
-            {
-                var json = await response.Content.ReadAsStringAsync();
-                var schedules = JsonSerializer.Deserialize<List<ScheduleDTO>>(json, option);
-                return Json(schedules);
-            }
+            using HttpClient client = new();
+            var res = await client.GetAsync($"{_baseUrl}/ManageSchedule/GetScheduleByEmployee/{employeeId}");
+            if (!res.IsSuccessStatusCode) return Json(new List<ScheduleDTO>());
 
-            return Json(new List<ScheduleDTO>());
+            var json = await res.Content.ReadAsStringAsync();
+            var schedules = JsonSerializer.Deserialize<List<ScheduleDTO>>(json, _jsonOptions);
+            return Json(schedules);
         }
-
-
 
         [HttpPost]
         public async Task<IActionResult> CreateSchedule([FromBody] ScheduleRequestDTO request)
@@ -73,22 +61,14 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             if (request.EndDate < request.StartDate)
                 return BadRequest(new { message = "End date cannot be before start date" });
 
-            HttpClient client = new HttpClient();
-            var response = await client.PostAsJsonAsync("https://localhost:7192/ManageSchedule/CreateScheduleEmployee", request);
-            var content = await response.Content.ReadAsStringAsync();
+            using HttpClient client = new();
+            var res = await client.PostAsJsonAsync($"{_baseUrl}/ManageSchedule/CreateScheduleEmployee", request);
+            var content = await res.Content.ReadAsStringAsync();
 
-            if (response.IsSuccessStatusCode)
+            if (res.IsSuccessStatusCode)
             {
-                var result = JsonSerializer.Deserialize<CreateScheduleResultDTO>(content, new JsonSerializerOptions
-                {
-                    PropertyNameCaseInsensitive = true
-                });
-
-                return Ok(new
-                {
-                    message = "Schedule created",
-                    duplicated = result?.Duplicated
-                });
+                var result = JsonSerializer.Deserialize<CreateScheduleResultDTO>(content, _jsonOptions);
+                return Ok(new { message = "Schedule created", duplicated = result?.Duplicated });
             }
 
             return BadRequest(new { message = "Failed to create schedule" });
@@ -105,20 +85,15 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
             try
             {
-                using var client = new HttpClient();
-
+                using HttpClient client = new();
                 var query = $"?employeeId={request.EmployeeId}&startDate={request.StartDate:yyyy-MM-dd}&endDate={request.EndDate:yyyy-MM-dd}";
-                var url = $"https://localhost:7192/ManageSchedule/DeleteScheduleEmployee{query}";
+                var res = await client.DeleteAsync($"{_baseUrl}/ManageSchedule/DeleteScheduleEmployee{query}");
 
-                var response = await client.DeleteAsync(url);
-
-                if (response.IsSuccessStatusCode)
-                {
+                if (res.IsSuccessStatusCode)
                     return Ok(new { message = "Schedule deleted successfully!" });
-                }
 
-                var errorContent = await response.Content.ReadAsStringAsync();
-                return StatusCode((int)response.StatusCode, new { message = "Failed to delete schedule.", details = errorContent });
+                var error = await res.Content.ReadAsStringAsync();
+                return StatusCode((int)res.StatusCode, new { message = "Failed to delete schedule.", details = error });
             }
             catch (Exception ex)
             {
@@ -129,38 +104,25 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
         [HttpPost]
         public async Task<IActionResult> generateWeek([FromBody] DateOnly date)
         {
-            using var client = new HttpClient();
-            client.BaseAddress = new Uri("https://localhost:7192/");
+            using HttpClient client = new();
+            var dt = date.ToDateTime(TimeOnly.MinValue);
+            var json = new StringContent(JsonSerializer.Serialize(dt), Encoding.UTF8, "application/json");
 
-            var options = new JsonSerializerOptions
+            var res = await client.PostAsync($"{_baseUrl}/ManageSchedule/generate-week-schedule", json);
+            var raw = await res.Content.ReadAsStringAsync();
+
+            if (res.IsSuccessStatusCode)
             {
-                PropertyNameCaseInsensitive = true
-            };
-
-            var dateTime = date.ToDateTime(TimeOnly.MinValue);
-            var content = new StringContent(JsonSerializer.Serialize(dateTime), Encoding.UTF8, "application/json");
-
-            var response = await client.PostAsync("ManageSchedule/generate-week-schedule", content);
-            var rawResponse = await response.Content.ReadAsStringAsync();
-
-            if (response.IsSuccessStatusCode)
-            {
-                var result = JsonSerializer.Deserialize<GenerateScheduleResponse>(rawResponse, options);
-                TempData["Message"] = result.Message;
-
-                if (result.Skipped != null && result.Skipped.Any())
-                {
+                var result = JsonSerializer.Deserialize<GenerateScheduleResponse>(raw, _jsonOptions);
+                TempData["Message"] = result?.Message;
+                if (result?.Skipped != null && result.Skipped.Any())
                     ViewBag.SkippedSchedules = result.Skipped;
-                }
             }
-            else
-            {
-                TempData["Error"] = $"Failed to generate schedule. Status: {response.StatusCode}. Details: {rawResponse}";
-            }
+            else TempData["Error"] = $"Failed to generate schedule. Status: {res.StatusCode}. Details: {raw}";
 
-            var employeeResponse = await client.GetAsync("Employee/ListEmployees");
-            var employeeJson = await employeeResponse.Content.ReadAsStringAsync();
-            var employees = JsonSerializer.Deserialize<List<EmployeeDTO>>(employeeJson, options);
+            var empRes = await client.GetAsync($"{_baseUrl}/Employee/ListEmployees");
+            var empJson = await empRes.Content.ReadAsStringAsync();
+            var employees = JsonSerializer.Deserialize<List<EmployeeDTO>>(empJson, _jsonOptions);
             ViewBag.Employees = employees;
 
             return View("Index");
@@ -169,75 +131,50 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
         [HttpGet]
         public async Task<IActionResult> CheckInStatus()
         {
-            using HttpClient client = new HttpClient();
-            var url = "https://localhost:7192/ManageSchedule/checkInStatus";
+            using HttpClient client = new();
+            var res = await client.GetAsync($"{_baseUrl}/ManageSchedule/checkInStatus");
 
-            var response = await client.GetAsync(url);
-            if (!response.IsSuccessStatusCode)
-            {
+            if (!res.IsSuccessStatusCode)
                 return BadRequest(new { hasCheckedIn = false, message = "API failed" });
-            }
 
-            var resultString = await response.Content.ReadAsStringAsync();
-            var jsonDoc = JsonDocument.Parse(resultString);
-            var root = jsonDoc.RootElement;
-            return Ok(new
-            {
-                hasCheckedIn = root.GetProperty("hasCheckedIn").GetBoolean()
-            });
+            var json = await res.Content.ReadAsStringAsync();
+            var root = JsonDocument.Parse(json).RootElement;
+            return Ok(new { hasCheckedIn = root.GetProperty("hasCheckedIn").GetBoolean() });
         }
-
 
         [HttpPost]
         public async Task<IActionResult> CheckIn()
         {
-            using HttpClient client = new HttpClient();
+            using HttpClient client = new();
+            var res = await client.PostAsync($"{_baseUrl}/ManageSchedule/checkIn", null);
+            var json = await res.Content.ReadAsStringAsync();
 
-            var url = "https://localhost:7192/ManageSchedule/checkIn";
-            var response = await client.PostAsync(url, null);
-            var result = await response.Content.ReadAsStringAsync();
+            if (res.IsSuccessStatusCode)
+                return Ok(new { message = "Forwarded check-in successful", json });
 
-            if (response.IsSuccessStatusCode)
+            try
             {
-                return Ok(new { message = "Forwarded check-in successful", result });
+                var dict = JsonSerializer.Deserialize<Dictionary<string, string>>(json);
+                var msg = dict?.GetValueOrDefault("message") ?? "Unknown error";
+                return StatusCode((int)res.StatusCode, new { message = msg });
             }
-            else
+            catch
             {
-                try
-                {
-                    var content = JsonSerializer.Deserialize<Dictionary<string, string>>(result);
-                    var backendMessage = content.ContainsKey("message") ? content["message"] : "Unknown error";
-
-                    return StatusCode((int)response.StatusCode, new { message = backendMessage });
-                }
-                catch
-                {
-                    return StatusCode((int)response.StatusCode, new { message = "Check-in failed" });
-                }
+                return StatusCode((int)res.StatusCode, new { message = "Check-in failed" });
             }
         }
 
         [HttpPost]
         public async Task<IActionResult> CheckOut()
         {
-            using HttpClient client = new HttpClient();
-            var url = "https://localhost:7192/ManageSchedule/checkOut";
+            using HttpClient client = new();
+            var res = await client.PostAsync($"{_baseUrl}/ManageSchedule/checkOut", null);
+            var json = await res.Content.ReadAsStringAsync();
 
-            var response = await client.PostAsync(url, null);
+            if (res.IsSuccessStatusCode)
+                return Ok(new { message = "Forwarded check-out successful", json });
 
-            var result = await response.Content.ReadAsStringAsync();
-
-            if (response.IsSuccessStatusCode)
-            {
-                return Ok(new { message = "Forwarded check-out successful", result });
-            }
-            else
-            {
-                return StatusCode((int)response.StatusCode, new { message = "Forwarded check-out failed", result });
-            }
+            return StatusCode((int)res.StatusCode, new { message = "Forwarded check-out failed", json });
         }
-
-
-
     }
 }

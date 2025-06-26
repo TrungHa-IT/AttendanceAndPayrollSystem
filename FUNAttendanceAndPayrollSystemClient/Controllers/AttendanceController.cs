@@ -7,33 +7,42 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 {
     public class AttendanceController : Controller
     {
-        public async Task<IActionResult> ManageAttendance()
+        private readonly IConfiguration _configuration;
+        private readonly JsonSerializerOptions _jsonOptions;
+
+        public AttendanceController(IConfiguration configuration)
         {
-            HttpClient client = new HttpClient();
-            var option = new JsonSerializerOptions
+            _configuration = configuration;
+            _jsonOptions = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             };
+        }
 
-            string url = "https://localhost:7192/Employee/ListEmployees";
-            HttpResponseMessage response = await client.GetAsync(url);
+        public async Task<IActionResult> ManageAttendance()
+        {
+            string baseUrl = _configuration["ApiUrls:Base"];
+            using var client = new HttpClient();
+
+            string url = $"{baseUrl}/Employee/ListEmployees";
+            var response = await client.GetAsync(url);
             var strData = await response.Content.ReadAsStringAsync();
-            List<EmployeeDTO> employees = JsonSerializer.Deserialize<List<EmployeeDTO>>(strData, option);
+            var employees = JsonSerializer.Deserialize<List<EmployeeDTO>>(strData, _jsonOptions);
+
             ViewBag.Employees = employees;
             return View();
         }
 
         public async Task<IActionResult> ShowTimeSheet(int EmployId)
         {
-            HttpClient client = new HttpClient();
-            string url = $"https://localhost:7192/Employee/MyAttendance?emp={EmployId}";
-            var option = new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            };
-            HttpResponseMessage response = await client.GetAsync(url);
+            string baseUrl = _configuration["ApiUrls:Base"];
+            using var client = new HttpClient();
+
+            string url = $"{baseUrl}/Employee/MyAttendance?emp={EmployId}";
+            var response = await client.GetAsync(url);
             var strData = await response.Content.ReadAsStringAsync();
-            List<AttendanceDTO> attendances = JsonSerializer.Deserialize<List<AttendanceDTO>>(strData, option);
+            var attendances = JsonSerializer.Deserialize<List<AttendanceDTO>>(strData, _jsonOptions);
+
             ViewBag.attendances = attendances;
             return View();
         }
