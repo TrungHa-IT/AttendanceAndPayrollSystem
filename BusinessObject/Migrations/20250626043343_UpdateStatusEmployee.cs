@@ -5,7 +5,7 @@
 namespace BusinessObject.Migrations
 {
     /// <inheritdoc />
-    public partial class AddFieldPasswordToEmployee : Migration
+    public partial class UpdateStatusEmployee : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)

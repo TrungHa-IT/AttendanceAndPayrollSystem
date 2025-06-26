@@ -146,12 +146,11 @@ namespace BusinessObject.Migrations
                     b.Property<decimal?>("Salary")
                         .HasColumnType("decimal(18, 0)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Đang làm");
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");

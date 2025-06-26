@@ -25,5 +25,7 @@ namespace DataTransferObject.EmployeeDTO
         public string? Position { get; set; }
         public int DepartmentId { get; set; }
         public string DepartmentName { get; set; }
+        public decimal? Salary { get; set; }
+        public int Status { get; set; } // 0: Inactive, 1: Active, 2: Deleted
     }
 }

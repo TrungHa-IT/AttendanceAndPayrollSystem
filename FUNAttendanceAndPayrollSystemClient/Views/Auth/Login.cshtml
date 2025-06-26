@@ -34,21 +34,17 @@
 <body>
     <div class="card">
         <h3 class="text-center mb-4">Employee Login</h3>
-        <form method="post" asp-action="Login" asp-controller="Auth">
-            <div class="mb-3">
+        <form asp-action="Login" method="post" asp-controller="Auth">
+            <div>
                 <label>Email</label>
-                <input type="email" class="form-control" placeholder="Enter email" required />
+                <input name="Email" class="form-control" placeholder="Enter email" required />
             </div>
-            <div class="mb-3">
+            <div>
                 <label>Password</label>
-                <input type="password" class="form-control" placeholder="Enter password" required />
+                <input name="Password" type="password" class="form-control" placeholder="Enter password" required />
             </div>
-            <button type="submit" class="btn btn-custom w-100">Login</button>
+            <button type="submit" class="form-control">Login</button>
         </form>
-        <p class="text-center mt-3">
-            Don't have an account?
-            <a asp-controller="Auth" asp-action="Register">Register</a>
-        </p>
     </div>
 </body>
 </html>

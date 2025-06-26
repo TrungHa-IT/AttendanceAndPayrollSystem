@@ -8,7 +8,12 @@ namespace FUNAttendanceAndPayrollSystemClient
 
             // Add services to the container.
             builder.Services.AddControllersWithViews();
+
             builder.Services.AddHttpClient();
+
+            builder.Services.AddSession();
+            builder.Services.AddHttpContextAccessor();
+
 
             var app = builder.Build();
 
@@ -24,7 +29,7 @@ namespace FUNAttendanceAndPayrollSystemClient
             app.UseStaticFiles();
 
             app.UseRouting();
-
+            app.UseSession();
             app.UseAuthorization();
 
             app.MapControllerRoute(

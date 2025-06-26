@@ -94,7 +94,7 @@ public partial class FunattendanceAndPayrollSystemContext : DbContext
             entity.Property(e => e.Salary).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
-                .HasDefaultValue("Đang làm");
+                .HasDefaultValue(1);
             entity.Property(e => e.UpdatedAt).HasColumnType("datetime");
 
             entity.HasOne(d => d.Department).WithMany(p => p.Employees)
