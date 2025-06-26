@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(FunattendanceAndPayrollSystemContext))]
-    [Migration("20250623152248_AddFieldPasswordToEmployee")]
-    partial class AddFieldPasswordToEmployee
+    [Migration("20250626043204_UpdateModelEmployee")]
+    partial class UpdateModelEmployee
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -112,8 +112,8 @@ namespace BusinessObject.Migrations
                         .HasDefaultValue(1)
                         .HasColumnName("DepartmentID");
 
-                    b.Property<DateOnly?>("Dob")
-                        .HasColumnType("date");
+                    b.Property<DateTime?>("Dob")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -149,12 +149,11 @@ namespace BusinessObject.Migrations
                     b.Property<decimal?>("Salary")
                         .HasColumnType("decimal(18, 0)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
+                    b.Property<int>("Status")
                         .ValueGeneratedOnAdd()
                         .HasMaxLength(20)
-                        .HasColumnType("nvarchar(20)")
-                        .HasDefaultValue("Đang làm");
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
 
                     b.Property<DateTime?>("UpdatedAt")
                         .HasColumnType("datetime");
@@ -243,8 +242,8 @@ namespace BusinessObject.Migrations
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
-                    b.Property<DateOnly>("EndDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("EndDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<int>("LeaveTypeId")
                         .HasColumnType("int");
@@ -252,8 +251,8 @@ namespace BusinessObject.Migrations
                     b.Property<string>("Reason")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<DateOnly>("StartDate")
-                        .HasColumnType("date");
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<string>("Status")
                         .ValueGeneratedOnAdd()

@@ -23,7 +23,7 @@ public partial class Employee
     public string? Position { get; set; }
     public decimal? Salary { get; set; }
 
-    public string Status { get; set; } = null!;
+    public int Status { get; set; } 
 
     public DateTime CreatedAt { get; set; }
 
