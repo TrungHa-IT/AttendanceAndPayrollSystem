@@ -105,13 +105,14 @@ namespace DataAccess.DepartmentDAO
             {
                 using (var context = new FunattendanceAndPayrollSystemContext())
                 {
-                    var department = context.Departments.Find(departmentId);
-                    if (department == null || department.DeletedAt != null)
-                    {
-                        return false; // Not found or already deleted
-                    }
+                    var department = context.Departments.FirstOrDefault(d => d.DepartmentId == departmentId && d.DeletedAt == null);
 
+                    if (department == null)
+                    {
+                        return false; 
+                    }
                     department.DeletedAt = DateTime.Now;
+                    context.Remove(department);
                     context.SaveChanges();
                     return true;
                 }
