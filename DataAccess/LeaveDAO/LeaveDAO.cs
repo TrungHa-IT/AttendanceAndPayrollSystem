@@ -1,4 +1,7 @@
-﻿using System;
+﻿using BusinessObject.Models;
+using DataTransferObject.LeaveDTO;
+using DataTransferObject.LeaveTypeDTO;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -6,7 +9,135 @@ using System.Threading.Tasks;
 
 namespace DataAccess.LeaveDAO
 {
-    internal class LeaveDAO
+    public class LeaveDAO
     {
+        private readonly FunattendanceAndPayrollSystemContext _MyDb;
+        public LeaveDAO()
+        {
+            _MyDb = new FunattendanceAndPayrollSystemContext();
+        }
+
+        //get all leave 
+        public static List<LeaveDTO> GetLeaves()
+        {
+            var listLeaves = new List<LeaveDTO>();
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    listLeaves = context.Leaves.Select(at => new LeaveDTO
+                    {
+                       ApprovedBy = at.ApprovedBy,
+                       DurationInDays = at.DurationInDays,
+                       EmployeeId = at.EmployeeId,
+                       EndDate = at.EndDate,
+                       LeaveId = at.LeaveId,
+                       LeaveTypeId = at.LeaveTypeId,
+                       Reason = at.Reason,
+                       StartDate = at.StartDate,
+                       Status = at.Status
+                    }).ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return listLeaves;
+        }
+
+        // Create a new leave 
+        public static bool AddLeave(LeaveDTO leaveDTO)
+        {
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    var leave = new Leaf
+                    {
+                        ApprovedBy = leaveDTO.ApprovedBy,
+                        ApprovedDate = DateTime.Now,
+                        DurationInDays = leaveDTO.DurationInDays,
+                        EmployeeId = leaveDTO.EmployeeId,
+                        EndDate = leaveDTO.EndDate,
+                        LeaveTypeId = leaveDTO.LeaveTypeId,
+                        Reason = leaveDTO.Reason,
+                        StartDate = leaveDTO.StartDate,
+                        Status = leaveDTO.Status,
+                        CreatedAt = DateTime.Now,
+                    };
+
+                    context.Leaves.Add(leave);
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // Log the exception if needed
+                return false;
+            }
+        }
+
+        // Update an existing leave 
+        public static bool UpdateLeave(LeaveDTO leaveDTO)
+        {
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    var leave = context.Leaves.Find(leaveDTO.LeaveId);
+                    if (leave == null || leave.DeletedAt != null)
+                    {
+                        return false; // Not found or already deleted
+                    }
+
+                    leaveDTO.DurationInDays = leaveDTO.DurationInDays;
+                    leaveDTO.EmployeeId = leaveDTO.EmployeeId;
+                    leaveDTO.EndDate = leaveDTO.EndDate;
+                    leaveDTO.LeaveTypeId = leaveDTO.LeaveTypeId;
+                    leaveDTO.Reason = leaveDTO.Reason;
+                    leaveDTO.StartDate = leaveDTO.StartDate;
+                    leaveDTO.Status = leaveDTO.Status;
+
+                    leave.UpdatedAt = DateTime.Now;
+                    leave.ApprovedBy = leaveDTO.ApprovedBy;
+                    
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // Log the exception if needed
+                return false;
+            }
+        }
+
+        // Soft delete a leave 
+        public static bool DeleteLeave(int leaveID)
+        {
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    var leave = context.Leaves.Find(leaveID);
+                    if (leave == null || leave.DeletedAt != null)
+                    {
+                        return false; // Not found or already deleted
+                    }
+
+                    leave.DeletedAt = DateTime.Now;
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // Log the exception if needed
+                return false;
+            }
+        }
+
     }
 }

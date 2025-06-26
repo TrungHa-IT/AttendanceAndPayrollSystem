@@ -28,8 +28,4 @@
     <ProjectReference Include="..\Repository\Repository.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Controllers\Leaves\" />
-  </ItemGroup>
-
 </Project>
