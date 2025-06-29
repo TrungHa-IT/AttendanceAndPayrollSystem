@@ -16,4 +16,10 @@
     <ProjectReference Include="..\DataTransferObject\DataTransferObject.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Controllers\Hr\" />
+    <Folder Include="Controllers\Staff\" />
+    <Folder Include="Views\Dashbo\" />
+  </ItemGroup>
+
 </Project>

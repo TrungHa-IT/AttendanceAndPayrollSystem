@@ -1,5 +1,6 @@
 ﻿using BusinessObject.Models;
 using DataTransferObject.AttendanceDTO;
+using DataTransferObject.AuthDTO;
 using DataTransferObject.EmployeeDTO;
 using DataTransferObject.EmployeeDTOS;
 using Microsoft.EntityFrameworkCore;
@@ -71,6 +72,66 @@ namespace DataAccess.EmployeeDAO
             }catch(Exception e)
             {
                 throw new Exception(e.Message);
+            }
+        }
+
+        // Register
+        public static bool Register(RegisterDTO registerDTO)
+        {
+            using var _MyDb = new FunattendanceAndPayrollSystemContext();
+            try
+            {
+                // Check if email already exists
+                var existingUser = _MyDb.Employees.FirstOrDefault(e => e.Email == registerDTO.Email);
+                if (existingUser != null) return false;
+
+                // Create new Employee
+                var newEmployee = new Employee
+                {
+                    EmployeeName = registerDTO.EmployeeName,
+                    Image = registerDTO.Image,
+                    Dob = registerDTO.Dob,
+                    Email = registerDTO.Email,
+                    PhoneNumber = registerDTO.PhoneNumber,
+                    Gender = registerDTO.Gender,
+                    Address = registerDTO.Address,
+                    Position = registerDTO.Position ?? "Employee",
+                    Salary = registerDTO.Salary ?? 0,
+                    Status = registerDTO.Status,
+                    CreatedAt = DateTime.Now,
+                    UpdatedAt = null,
+                    DeletedAt = null,
+                    DepartmentId = registerDTO.DepartmentId,
+                    Password = BCrypt.Net.BCrypt.HashPassword(registerDTO.Password) 
+                };
+
+                _MyDb.Employees.Add(newEmployee);
+                _MyDb.SaveChanges();
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
+
+        // Login
+        public static Employee? Login(LoginDTO loginDTO)
+        {
+            using var _MyDb = new FunattendanceAndPayrollSystemContext();
+            try
+            {
+                var employee = _MyDb.Employees.FirstOrDefault(e => e.Email == loginDTO.Email);
+                if (employee == null) return null;
+
+                //check password
+                bool isValidPassword = BCrypt.Net.BCrypt.Verify(loginDTO.Password, employee.Password);
+
+                return isValidPassword ? employee : null;
+            }
+            catch (Exception)
+            {
+                return null;
             }
         }
 

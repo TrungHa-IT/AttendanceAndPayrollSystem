@@ -1,5 +1,11 @@
 
+using BusinessObject.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.IdentityModel.Tokens;
 using Repository.DateTimeSchedule;
+using System.Text;
 
 namespace FUNAttendanceAndPayrollSystemAPI
 {
@@ -27,6 +33,31 @@ namespace FUNAttendanceAndPayrollSystemAPI
                     });
             });
 
+            builder.Services.AddDbContext<FunattendanceAndPayrollSystemContext>(options =>
+            options.UseSqlServer(builder.Configuration.GetConnectionString("Mycnn")));
+
+            builder.Services.AddAuthentication(options =>
+            {
+                options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+                options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+            }).AddJwtBearer(options =>
+            {
+                var jwtSettings = builder.Configuration.GetSection("JwtSettings");
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuer = true,
+                    ValidateAudience = true,
+                    ValidateLifetime = true,
+                    ValidateIssuerSigningKey = true,
+                    ValidIssuer = jwtSettings["Issuer"],
+                    ValidAudience = jwtSettings["Audience"],
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]))
+                };
+            });
+
+            builder.Services.AddAuthorization();
+
+
             var app = builder.Build();
 
 
@@ -39,6 +70,7 @@ namespace FUNAttendanceAndPayrollSystemAPI
 
             app.UseHttpsRedirection();
 
+            app.UseAuthentication();
             app.UseAuthorization();
 
 

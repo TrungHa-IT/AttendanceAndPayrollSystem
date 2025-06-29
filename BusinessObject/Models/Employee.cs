@@ -10,7 +10,7 @@ public partial class Employee
     public string? EmployeeName { get; set; }
     public string? Image { get; set; }
 
-    public DateOnly? Dob { get; set; }
+    public DateTime? Dob { get; set; }
 
     public string Email { get; set; } = null!;
 
@@ -23,7 +23,7 @@ public partial class Employee
     public string? Position { get; set; }
     public decimal Salary { get; set; }
 
-    public string Status { get; set; } = null!;
+    public int Status { get; set; } 
 
     public DateTime CreatedAt { get; set; }
 
@@ -32,6 +32,8 @@ public partial class Employee
     public DateTime? DeletedAt { get; set; }
 
     public int DepartmentId { get; set; }
+
+    public string Password { get; set; } = null!;
 
     public virtual ICollection<Attendance> Attendances { get; set; } = new List<Attendance>();
 

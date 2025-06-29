@@ -1,5 +1,6 @@
 ﻿using BusinessObject.Models;
 using DataTransferObject.AttendanceDTO;
+using DataTransferObject.AuthDTO;
 using DataTransferObject.EmployeeDTO;
 using DataTransferObject.EmployeeDTOS;
 using System;
@@ -15,6 +16,8 @@ namespace Repository.EmployeeRepository
         List<EmployeeDTO> GetEmployees();
         List<AttendanceDTO> getAttendanceById(int emp);
         BookingOTDTO bookScheduleOverTime(int emp, DateOnly otDate, TimeOnly startTime, TimeOnly endTime, string reason);
+        bool Register(RegisterDTO registerDTO);
+        Employee? Login(LoginDTO loginDTO);
     }
 
 
