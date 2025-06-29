@@ -1,4 +1,5 @@
 ﻿using DataTransferObject.EmployeeDTO;
+using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.ManagerDTO;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
@@ -166,6 +167,29 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             return View("Index");
         }
 
+        public async Task<IActionResult> ManageOverTime()
+        {
+            HttpClient client = new HttpClient();
+            string uri = "https://localhost:7192/ManageSchedule/ManageOverTime";
+
+            HttpResponseMessage response = await client.GetAsync(uri);
+            var option = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            List<BookingOTDTO> schedules = new(); 
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                schedules = JsonSerializer.Deserialize<List<BookingOTDTO>>(json, option);
+            }
+
+            return View(schedules); 
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> CheckInStatus()
         {
@@ -237,6 +261,24 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             }
         }
 
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(OTUpdateRequestDTO oTRequest)
+        {
+            HttpClient client = new HttpClient();
+            var jsonContent = JsonSerializer.Serialize(oTRequest);
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            string url = "https://localhost:7192/ManageSchedule/UpdateBooking";
+            HttpResponseMessage response = await client.PutAsync(url, content);
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Update Over time successfully.";
+            }
+            else
+            {
+                TempData["Error"] = "Failed to update status.";
+            }
+            return RedirectToAction("ManageOverTime");
+        }
 
 
     }

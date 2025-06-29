@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.ManagerDTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -176,7 +177,50 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
             }
         }
 
+        [HttpGet("ManageOverTime")]
+        public IActionResult ManageOverTime()
+        {
+            try
+            {
+                var listBooking = repository.ManageOT();
+                if (listBooking == null) return NotFound();
+                return Ok(listBooking);
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
 
+        [HttpPut("UpdateBooking")]
+        public IActionResult UpdateBooking([FromBody] OTUpdateRequestDTO request)
+        {
+            try
+            {
+                int managerId = 4; 
+                var update = repository.UpdateBooking(request.Id, request.Status, managerId);
+                return Ok(update);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
 
+        [HttpGet("GetScheduleApproved")]
+        public IActionResult GetScheduleApproved([FromQuery] int employeeId)
+        {
+            try
+            {
+                var dates = repository.GetApprovedOTDatesByEmployee(employeeId);
+
+                var result = dates.Select(d => d.ToString("yyyy-MM-dd")).ToList();
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", detail = ex.Message });
+            }
+        }
     }
 }

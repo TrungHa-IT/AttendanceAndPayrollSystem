@@ -1,6 +1,7 @@
 ﻿using BusinessObject.Models;
 using DataTransferObject.AttendanceDTO;
 using DataTransferObject.EmployeeDTO;
+using DataTransferObject.EmployeeDTOS;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -68,6 +69,37 @@ namespace DataAccess.EmployeeDAO
                 return attendanceEmp;
 
             }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
+
+        public static BookingOTDTO bookScheduleOverTime(int emp,DateOnly otDate, TimeOnly startTime, TimeOnly endTime,string reason)
+        {
+            using var _db = new FunattendanceAndPayrollSystemContext();
+            try
+            {
+                var newRequest = new OvertimeRequest
+                {
+                    EmployeeId = emp,
+                    OvertimeDate = otDate,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    Reason = reason,
+                    Status = "processing"
+                };
+                _db.OvertimeRequests.Add(newRequest);
+                _db.SaveChanges();
+                return new BookingOTDTO
+                {
+                    EmployeeId = newRequest.EmployeeId,
+                    OvertimeDate = newRequest.OvertimeDate,
+                    StartTime = newRequest.StartTime,
+                    EndTime = newRequest.EndTime,
+                    Status = newRequest.Status,
+                    Reason = newRequest.Reason
+                };
+            }catch (Exception e)
             {
                 throw new Exception(e.Message);
             }

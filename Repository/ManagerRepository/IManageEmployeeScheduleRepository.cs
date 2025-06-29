@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.ManagerDTO;
 using System;
 using System.Collections.Generic;
@@ -18,5 +19,8 @@ namespace Repository.ManagerRepository
         void CheckIn(int empId);
         bool HasCheckedInToday (int empId);
         void CheckOut(int empId);
+        List<BookingOTDTO> ManageOT();
+        BookingOTDTO UpdateBooking(int otRequestId, string status, int approvedBy);
+        List<DateOnly> GetApprovedOTDatesByEmployee(int employeeId);
     }
 }

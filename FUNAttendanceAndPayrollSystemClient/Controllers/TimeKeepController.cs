@@ -1,4 +1,6 @@
-﻿using DataTransferObject.DateTimeDTO;
+﻿using BusinessObject.Models;
+using DataTransferObject.DateTimeDTO;
+using DocumentFormat.OpenXml.InkML;
 using FUNAttendanceAndPayrollSystemClient.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Net.Http;
@@ -18,6 +20,24 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
         public async Task<IActionResult> Index(int year = 0, string week = null)
         {
+            int currentEmployeeId = 7;
+            DateTime todays = DateTime.Today;
+
+            var otResponse = await _httpClient.GetAsync($"https://localhost:7192/ManageSchedule/GetScheduleApproved?employeeId={currentEmployeeId}");
+
+            List<DateOnly> approvedOTDates = new List<DateOnly>();
+            if (otResponse.IsSuccessStatusCode)
+            {
+                var otJson = await otResponse.Content.ReadAsStringAsync();
+
+                var dateStrings = JsonSerializer.Deserialize<List<string>>(otJson);
+                approvedOTDates = dateStrings
+                    .Select(str => DateOnly.Parse(str))
+                    .ToList();
+            }
+
+            ViewBag.ApprovedOTDates = approvedOTDates;
+
             if (year == 0)
                 year = DateTime.Now.Year;
 
@@ -45,5 +65,6 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
             return View();
         }
+
     }
 }
