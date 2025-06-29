@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
 using System.Text;
 using DataTransferObject.DepartmentDTO;
+using Microsoft.AspNetCore.Http;
 
 namespace FUNAttendanceAndPayrollSystemClient.Controllers
 {
@@ -53,6 +54,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             HttpContext.Session.SetString("token", token);
             HttpContext.Session.SetString("name", name);
             HttpContext.Session.SetString("role", role);
+            HttpContext.Session.SetString("userMail", loginDTO.Email);
 
             switch (role.ToLower())
             {
