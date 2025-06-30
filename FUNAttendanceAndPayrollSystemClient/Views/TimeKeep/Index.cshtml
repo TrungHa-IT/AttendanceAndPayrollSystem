@@ -1,11 +1,12 @@
 ﻿@using DataTransferObject.DateTimeDTO
+@using DataTransferObject.ManagerDTO
 @{
     ViewData["Title"] = "Timekeeping";
     var year = ViewBag.Year;
     var weekOptions = ViewBag.WeekOptions as List<WeekOption>;
     var selectedWeek = ViewBag.SelectedWeek as string;
     var days = ViewBag.DaysInWeek as List<DateTime>;
-    var approvedOTDates = ViewBag.ApprovedOTDates as List<DateOnly> ?? new();
+    var approvedOTDates = ViewBag.approvedOTs as List<ApprovedOTDTO> ?? new();
 }
 
 <h2>Timekeeping</h2>
@@ -60,12 +61,25 @@
                             <button class="btn btn-success btn-sm" id="checkInBtn_@idSuffix" onclick="handleCheckIn()" type="button">Check In</button>
                             <button class="btn btn-secondary btn-sm mt-1" id="checkOutBtn_@idSuffix" onclick="handleCheckOut()" type="button" disabled>Check Out</button>
 
-                            if (approvedOTDates.Contains(dateOnly))
+                            var otItem = approvedOTDates.FirstOrDefault(x => x.OvertimeDate == dateOnly);
+                            if (otItem != null)
                             {
                                 <hr />
-                                <button class="btn btn-warning btn-sm" id="checkInOTBtn_@idSuffix" onclick="handleCheckInOT()" type="button">Check In OT</button>
-                                <button class="btn btn-danger btn-sm mt-1" id="checkOutOTBtn_@idSuffix" onclick="handleCheckOutOT()" type="button" disabled>Check Out OT</button>
+                                <button class="btn btn-warning btn-sm" id="checkInOTBtn_@idSuffix"
+                                        data-request-id="@otItem.OvertimeRequestId"
+                                        onclick="handleCheckInOT(this)"
+                                        type="button">
+                                    Check In OT
+                                </button>
+                                <button class="btn btn-danger btn-sm mt-1"
+                                        id="checkOutOTBtn_@idSuffix"
+                                        data-request-id="@otItem.OvertimeRequestId"
+                                        onclick="handleCheckOutOT(this)" type="button" disabled>
+                                    Check Out OT
+                                </button>
+
                             }
+
                         }
                         else if (d.Date < DateTime.Today)
                         {
@@ -96,9 +110,12 @@
             fetch('/ManageSchedule/CheckInStatus')
                 .then(res => res.json())
                 .then(data => {
+                    const checkInBtn = document.getElementById("checkInBtn_" + idSuffix);
+                    const checkOutBtn = document.getElementById("checkOutBtn_" + idSuffix);
+                    const checkInOTBtn = document.getElementById("checkInOTBtn_" + idSuffix);
+                    const checkOutOTBtn = document.getElementById("checkOutOTBtn_" + idSuffix);
+
                     if (data.hasCheckedIn) {
-                        const checkInBtn = document.getElementById("checkInBtn_" + idSuffix);
-                        const checkOutBtn = document.getElementById("checkOutBtn_" + idSuffix);
                         if (checkInBtn) {
                             checkInBtn.disabled = true;
                             checkInBtn.innerText = "✔ Already Checked In";
@@ -111,8 +128,6 @@
                     }
 
                     if (data.hasCheckedInOT) {
-                        const checkInOTBtn = document.getElementById("checkInOTBtn_" + idSuffix);
-                        const checkOutOTBtn = document.getElementById("checkOutOTBtn_" + idSuffix);
                         if (checkInOTBtn) {
                             checkInOTBtn.disabled = true;
                             checkInOTBtn.innerText = "✔ Already Checked In OT";
@@ -163,29 +178,52 @@
                 .catch(() => alert("Check-out failed."));
         }
 
-        function handleCheckInOT() {
-            fetch('/ManageSchedule/CheckInOT', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-                .then(res => res.json())
-                .then(() => {
+        function handleCheckInOT(button) {
+            const requestId = parseInt(button.getAttribute("data-request-id"));
+            const formData = new URLSearchParams();
+            formData.append("requestId", requestId);
+
+            fetch('/TimeKeep/CheckInOT', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: formData
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
+                .then(data => {
                     const idSuffix = new Date().toISOString().split('T')[0].replaceAll('-', '');
                     const checkInOTBtn = document.getElementById("checkInOTBtn_" + idSuffix);
                     const checkOutOTBtn = document.getElementById("checkOutOTBtn_" + idSuffix);
-                    if (checkInOTBtn) {
-                        checkInOTBtn.disabled = true;
-                        checkInOTBtn.innerText = "✔ Checked In OT";
-                    }
-                    if (checkOutOTBtn) {
-                        checkOutOTBtn.disabled = false;
-                        checkOutOTBtn.classList.remove("btn-danger");
-                        checkOutOTBtn.classList.add("btn-primary");
+
+                    if (data === true || data.success === true) {
+                        if (checkInOTBtn) {
+                            checkInOTBtn.disabled = true;
+                            checkInOTBtn.innerText = "✔ Checked In OT";
+                        }
+                        if (checkOutOTBtn) {
+                            checkOutOTBtn.disabled = false;
+                            checkOutOTBtn.classList.remove("btn-danger");
+                            checkOutOTBtn.classList.add("btn-primary");
+                        }
                     }
                 })
                 .catch(() => alert("Check-in OT failed."));
         }
 
-        function handleCheckOutOT() {
-            fetch('/ManageSchedule/CheckOutOT', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-                .then(res => res.json())
+        function handleCheckOutOT(button) {
+            const requestId = parseInt(button.getAttribute("data-request-id"));
+
+            fetch('/TimeKeep/CheckOutOT', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                body: new URLSearchParams({ requestId })
+            })
+                .then(res => {
+                    if (!res.ok) throw new Error();
+                    return res.json();
+                })
                 .then(() => {
                     const idSuffix = new Date().toISOString().split('T')[0].replaceAll('-', '');
                     const checkOutOTBtn = document.getElementById("checkOutOTBtn_" + idSuffix);
@@ -198,5 +236,6 @@
                 })
                 .catch(() => alert("Check-out OT failed."));
         }
+
     </script>
 }

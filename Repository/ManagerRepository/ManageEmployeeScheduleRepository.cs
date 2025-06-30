@@ -14,18 +14,25 @@ namespace Repository.ManagerRepository
     {
         public void CheckIn(int empId) => MangeScheduleEmployeeDAO.CheckIn(empId);
 
+        public bool CheckInOT(int requestId) => MangeScheduleEmployeeDAO.CheckInOT(requestId);
+
         public void CheckOut(int empId) => MangeScheduleEmployeeDAO.CheckOut(empId);
+
+        public bool CheckOutOT(int requestId) => MangeScheduleEmployeeDAO.CheckOutOT(requestId);
+
         public List<DateOnly> CreateSchedulEmployee(int employeeId, DateOnly startDate, DateOnly endDate) => MangeScheduleEmployeeDAO.CreateScheduleForEmployee(employeeId, startDate, endDate);
 
         public void DeleteScheduleEmployee(int employeeId, DateOnly startDate, DateOnly endDate) => MangeScheduleEmployeeDAO.DeleteScheduleForEmployee(employeeId, startDate, endDate);
 
         public List<Schedule> GenerateFixedWeekSchedule(int employeeId, DateTime weekStart) => MangeScheduleEmployeeDAO.GenerateFixedWeekSchedule(employeeId, weekStart);
 
-        public List<DateOnly> GetApprovedOTDatesByEmployee(int employeeId) => MangeScheduleEmployeeDAO.GetApprovedOTDatesByEmployee(employeeId);
+        public List<ApprovedOTDTO> GetApprovedOTDatesByEmployee(int employeeId) => MangeScheduleEmployeeDAO.GetApprovedOTDatesByEmployee(employeeId);
 
         public List<DateOnly> GetExistingScheduleDates(int employeeId, DateOnly startDate, DateOnly endDate) => MangeScheduleEmployeeDAO.GetExistingScheduleDates(employeeId, startDate, endDate);
 
         public List<ScheduleDTO> getListScheduleById(int employeeId) => MangeScheduleEmployeeDAO.getListScheduleById(employeeId);
+
+        public bool HasCheckedInOTToday(int empId) => MangeScheduleEmployeeDAO.HasCheckedInOTToday(empId);
 
         public bool HasCheckedInToday(int empId) => MangeScheduleEmployeeDAO.HasCheckedInToday(empId);
 

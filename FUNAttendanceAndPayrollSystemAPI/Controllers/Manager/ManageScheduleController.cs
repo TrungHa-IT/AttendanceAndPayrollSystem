@@ -133,12 +133,17 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
         }
 
         [HttpGet("checkInStatus")]
-        public IActionResult CheckInStatus([FromQuery]int empId)
+        public IActionResult CheckInStatus([FromQuery] int empId)
         {
-            bool hasCheckedIn = repository.HasCheckedInToday(empId);
-            return Ok(new { hasCheckedIn });
-        }
+            var hasCheckedIn = repository.HasCheckedInToday(empId);
+            var hasCheckedInOT = repository.HasCheckedInOTToday(empId); 
 
+            return Ok(new
+            {
+                hasCheckedIn,
+                hasCheckedInOT
+            });
+        }
 
         [HttpPost("checkIn")]
         public IActionResult CheckIn([FromBody] int empId)
@@ -207,9 +212,13 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
         {
             try
             {
-                var dates = repository.GetApprovedOTDatesByEmployee(employeeId);
+                var otRecords = repository.GetApprovedOTDatesByEmployee(employeeId);
 
-                var result = dates.Select(d => d.ToString("yyyy-MM-dd")).ToList();
+                var result = otRecords.Select(o => new
+                {
+                    OvertimeRequestId = o.OvertimeRequestId,
+                    OvertimeDate = o.OvertimeDate.ToString("yyyy-MM-dd")
+                });
 
                 return Ok(result);
             }
@@ -218,5 +227,36 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
                 return StatusCode(500, new { message = "Server error", detail = ex.Message });
             }
         }
+
+        [HttpPost("CheckInOt")]
+        public IActionResult CheckInOt([FromQuery] int requestId)
+        {
+            try
+            {
+                var checkInOt = repository.CheckInOT(requestId);
+
+                return Ok(checkInOt);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", detail = ex.Message });
+            }
+        }
+
+        [HttpPost("CheckOutOt")]
+        public IActionResult CheckOutOt([FromQuery] int requestId)
+        {
+            try
+            {
+                var checkInOt = repository.CheckOutOT(requestId);
+
+                return Ok(checkInOt);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", detail = ex.Message });
+            }
+        }
+
     }
 }

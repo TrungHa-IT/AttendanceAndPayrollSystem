@@ -168,7 +168,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
 
             var json = await res.Content.ReadAsStringAsync();
             var root = JsonDocument.Parse(json).RootElement;
-            return Ok(new { hasCheckedIn = root.GetProperty("hasCheckedIn").GetBoolean() });
+            return Ok(new { hasCheckedIn = root.GetProperty("hasCheckedIn").GetBoolean(), hasCheckedInOT = root.GetProperty("hasCheckedInOT").GetBoolean() });
         }
 
 
