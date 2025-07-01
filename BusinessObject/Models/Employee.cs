@@ -8,6 +8,7 @@ public partial class Employee
     public int EmployId { get; set; }
 
     public string? EmployeeName { get; set; }
+    public string? Image { get; set; }
 
     public DateOnly? Dob { get; set; }
 
@@ -20,6 +21,7 @@ public partial class Employee
     public string? Address { get; set; }
 
     public string? Position { get; set; }
+    public decimal? Salary { get; set; }
 
     public string Status { get; set; } = null!;
 

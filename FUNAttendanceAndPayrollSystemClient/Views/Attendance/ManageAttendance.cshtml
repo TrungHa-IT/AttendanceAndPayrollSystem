@@ -1,1 +1,59 @@
-﻿
+﻿@{
+    ViewData["Title"] = "Manage Attendance";
+    var employees = ViewBag.Employees as List<DataTransferObject.EmployeeDTO.EmployeeDTO>;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg w-100" style="max-width: 1000px;">
+        <div class="card-body">
+            <h2 class="text-center mb-4 text-primary">Employee List</h2>
+
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>DOB</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Gender</th>
+                        <th>Address</th>
+                        <th>Position</th>
+                        <th>Department</th>
+                        <th>Action</th> 
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (employees != null)
+                    {
+                        foreach (var emp in employees)
+                        {
+                            <tr>
+                                <td>@emp.EmployId</td>
+                                <td>@emp.EmployeeName</td>
+                                <td>@emp.Dob?.ToString("yyyy-MM-dd")</td>
+                                <td>@emp.Email</td>
+                                <td>@emp.PhoneNumber</td>
+                                <td>@emp.Gender</td>
+                                <td>@emp.Address</td>
+                                <td>@emp.Position</td>
+                                <td>@emp.DepartmentName</td>
+                                <td>
+                                    <a asp-action="ShowTimeSheet" asp-controller="Attendance" asp-route-EmployId="@emp.EmployId" class="btn btn-sm btn-outline-primary">
+                                        ShowTimeSheet
+                                    </a>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr><td colspan="10" class="text-center text-danger">No employee data available</td></tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

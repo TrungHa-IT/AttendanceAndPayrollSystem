@@ -80,7 +80,6 @@
 
 @section Scripts {
     <script>
-        // Khi load trang, kiểm tra trạng thái Check-in hôm nay
         window.onload = function () {
             fetch('/ManageSchedule/CheckInStatus')
                 .then(res => res.json())
@@ -175,8 +174,7 @@
                             checkOutBtn.classList.remove("btn-primary");
                             checkOutBtn.classList.add("btn-success");
 
-                            // ✅ Không disable để người dùng có thể check-out lần nữa
-                            // checkOutBtn.disabled = true;
+                 
                         }
                     } else {
                         alert(data.message || "Check-out failed.");

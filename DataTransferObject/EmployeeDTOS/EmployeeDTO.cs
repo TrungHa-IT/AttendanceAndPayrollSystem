@@ -24,5 +24,6 @@ namespace DataTransferObject.EmployeeDTO
 
         public string? Position { get; set; }
         public int DepartmentId { get; set; }
+        public string DepartmentName { get; set; }
     }
 }

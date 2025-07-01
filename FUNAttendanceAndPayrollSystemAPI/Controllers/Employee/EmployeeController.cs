@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Repository.EmployeeRepository;
 using System.Collections;
 
-namespace FUNAttendanceAndPayrollSystemAPI.Controllers
+namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
 {
     [Route("Employee/")]
     [ApiController]
@@ -19,7 +19,7 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers
         public IActionResult GetAttendanceById(int emp)
         {
             var empAttendance = repository.getAttendanceById(emp);
-            if(empAttendance == null)
+            if (empAttendance == null)
             {
                 return BadRequest("emp id values must not be null.");
             }

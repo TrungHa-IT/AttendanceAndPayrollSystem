@@ -90,6 +90,8 @@ public partial class FunattendanceAndPayrollSystemContext : DbContext
             entity.Property(e => e.Gender).HasMaxLength(10);
             entity.Property(e => e.PhoneNumber).HasMaxLength(20);
             entity.Property(e => e.Position).HasMaxLength(50);
+            entity.Property(e => e.Image).HasMaxLength(50);
+            entity.Property(e => e.Salary).HasColumnType("decimal(18, 0)");
             entity.Property(e => e.Status)
                 .HasMaxLength(20)
                 .HasDefaultValue("Đang làm");
