@@ -214,11 +214,21 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
         [HttpPost]
         public async Task<IActionResult> UpdateStatus(OTUpdateRequestDTO oTRequest)
         {
-            HttpClient client = new HttpClient();
+            int? managerId = HttpContext.Session.GetInt32("employeeId");
+            if (managerId == null)
+            {
+                TempData["Error"] = "Session expired.";
+                return RedirectToAction("ManageOverTime");
+            }
+
+            oTRequest.EmpId = managerId.Value;
+
+            using HttpClient client = new();
             var jsonContent = JsonSerializer.Serialize(oTRequest);
             var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
             string url = $"{_baseUrl}/ManageSchedule/UpdateBooking";
-            HttpResponseMessage response = await client.PutAsync(url, content);
+            var response = await client.PutAsync(url, content);
+
             if (response.IsSuccessStatusCode)
             {
                 TempData["Success"] = "Update Over time successfully.";
@@ -227,8 +237,10 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             {
                 TempData["Error"] = "Failed to update status.";
             }
+
             return RedirectToAction("ManageOverTime");
         }
+
 
 
     }

@@ -193,8 +193,7 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
         {
             try
             {
-                int managerId = 4; 
-                var update = repository.UpdateBooking(request.Id, request.Status, managerId);
+                var update = repository.UpdateBooking(request.Id, request.Status, request.EmpId);
                 return Ok(update);
             }
             catch (Exception e)
