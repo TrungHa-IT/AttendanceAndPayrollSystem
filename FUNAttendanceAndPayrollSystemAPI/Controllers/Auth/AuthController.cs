@@ -41,7 +41,8 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Auth
                 Token = token,
                 Name = user.EmployeeName,
                 Email = user.Email,
-                Role = user.Position
+                Role = user.Position,
+                EmployeeId = user.EmployId,
             });
         }
     }

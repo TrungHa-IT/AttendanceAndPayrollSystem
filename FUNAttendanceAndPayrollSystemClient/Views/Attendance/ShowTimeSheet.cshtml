@@ -1,6 +1,7 @@
 ﻿@{
     ViewData["Title"] = "Show TimeSheet";
     var attendances = ViewBag.attendances as List<DataTransferObject.AttendanceDTO.AttendanceDTO>;
+    var role = Context.Session.GetString("role")?.ToLower();
     string[] rowColors = new[] { "table-primary", "table-secondary", "table-success", "table-danger", "table-warning", "table-info", "table-light" };
 }
 
@@ -54,10 +55,13 @@
                     }
                 </tbody>
             </table>
-            <div class="d-flex justify-content-center gap-3 mt-4">
-                <button class="btn btn-success" onclick="calculateMonthlySalary()">Tính lương tháng</button>
-                <a id="exportExcelBtn" class="btn btn-outline-success">Xuất file Excel</a>
-            </div>
+            @if (role == "staff")
+            {
+                <div class="d-flex justify-content-center mt-4 gap-3">
+                    <button class="btn btn-success" onclick="calculateMonthlySalary()">Tính lương tháng</button>
+                    <a id="exportExcelBtn" class="btn btn-success">Xuất file Excel</a>
+                </div>
+            }
             <div class="text-center mt-4">
                 <h5 id="salaryResult" class="text-primary fw-bold"></h5>
             </div>

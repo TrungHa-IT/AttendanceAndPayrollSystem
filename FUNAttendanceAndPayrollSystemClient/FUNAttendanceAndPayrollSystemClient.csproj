@@ -18,7 +18,7 @@
 
   <ItemGroup>
     <Folder Include="Controllers\Hr\" />
-    <Folder Include="Controllers\Staff\" />
+    <Folder Include="Controllers\Hr\" />
     <Folder Include="Views\Dashbo\" />
   </ItemGroup>
 

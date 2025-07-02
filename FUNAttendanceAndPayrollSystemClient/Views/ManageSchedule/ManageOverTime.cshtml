@@ -44,7 +44,7 @@
                                     <input type="hidden" name="status" value="approved" />
                                     <button type="submit" class="btn btn-success btn-sm">Accept</button>
                                 </form>
-                                <form method="post" asp-action="UpdateStatus" asp-controller="OT" class="d-inline ms-1">
+                                <form method="post" asp-action="UpdateStatus" asp-controller="ManageSchedule" class="d-inline ms-1">
                                     <input type="hidden" name="id" value="@ot.OvertimeRequestId" />
                                     <input type="hidden" name="status" value="rejected" />
                                     <button type="submit" class="btn btn-danger btn-sm">Reject</button>

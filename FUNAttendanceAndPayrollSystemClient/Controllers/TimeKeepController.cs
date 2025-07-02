@@ -22,7 +22,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
         public async Task<IActionResult> Index(int year = 0, string week = null)
         {
-            int currentEmployeeId = 7;
+            int? currentEmployeeId = HttpContext.Session.GetInt32("employeeId");
             DateTime todays = DateTime.Today;
 
             var otResponse = await _httpClient.GetAsync($"https://localhost:7192/ManageSchedule/GetScheduleApproved?employeeId={currentEmployeeId}");

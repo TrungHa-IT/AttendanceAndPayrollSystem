@@ -1,7 +1,118 @@
-﻿<h1>
-    Check-In
-</h1>
+﻿@{
+    ViewData["Title"] = "Employee Dashboard";
+}
 
-<h1>
-    Check-Out
-</h1>
+<!-- Bootstrap CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<!-- Custom Modal Styling -->
+<style>
+    .modal-content {
+        border-radius: 1rem;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        border: none;
+        padding: 1.5rem;
+        box-sizing: border-box;
+    }
+
+    .modal-header, .modal-footer {
+        border: none;
+    }
+
+    .modal-title {
+        font-weight: bold;
+        font-size: 1.5rem;
+    }
+
+    .modal.fade .modal-dialog {
+        transform: translateY(-20px);
+        transition: transform 0.3s ease-out;
+    }
+
+    .modal.show .modal-dialog {
+        transform: translateY(0);
+    }
+
+    textarea.form-control {
+        min-height: 100px;
+    }
+
+    .alert {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        z-index: 1055;
+    }
+</style>
+
+<!-- Dashboard Container -->
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
+    <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px;">
+        <h4 class="text-center mb-4">Welcome</h4>
+
+        <div class="d-grid gap-3">
+            <a href="/TimeKeep/Index" class="btn btn-primary">View Schedule</a>
+            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#registerOTModal">Register OT</button>
+            <a href="/Attendance/ShowTimeSheet" class="btn btn-primary">View Time Sheet</a>
+        </div>
+    </div>
+
+    <!-- Success/Error Message -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @TempData["Success"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+    else if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+            @TempData["Error"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    }
+</div>
+
+<!-- Register OT Modal -->
+<div class="modal fade" id="registerOTModal" tabindex="-1" aria-labelledby="registerOTModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="registerOTModalLabel">Register OT</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+
+            <form method="post" action="/Employee/RegisterTimeOT">
+                <input type="hidden" name="Emp" value="@ViewBag.EmployeeId" />
+
+                <div class="mb-3">
+                    <label class="form-label">Date</label>
+                    <input type="date" name="OtDate" class="form-control" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Start Time</label>
+                    <input type="time" name="StartTime" class="form-control" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">End Time</label>
+                    <input type="time" name="EndTime" class="form-control" required />
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Reason</label>
+                    <textarea name="Reason" class="form-control" required></textarea>
+                </div>
+
+                <div class="modal-footer">
+                    <button type="submit" class="btn btn-success">Submit</button>
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

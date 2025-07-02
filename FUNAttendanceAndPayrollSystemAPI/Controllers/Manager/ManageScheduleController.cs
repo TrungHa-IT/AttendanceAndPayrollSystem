@@ -133,18 +133,16 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
         }
 
         [HttpGet("checkInStatus")]
-        public IActionResult CheckInStatus()
+        public IActionResult CheckInStatus([FromQuery]int empId)
         {
-            var empId = 6;
             bool hasCheckedIn = repository.HasCheckedInToday(empId);
             return Ok(new { hasCheckedIn });
         }
 
 
         [HttpPost("checkIn")]
-        public IActionResult CheckIn()
+        public IActionResult CheckIn([FromBody] int empId)
         {
-            int empId = 6;
 
             if (repository.HasCheckedInToday(empId))
             {
@@ -163,9 +161,8 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
         }
 
         [HttpPost("checkOut")]
-        public IActionResult CheckOut()
+        public IActionResult CheckOut([FromBody] int empId)
         {
-            int empId = 6;
             try
             {
                 repository.CheckOut(empId);
