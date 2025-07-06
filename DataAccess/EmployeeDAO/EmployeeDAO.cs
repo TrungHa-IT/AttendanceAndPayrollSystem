@@ -50,6 +50,63 @@ namespace DataAccess.EmployeeDAO
             return listEmployees;
         }
 
+        public static List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year)
+        {
+            var listEmployees = new List<EmployeeDTO>();
+
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    int currentMonth = month ?? DateTime.Now.Month;
+                    int currentYear = year ?? DateTime.Now.Year;
+
+                    listEmployees = context.Employees
+                        .Include(emp => emp.Department)
+                        .Where(ep => ep.Position.Equals("Employee"))
+                        .Select(ep => new EmployeeDTO
+                        {
+                            EmployId = ep.EmployId,
+                            EmployeeName = ep.EmployeeName,
+                            Dob = ep.Dob,
+                            Email = ep.Email,
+                            PhoneNumber = ep.PhoneNumber,
+                            Gender = ep.Gender,
+                            Address = ep.Address,
+                            Salary = ep.Salary,
+                            Position = ep.Position,
+                            DepartmentId = ep.DepartmentId,
+                            DepartmentName = ep.Department.DepartmentName,
+
+                            TotalTimeWorked =
+                                context.Payrolls
+                                    .Where(p => p.EmployeeId == ep.EmployId
+                                             && p.Month == currentMonth
+                                             && p.Year == currentYear)
+                                    .Sum(p => (double?)p.TotalWorkHour ?? 0)
+                                +
+                                context.OvertimeRequests
+                                    .Where(o => o.EmployeeId == ep.EmployId
+                                             && o.OvertimeDate.Month == currentMonth
+                                             && o.OvertimeDate.Year == currentYear
+                                             && o.Status == "success")
+                                    .Sum(o => (double?)o.TotalHours ?? 0)
+                        })
+                        .ToList();
+                    foreach (var emp in listEmployees)
+                    {
+                        emp.TotalSalary = (decimal)emp.TotalTimeWorked * emp.Salary.GetValueOrDefault(0);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+            return listEmployees;
+        }
+
         public static List<AttendanceDTO> getAttendanceById(int emp)
         {
             using var _db = new FunattendanceAndPayrollSystemContext();

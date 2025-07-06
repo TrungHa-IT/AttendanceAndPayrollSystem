@@ -26,6 +26,9 @@ namespace DataTransferObject.EmployeeDTO
         public int DepartmentId { get; set; }
         public string DepartmentName { get; set; }
         public decimal? Salary { get; set; }
-        public int Status { get; set; } // 0: Inactive, 1: Active, 2: Deleted
+        public int Status { get; set; }
+        public double TotalTimeWorked { get; set; }
+        public decimal TotalSalary { get; set; }
+
     }
 }

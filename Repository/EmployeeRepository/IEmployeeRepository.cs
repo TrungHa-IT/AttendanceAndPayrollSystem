@@ -18,6 +18,7 @@ namespace Repository.EmployeeRepository
         BookingOTDTO bookScheduleOverTime(int emp, DateOnly otDate, TimeOnly startTime, TimeOnly endTime, string reason);
         bool Register(RegisterDTO registerDTO);
         Employee? Login(LoginDTO loginDTO);
+        List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year);
     }
 
 

@@ -18,6 +18,7 @@ namespace Repository.EmployeeRepository
         public List<AttendanceDTO> getAttendanceById(int emp) => EmployeeDAO.getAttendanceById(emp);
         public List<EmployeeDTO> GetEmployees() => EmployeeDAO.GetEmployees();
 
+        public List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year) => EmployeeDAO.GetEmployeesTotalTimeByMonth(month, year);
 
         public Employee? Login(LoginDTO loginDTO) => EmployeeDAO.Login(loginDTO);
         
