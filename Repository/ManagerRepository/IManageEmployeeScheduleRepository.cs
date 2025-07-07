@@ -18,9 +18,12 @@ namespace Repository.ManagerRepository
         List<Schedule> GenerateFixedWeekSchedule(int employeeId, DateTime weekStart);
         void CheckIn(int empId);
         bool HasCheckedInToday (int empId);
+        bool HasCheckedInOTToday(int empId);
         void CheckOut(int empId);
         List<BookingOTDTO> ManageOT();
         BookingOTDTO UpdateBooking(int otRequestId, string status, int approvedBy);
-        List<DateOnly> GetApprovedOTDatesByEmployee(int employeeId);
+        List<ApprovedOTDTO> GetApprovedOTDatesByEmployee(int employeeId);
+        bool CheckInOT(int requestId);
+        bool CheckOutOT(int requestId);
     }
 }

@@ -123,6 +123,18 @@ namespace DataAccess.ManagerDAO
             return contextDB.Attendances.Any(a => a.EmployeeId == empId && a.WorkDate == today);
         }
 
+        public static bool HasCheckedInOTToday(int empId)
+        {
+            using var context = new FunattendanceAndPayrollSystemContext();
+            var today = DateOnly.FromDateTime(DateTime.Today);
+
+            return context.OvertimeRequests.Any(o =>
+                o.EmployeeId == empId &&
+                o.OvertimeDate == today &&
+                o.IsCheckIn == true);
+        }
+
+
 
         public static void CheckIn(int empId)
         {
@@ -237,15 +249,71 @@ namespace DataAccess.ManagerDAO
             }
         }
 
-        public static List<DateOnly> GetApprovedOTDatesByEmployee(int employeeId)
+        public static List<ApprovedOTDTO> GetApprovedOTDatesByEmployee(int employeeId)
         {
             using var _context = new FunattendanceAndPayrollSystemContext();
             return _context.OvertimeRequests
                 .Where(o => o.EmployeeId == employeeId && o.Status.ToLower() == "approved")
-                .Select(o => o.OvertimeDate)
-                .Distinct()
+                .Select(o => new ApprovedOTDTO
+                {
+                    OvertimeRequestId = o.OvertimeRequestId,
+                    OvertimeDate = o.OvertimeDate
+                })
                 .ToList();
         }
+
+        public static bool CheckInOT(int requestId)
+        {
+            using var _context = new FunattendanceAndPayrollSystemContext();
+            var otRequest =  _context.OvertimeRequests.FirstOrDefault(ot => ot.OvertimeRequestId == requestId);
+
+            if (otRequest == null || otRequest.Status != "approved")
+                return false;
+
+            DateTime now = DateTime.Now;
+
+            DateTime registeredStart = otRequest.OvertimeDate.ToDateTime(otRequest.StartTime);
+
+            TimeOnly finalStartTime = (now < registeredStart) ? otRequest.StartTime : TimeOnly.FromDateTime(now);
+
+            otRequest.StartTime = finalStartTime;
+            otRequest.IsCheckIn = true;
+            otRequest.UpdatedAt = DateTime.Now;
+
+             _context.SaveChangesAsync();
+            return true;
+        }
+
+        public static bool CheckOutOT(int requestId)
+        {
+            using var _context = new FunattendanceAndPayrollSystemContext();
+            var otRequest = _context.OvertimeRequests.FirstOrDefault(ot => ot.OvertimeRequestId == requestId);
+
+            if (otRequest == null || otRequest.Status != "approved")
+                return false;
+
+            DateTime now = DateTime.Now;
+
+            DateTime registeredStart = otRequest.OvertimeDate.ToDateTime(otRequest.StartTime);
+            DateTime registeredEnd = otRequest.OvertimeDate.ToDateTime(otRequest.EndTime);
+
+            DateTime actualEnd = now < registeredEnd ? now : registeredEnd;
+
+            if (actualEnd <= registeredStart)
+                return false;
+
+            TimeOnly finalEndTime = TimeOnly.FromDateTime(actualEnd);
+            TimeSpan duration = actualEnd - registeredStart;
+
+            otRequest.EndTime = finalEndTime;
+            otRequest.TotalHours = (decimal)duration.TotalHours;
+            otRequest.Status = "presented";
+            otRequest.UpdatedAt = DateTime.Now;
+
+            _context.SaveChanges();
+            return true;
+        }
+
 
     }
 }
