@@ -307,7 +307,7 @@ namespace DataAccess.ManagerDAO
 
             otRequest.EndTime = finalEndTime;
             otRequest.TotalHours = (decimal)duration.TotalHours;
-            otRequest.Status = "Presented";
+            otRequest.Status = "presented";
             otRequest.UpdatedAt = DateTime.Now;
 
             _context.SaveChanges();
