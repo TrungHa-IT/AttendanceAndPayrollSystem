@@ -46,6 +46,75 @@ namespace DataAccess.LeaveDAO
             return listLeaves;
         }
 
+        // Get all leave records of a specific employee, ordered by StartDate descending
+        public static List<LeaveDTO> GetLeaveEmployee(int id)
+        {
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    var listLeaves = context.Leaves
+                        .Where(e => e.EmployeeId == id)
+                        .OrderByDescending(e => e.StartDate)
+                        .Select(at => new LeaveDTO
+                        {
+                            LeaveId = at.LeaveId,
+                            EmployeeId = at.EmployeeId,
+                            LeaveTypeId = at.LeaveTypeId,
+                            StartDate = at.StartDate,
+                            EndDate = at.EndDate,
+                            DurationInDays = at.DurationInDays,
+                            Reason = at.Reason,
+                            Status = at.Status,
+                            ApprovedBy = at.ApprovedBy,
+                            LeaveTypeName = at.LeaveType.LeaveTypeName,
+                            ApprovedByName = at.Employee.EmployeeName 
+                        }).ToList();
+
+                    return listLeaves;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error retrieving leave records: " + e.Message);
+            }
+        }
+
+        // Get all leave approve by staff
+        public static List<LeaveDTO> GetLeaveStaff(int id)
+        {
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    var listLeaves = context.Leaves
+                        .Where(e => e.ApprovedBy == id)
+                        .OrderByDescending(e => e.StartDate)
+                        .Select(at => new LeaveDTO
+                        {
+                            LeaveId = at.LeaveId,
+                            EmployeeId = at.EmployeeId,
+                            LeaveTypeId = at.LeaveTypeId,
+                            StartDate = at.StartDate,
+                            EndDate = at.EndDate,
+                            DurationInDays = at.DurationInDays,
+                            Reason = at.Reason,
+                            Status = at.Status,
+                            ApprovedBy = at.ApprovedBy,
+                            LeaveTypeName = at.LeaveType.LeaveTypeName,
+                            ApprovedByName = at.Employee.EmployeeName,
+                            EmployeeName = at.Employee.EmployeeName
+                        }).ToList();
+
+                    return listLeaves;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error retrieving leave records: " + e.Message);
+            }
+        }
+
         // Create a new leave 
         public static bool AddLeave(LeaveDTO leaveDTO)
         {
@@ -92,27 +161,21 @@ namespace DataAccess.LeaveDAO
                         return false; // Not found or already deleted
                     }
 
-                    leaveDTO.DurationInDays = leaveDTO.DurationInDays;
-                    leaveDTO.EmployeeId = leaveDTO.EmployeeId;
-                    leaveDTO.EndDate = leaveDTO.EndDate;
-                    leaveDTO.LeaveTypeId = leaveDTO.LeaveTypeId;
-                    leaveDTO.Reason = leaveDTO.Reason;
-                    leaveDTO.StartDate = leaveDTO.StartDate;
-                    leaveDTO.Status = leaveDTO.Status;
-
-                    leave.UpdatedAt = DateTime.Now;
+                    leave.Status = leaveDTO.Status;
                     leave.ApprovedBy = leaveDTO.ApprovedBy;
-                    
+                    leave.ApprovedDate = DateTime.Now;
+
                     context.SaveChanges();
                     return true;
                 }
             }
             catch (Exception)
             {
-                // Log the exception if needed
+                // Log exception if needed
                 return false;
             }
         }
+
 
         // Soft delete a leave 
         public static bool DeleteLeave(int leaveID)

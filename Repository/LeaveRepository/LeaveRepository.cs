@@ -14,7 +14,11 @@ namespace Repository.LeaveRepository
 
         public bool DeleteLeave(int id) => LeaveDAO.DeleteLeave(id);
 
+        public List<LeaveDTO> GetLeaveEmployee(int id) => LeaveDAO.GetLeaveEmployee(id);
+
         public List<LeaveDTO> GetLeaves() => LeaveDAO.GetLeaves();
+
+        public List<LeaveDTO> GetLeaveStaff(int id) => LeaveDAO.GetLeaveStaff(id);
 
         public bool UpdateLeave(LeaveDTO leaveDTO) => LeaveDAO.UpdateLeave(leaveDTO);
     }

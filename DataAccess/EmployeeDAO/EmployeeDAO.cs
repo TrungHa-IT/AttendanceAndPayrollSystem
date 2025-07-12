@@ -50,6 +50,36 @@ namespace DataAccess.EmployeeDAO
             return listEmployees;
         }
 
+        public static List<EmployeeDTO> GetStaffs()
+        {
+            var listEmployees = new List<EmployeeDTO>();
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    listEmployees = context.Employees.Include(emp => emp.Department).Where(ep => ep.Position.Equals("Staff"))
+                        .Select(ep => new EmployeeDTO
+                        {
+                            EmployId = ep.EmployId,
+                            EmployeeName = ep.EmployeeName,
+                            Dob = ep.Dob,
+                            Email = ep.Email,
+                            PhoneNumber = ep.PhoneNumber,
+                            Gender = ep.Gender,
+                            Address = ep.Address,
+                            Position = ep.Position,
+                            DepartmentId = ep.DepartmentId,
+                            DepartmentName = ep.Department.DepartmentName
+                        }).ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return listEmployees;
+        }
+
         public static List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year)
         {
             var listEmployees = new List<EmployeeDTO>();

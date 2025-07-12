@@ -100,27 +100,27 @@ namespace DataAccess.LeaveTypeDAO
             }
         }
 
-        // Soft delete a leave type
+        // Hard delete a leave type
         public static bool DeleteLeaveType(int leaveTypeID)
         {
             try
             {
-                using (var context = new FunattendanceAndPayrollSystemContext())
-                {
-                    var leaveTypes = context.LeaveTypes.Find(leaveTypeID);
-                    if (leaveTypes == null || leaveTypes.DeletedAt != null)
-                    {
-                        return false; // Not found or already deleted
-                    }
+                using var context = new FunattendanceAndPayrollSystemContext();
 
-                    leaveTypes.DeletedAt = DateTime.Now;
-                    context.SaveChanges();
-                    return true;
+                var leaveType = context.LeaveTypes.FirstOrDefault(l => l.LeaveTypeId == leaveTypeID);
+
+                if (leaveType == null)
+                {
+                    return false; 
                 }
+
+                context.LeaveTypes.Remove(leaveType); 
+                context.SaveChanges();
+
+                return true;
             }
-            catch (Exception)
+            catch (Exception ex)
             {
-                // Log the exception if needed
                 return false;
             }
         }
