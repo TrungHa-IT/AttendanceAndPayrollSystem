@@ -62,9 +62,9 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
                 case "employee":
                     return RedirectToAction("Dashboard", "Employee");
                 case "staff":
-                    return RedirectToAction("Dashboard", "Staff", new { area = "Staff" });
+                    return RedirectToAction("Dashboard", "Staff");
                 case "hr":
-                    return RedirectToAction("Dashboard", "Hr", new { area = "Hr" });
+                    return RedirectToAction("Dashboard", "Hr");
                 default:
                     TempData["Error"] = "Unknown role.";
                     return View();
