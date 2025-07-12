@@ -1,9 +1,7 @@
 ﻿using DataTransferObject.LeaveDTO;
-using DataTransferObject.LeaveTypeDTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repository.LeaveRepository;
-using Repository.LeaveTypeRepository;
 
 namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Leaves
 {
@@ -12,45 +10,56 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Leaves
     public class LeaveController : ControllerBase
     {
         private readonly ILeaveRepository repository = new LeaveRepository();
-        [HttpGet("getLeave")]
-        public ActionResult<IEnumerable<LeaveDTO>> GetLeaveType() => repository.GetLeaves();
 
-        [HttpGet("updateLeave")]
-        public ActionResult<LeaveDTO> UpdateLeave(int id, LeaveDTO leave)
+        [HttpGet("getLeave")]
+        public ActionResult<IEnumerable<LeaveDTO>> GetLeaves()
         {
-            if (id != leave.LeaveTypeId)
-            {
-                return BadRequest("Leave ID mismatch.");
-            }
-            var updatedLeave = repository.UpdateLeave(leave);
-            if (updatedLeave == null)
-            {
-                return NotFound("Leave type not found.");
-            }
-            return Ok(updatedLeave);
+            var leaves = repository.GetLeaves();
+            return Ok(leaves);
         }
 
-        [HttpGet("deleteLeave")]
-        public ActionResult DeleteLeave(int id)
+        [HttpGet("getLeaveEmployee")]
+        public ActionResult<IEnumerable<LeaveDTO>> GetLeaveEmployee(int id)
         {
-            var leaveType = repository.GetLeaves().FirstOrDefault(l => l.LeaveId == id);
-            if (leaveType == null)
-            {
-                return NotFound("Leave type not found.");
-            }
-            repository.DeleteLeave(id);
-            return NoContent();
+            var leaves = repository.GetLeaveEmployee(id);
+            return Ok(leaves);
+        }
+
+        [HttpGet("getLeaveStaff")]
+        public ActionResult<IEnumerable<LeaveDTO>> GetLeaveStaff(int id)
+        {
+            var leaves = repository.GetLeaveStaff(id);
+            return Ok(leaves);
         }
 
         [HttpPost("createLeave")]
-        public ActionResult<LeaveTypeDTO> CreateLeave(LeaveDTO leaveDTO)
+        public bool CreateLeave([FromBody] LeaveDTO leaveDTO)
         {
-            if (leaveDTO == null)
+            if (leaveDTO == null || string.IsNullOrEmpty(leaveDTO.Reason))
             {
-                return BadRequest("Leave cannot be null.");
+                return false;
             }
-            var createdLeaveType = repository.AddLeave(leaveDTO);
-            return Ok(CreateLeave);
+            return repository.AddLeave(leaveDTO);
+        }
+
+        [HttpPut("updateLeave")]
+        public bool UpdateLeave([FromBody] LeaveDTO leaveDTO)
+        {
+            if (leaveDTO == null || leaveDTO.LeaveId <= 0)
+            {
+                return false;
+            }
+            return repository.UpdateLeave(leaveDTO);
+        }
+
+        [HttpDelete("deleteLeave/{id}")]
+        public bool DeleteLeave(int id)
+        {
+            if (id <= 0)
+            {
+                return false;
+            }
+            return repository.DeleteLeave(id);
         }
     }
 }

@@ -14,7 +14,7 @@ namespace DataTransferObject.LeaveTypeDTO
 
         public decimal? MaxDaysAllowed { get; set; }
 
-        public bool? IsPaid { get; set; }
+        public bool IsPaid { get; set; }
 
         public DateTime? CreatedAt { get; set; }
 

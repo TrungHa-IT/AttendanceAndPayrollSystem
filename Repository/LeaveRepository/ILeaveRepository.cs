@@ -11,6 +11,9 @@ namespace Repository.LeaveRepository
     public interface ILeaveRepository
     {
         List<LeaveDTO> GetLeaves();
+
+        List<LeaveDTO> GetLeaveEmployee(int id);
+        List<LeaveDTO> GetLeaveStaff(int id);
         bool AddLeave(LeaveDTO leaveDTO);
         bool UpdateLeave(LeaveDTO leaveDTO);
         bool DeleteLeave(int id);

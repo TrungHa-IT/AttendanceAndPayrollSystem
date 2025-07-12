@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(FunattendanceAndPayrollSystemContext))]
-    [Migration("20250629085329_UpdateDb")]
-    partial class UpdateDb
+    [Migration("20250712101030_UpdateModelLeaveType")]
+    partial class UpdateModelLeaveType
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -146,7 +146,7 @@ namespace BusinessObject.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal?>("Salary")
+                    b.Property<decimal>("Salary")
                         .HasColumnType("decimal(18, 0)");
 
                     b.Property<int>("Status")
@@ -297,7 +297,7 @@ namespace BusinessObject.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime");
 
-                    b.Property<bool?>("IsPaid")
+                    b.Property<bool>("IsPaid")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);
@@ -357,6 +357,9 @@ namespace BusinessObject.Migrations
 
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
+
+                    b.Property<bool?>("IsCheckIn")
+                        .HasColumnType("bit");
 
                     b.Property<DateOnly>("OvertimeDate")
                         .HasColumnType("date");

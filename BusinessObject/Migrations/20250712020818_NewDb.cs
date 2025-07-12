@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BusinessObject.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialProject : Migration
+    public partial class NewDb : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -78,7 +78,7 @@ namespace BusinessObject.Migrations
                     Gender = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: true),
                     Address = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: true),
                     Position = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
-                    Salary = table.Column<decimal>(type: "decimal(18,0)", nullable: true),
+                    Salary = table.Column<decimal>(type: "decimal(18,0)", nullable: false),
                     Status = table.Column<int>(type: "int", maxLength: 20, nullable: false, defaultValue: 1),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: false, defaultValueSql: "(getdate())"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true),
@@ -168,7 +168,8 @@ namespace BusinessObject.Migrations
                     ApprovedDate = table.Column<DateTime>(type: "datetime", nullable: true),
                     CreatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())"),
                     UpdatedAt = table.Column<DateTime>(type: "datetime", nullable: true, defaultValueSql: "(getdate())"),
-                    DeletedAt = table.Column<DateTime>(type: "datetime", nullable: true)
+                    DeletedAt = table.Column<DateTime>(type: "datetime", nullable: true),
+                    IsCheckIn = table.Column<bool>(type: "bit", nullable: true)
                 },
                 constraints: table =>
                 {
