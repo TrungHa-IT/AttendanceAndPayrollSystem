@@ -1,10 +1,11 @@
 ﻿using DataTransferObject.EmployeeDTO;
+using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.ManagerDTO;
 using Microsoft.AspNetCore.Mvc;
 using System.Text;
 using System.Text.Json;
 
-namespace FUNAttendanceAndPayrollSystemClient.Controllers
+namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
 {
     public class ManageScheduleController : Controller
     {
@@ -17,8 +18,9 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
 
-        public async Task<IActionResult> Index(int? id)
+        public async Task<IActionResult> Index()
         {
+            int? id = HttpContext.Session.GetInt32("employeeId");
             using HttpClient client = new();
             var employeeRes = await client.GetAsync($"{_baseUrl}/Employee/ListEmployees");
             var employeeJson = await employeeRes.Content.ReadAsStringAsync();
@@ -128,25 +130,55 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             return View("Index");
         }
 
+        public async Task<IActionResult> ManageOverTime()
+        {
+            HttpClient client = new HttpClient();
+            string uri = $"{_baseUrl}/ManageSchedule/ManageOverTime";
+
+            HttpResponseMessage response = await client.GetAsync(uri);
+            var option = new JsonSerializerOptions
+            {
+                PropertyNameCaseInsensitive = true
+            };
+
+            List<BookingOTDTO> schedules = new();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                schedules = JsonSerializer.Deserialize<List<BookingOTDTO>>(json, option);
+            }
+
+            return View(schedules);
+        }
+
+
         [HttpGet]
         public async Task<IActionResult> CheckInStatus()
         {
+            int? empId = HttpContext.Session.GetInt32("employeeId");
+            if (empId == null)
+                return Unauthorized();
+
             using HttpClient client = new();
-            var res = await client.GetAsync($"{_baseUrl}/ManageSchedule/checkInStatus");
+            var res = await client.GetAsync($"{_baseUrl}/ManageSchedule/checkInStatus?empId={empId}");
 
             if (!res.IsSuccessStatusCode)
                 return BadRequest(new { hasCheckedIn = false, message = "API failed" });
 
             var json = await res.Content.ReadAsStringAsync();
             var root = JsonDocument.Parse(json).RootElement;
-            return Ok(new { hasCheckedIn = root.GetProperty("hasCheckedIn").GetBoolean() });
+            return Ok(new { hasCheckedIn = root.GetProperty("hasCheckedIn").GetBoolean(), hasCheckedInOT = root.GetProperty("hasCheckedInOT").GetBoolean() });
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CheckIn()
         {
+            int? empId = HttpContext.Session.GetInt32("employeeId");
+            var content = new StringContent(JsonSerializer.Serialize(empId), Encoding.UTF8, "application/json");
             using HttpClient client = new();
-            var res = await client.PostAsync($"{_baseUrl}/ManageSchedule/checkIn", null);
+            var res = await client.PostAsync($"{_baseUrl}/ManageSchedule/checkIn", content);
             var json = await res.Content.ReadAsStringAsync();
 
             if (res.IsSuccessStatusCode)
@@ -167,8 +199,10 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
         [HttpPost]
         public async Task<IActionResult> CheckOut()
         {
+            int? empId = HttpContext.Session.GetInt32("employeeId");
+            var content = new StringContent(JsonSerializer.Serialize(empId), Encoding.UTF8, "application/json");
             using HttpClient client = new();
-            var res = await client.PostAsync($"{_baseUrl}/ManageSchedule/checkOut", null);
+            var res = await client.PostAsync($"{_baseUrl}/ManageSchedule/checkOut", content);
             var json = await res.Content.ReadAsStringAsync();
 
             if (res.IsSuccessStatusCode)
@@ -176,5 +210,38 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
             return StatusCode((int)res.StatusCode, new { message = "Forwarded check-out failed", json });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(OTUpdateRequestDTO oTRequest)
+        {
+            int? managerId = HttpContext.Session.GetInt32("employeeId");
+            if (managerId == null)
+            {
+                TempData["Error"] = "Session expired.";
+                return RedirectToAction("ManageOverTime");
+            }
+
+            oTRequest.EmpId = managerId.Value;
+
+            using HttpClient client = new();
+            var jsonContent = JsonSerializer.Serialize(oTRequest);
+            var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+            string url = $"{_baseUrl}/ManageSchedule/UpdateBooking";
+            var response = await client.PutAsync(url, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Update Over time successfully.";
+            }
+            else
+            {
+                TempData["Error"] = "Failed to update status.";
+            }
+
+            return RedirectToAction("ManageOverTime");
+        }
+
+
+
     }
 }

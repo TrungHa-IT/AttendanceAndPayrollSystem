@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(FunattendanceAndPayrollSystemContext))]
-    partial class FunattendanceAndPayrollSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20250629085504_InitialProject")]
+    partial class InitialProject
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -143,7 +146,7 @@ namespace BusinessObject.Migrations
                         .HasMaxLength(50)
                         .HasColumnType("nvarchar(50)");
 
-                    b.Property<decimal>("Salary")
+                    b.Property<decimal?>("Salary")
                         .HasColumnType("decimal(18, 0)");
 
                     b.Property<int>("Status")
@@ -354,9 +357,6 @@ namespace BusinessObject.Migrations
 
                     b.Property<TimeOnly>("EndTime")
                         .HasColumnType("time");
-
-                    b.Property<bool?>("IsCheckIn")
-                        .HasColumnType("bit");
 
                     b.Property<DateOnly>("OvertimeDate")
                         .HasColumnType("date");

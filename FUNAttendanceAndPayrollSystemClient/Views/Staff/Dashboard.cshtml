@@ -1,3 +1,23 @@
 ﻿@{
-    Layout = null;
+    ViewData["Title"] = "Manager Dashboard";
 }
+
+<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
+    <div class="text-center">
+        <h2 class="mb-4">Manager Dashboard</h2>
+
+        <div class="d-grid gap-3">
+            <a href="@Url.Action("ManageOverTime", "ManageSchedule")" class="btn btn-success btn-lg rounded-pill px-5">
+                OverTime Request
+            </a>
+
+            <a href="@Url.Action("ManageAttendance", "Attendance")" class="btn btn-primary btn-lg rounded-pill px-5">
+                View Attendance
+            </a>
+
+            <a href="@Url.Action("Payroll", "Staff")" class="btn btn-warning btn-lg rounded-pill px-5 text-white">
+                Trigger Payroll Calculation
+            </a>
+        </div>
+    </div>
+</div>

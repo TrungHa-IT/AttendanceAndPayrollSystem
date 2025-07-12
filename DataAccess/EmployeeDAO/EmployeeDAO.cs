@@ -2,6 +2,7 @@
 using DataTransferObject.AttendanceDTO;
 using DataTransferObject.AuthDTO;
 using DataTransferObject.EmployeeDTO;
+using DataTransferObject.EmployeeDTOS;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -46,6 +47,63 @@ namespace DataAccess.EmployeeDAO
             {
                 throw new Exception(e.Message);
             }
+            return listEmployees;
+        }
+
+        public static List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year)
+        {
+            var listEmployees = new List<EmployeeDTO>();
+
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    int currentMonth = month ?? DateTime.Now.Month;
+                    int currentYear = year ?? DateTime.Now.Year;
+
+                    listEmployees = context.Employees
+                        .Include(emp => emp.Department)
+                        .Where(ep => ep.Position.Equals("Employee"))
+                        .Select(ep => new EmployeeDTO
+                        {
+                            EmployId = ep.EmployId,
+                            EmployeeName = ep.EmployeeName,
+                            Dob = ep.Dob,
+                            Email = ep.Email,
+                            PhoneNumber = ep.PhoneNumber,
+                            Gender = ep.Gender,
+                            Address = ep.Address,
+                            Salary = ep.Salary,
+                            Position = ep.Position,
+                            DepartmentId = ep.DepartmentId,
+                            DepartmentName = ep.Department.DepartmentName,
+
+                            TotalTimeWorked =
+                                context.Payrolls
+                                    .Where(p => p.EmployeeId == ep.EmployId
+                                             && p.Month == currentMonth
+                                             && p.Year == currentYear)
+                                    .Sum(p => (double?)p.TotalWorkHour ?? 0)
+                                +
+                                context.OvertimeRequests
+                                    .Where(o => o.EmployeeId == ep.EmployId
+                                             && o.OvertimeDate.Month == currentMonth
+                                             && o.OvertimeDate.Year == currentYear
+                                             && o.Status == "success")
+                                    .Sum(o => (double?)o.TotalHours ?? 0)
+                        })
+                        .ToList();
+                    foreach (var emp in listEmployees)
+                    {
+                        emp.TotalSalary = (decimal)emp.TotalTimeWorked * emp.Salary.GetValueOrDefault(0);
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
             return listEmployees;
         }
 
@@ -131,6 +189,37 @@ namespace DataAccess.EmployeeDAO
             catch (Exception)
             {
                 return null;
+            }
+        }
+
+        public static BookingOTDTO bookScheduleOverTime(int emp,DateOnly otDate, TimeOnly startTime, TimeOnly endTime,string reason)
+        {
+            using var _db = new FunattendanceAndPayrollSystemContext();
+            try
+            {
+                var newRequest = new OvertimeRequest
+                {
+                    EmployeeId = emp,
+                    OvertimeDate = otDate,
+                    StartTime = startTime,
+                    EndTime = endTime,
+                    Reason = reason,
+                    Status = "processing"
+                };
+                _db.OvertimeRequests.Add(newRequest);
+                _db.SaveChanges();
+                return new BookingOTDTO
+                {
+                    EmployeeId = newRequest.EmployeeId,
+                    OvertimeDate = newRequest.OvertimeDate,
+                    StartTime = newRequest.StartTime,
+                    EndTime = newRequest.EndTime,
+                    Status = newRequest.Status,
+                    Reason = newRequest.Reason
+                };
+            }catch (Exception e)
+            {
+                throw new Exception(e.Message);
             }
         }
     }

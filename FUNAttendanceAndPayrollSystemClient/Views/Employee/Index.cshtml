@@ -53,7 +53,6 @@
         <div class="d-grid gap-3">
             <a href="/TimeKeep/Index" class="btn btn-primary">View Schedule</a>
             <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#registerOTModal">Register OT</button>
-            <a href="/Attendance/ShowTimeSheet" class="btn btn-primary">View Time Sheet</a>
         </div>
     </div>
 
@@ -84,7 +83,7 @@
             </div>
 
             <form method="post" action="/Employee/RegisterTimeOT">
-                <input type="hidden" name="Emp" value="@ViewBag.EmployeeId" />
+                <input type="hidden" name="Emp" value="8" />
 
                 <div class="mb-3">
                     <label class="form-label">Date</label>

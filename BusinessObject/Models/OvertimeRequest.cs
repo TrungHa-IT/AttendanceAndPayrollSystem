@@ -30,6 +30,7 @@ public partial class OvertimeRequest
     public DateTime? UpdatedAt { get; set; }
 
     public DateTime? DeletedAt { get; set; }
+    public bool? IsCheckIn { get; set; } 
 
     public virtual Employee Employee { get; set; } = null!;
 }

@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.ManagerDTO;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -132,18 +133,21 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
         }
 
         [HttpGet("checkInStatus")]
-        public IActionResult CheckInStatus()
+        public IActionResult CheckInStatus([FromQuery] int empId)
         {
-            var empId = 6;
-            bool hasCheckedIn = repository.HasCheckedInToday(empId);
-            return Ok(new { hasCheckedIn });
+            var hasCheckedIn = repository.HasCheckedInToday(empId);
+            var hasCheckedInOT = repository.HasCheckedInOTToday(empId); 
+
+            return Ok(new
+            {
+                hasCheckedIn,
+                hasCheckedInOT
+            });
         }
 
-
         [HttpPost("checkIn")]
-        public IActionResult CheckIn()
+        public IActionResult CheckIn([FromBody] int empId)
         {
-            int empId = 6;
 
             if (repository.HasCheckedInToday(empId))
             {
@@ -162,9 +166,8 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
         }
 
         [HttpPost("checkOut")]
-        public IActionResult CheckOut()
+        public IActionResult CheckOut([FromBody] int empId)
         {
-            int empId = 6;
             try
             {
                 repository.CheckOut(empId);
@@ -176,7 +179,84 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
             }
         }
 
+        [HttpGet("ManageOverTime")]
+        public IActionResult ManageOverTime()
+        {
+            try
+            {
+                var listBooking = repository.ManageOT();
+                if (listBooking == null) return NotFound();
+                return Ok(listBooking);
+            }catch(Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+        }
 
+        [HttpPut("UpdateBooking")]
+        public IActionResult UpdateBooking([FromBody] OTUpdateRequestDTO request)
+        {
+            try
+            {
+                var update = repository.UpdateBooking(request.Id, request.Status, request.EmpId);
+                return Ok(update);
+            }
+            catch (Exception e)
+            {
+                return BadRequest(e.Message);
+            }
+        }
+
+        [HttpGet("GetScheduleApproved")]
+        public IActionResult GetScheduleApproved([FromQuery] int employeeId)
+        {
+            try
+            {
+                var otRecords = repository.GetApprovedOTDatesByEmployee(employeeId);
+
+                var result = otRecords.Select(o => new
+                {
+                    OvertimeRequestId = o.OvertimeRequestId,
+                    OvertimeDate = o.OvertimeDate.ToString("yyyy-MM-dd")
+                });
+
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", detail = ex.Message });
+            }
+        }
+
+        [HttpPost("CheckInOt")]
+        public IActionResult CheckInOt([FromQuery] int requestId)
+        {
+            try
+            {
+                var checkInOt = repository.CheckInOT(requestId);
+
+                return Ok(checkInOt);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", detail = ex.Message });
+            }
+        }
+
+        [HttpPost("CheckOutOt")]
+        public IActionResult CheckOutOt([FromQuery] int requestId)
+        {
+            try
+            {
+                var checkInOt = repository.CheckOutOT(requestId);
+
+                return Ok(checkInOt);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Server error", detail = ex.Message });
+            }
+        }
 
     }
 }

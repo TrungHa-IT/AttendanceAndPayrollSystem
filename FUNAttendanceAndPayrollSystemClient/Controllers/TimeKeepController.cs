@@ -1,4 +1,7 @@
-﻿using DataTransferObject.DateTimeDTO;
+﻿using BusinessObject.Models;
+using DataTransferObject.DateTimeDTO;
+using DataTransferObject.ManagerDTO;
+using DocumentFormat.OpenXml.InkML;
 using FUNAttendanceAndPayrollSystemClient.Models;
 using Microsoft.AspNetCore.Mvc;
 using System.Text.Json;
@@ -14,17 +17,33 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
         public TimeKeepController(IConfiguration configuration)
         {
             _httpClient = new HttpClient();
-            _apiBaseUrl = $"{configuration["ApiUrls:Base"]}/Timekeeping";
+            _apiBaseUrl = $"{configuration["ApiUrls:Base"]}";
             _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
         }
 
         public async Task<IActionResult> Index(int year = 0, string week = null)
         {
+            int? currentEmployeeId = HttpContext.Session.GetInt32("employeeId");
+            DateTime todays = DateTime.Today;
+
+            var otResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/ManageSchedule/GetScheduleApproved?employeeId={currentEmployeeId}");
+
+            List<DateOnly> approvedOTDates = new List<DateOnly>();
+            if (otResponse.IsSuccessStatusCode)
+            {
+                var otJson = await otResponse.Content.ReadAsStringAsync();
+
+                var approvedOTs = JsonSerializer.Deserialize<List<ApprovedOTDTO>>(otJson, _jsonOptions);
+
+                ViewBag.ApprovedOTs = approvedOTs;
+
+            }
+
             if (year == 0)
                 year = DateTime.Now.Year;
 
            
-            var weekResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/weeks?year={year}");
+            var weekResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Timekeeping/weeks?year={year}");
             if (!weekResponse.IsSuccessStatusCode)
             {
                 TempData["Error"] = "Không thể tải danh sách tuần.";
@@ -43,7 +62,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             }
 
            
-            var dayResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/days?year={year}&week={Uri.EscapeDataString(week)}");
+            var dayResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Timekeeping/days?year={year}&week={Uri.EscapeDataString(week)}");
             var dayJson = await dayResponse.Content.ReadAsStringAsync();
             var days = JsonSerializer.Deserialize<List<DateTime>>(dayJson, _jsonOptions);
 
@@ -54,5 +73,54 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
             return View();
         }
+
+        [HttpPost]
+        public async Task<IActionResult> CheckInOT(int requestId)
+        {
+            try 
+            { 
+                string apiUrl = $"{_apiBaseUrl}/ManageSchedule/CheckInOt?requestId={requestId}";
+
+                var response = await _httpClient.PostAsync(apiUrl, null); 
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDetail = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, new { message = "Check In OT failed", detail = errorDetail });
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                return Json(new { success = true, data = json });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Client error", detail = ex.Message });
+            }
+        }
+        //https://localhost:7192/ManageSchedule/CheckOutOt?requestId=2
+        [HttpPost]
+        public async Task<IActionResult> CheckOutOT(int requestId)
+        {
+            try
+            {
+                string apiUrl = $"{_apiBaseUrl}/ManageSchedule/CheckOutOt?requestId={requestId}";
+
+                var response = await _httpClient.PostAsync(apiUrl, null);
+
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorDetail = await response.Content.ReadAsStringAsync();
+                    return StatusCode((int)response.StatusCode, new { message = "Check In OT failed", detail = errorDetail });
+                }
+
+                var json = await response.Content.ReadAsStringAsync();
+                return Json(new { success = true, data = json });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "Client error", detail = ex.Message });
+            }
+        }
+
     }
 }

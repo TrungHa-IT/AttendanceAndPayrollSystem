@@ -7,11 +7,18 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.105.0" />
+    <PackageReference Include="EPPlus" Version="8.0.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\BusinessObject\BusinessObject.csproj" />
     <ProjectReference Include="..\DataTransferObject\DataTransferObject.csproj" />
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\Staff\" />
+    <Folder Include="Controllers\Hr\" />
+    <Folder Include="Controllers\Hr\" />
     <Folder Include="Views\Dashbo\" />
   </ItemGroup>
 
