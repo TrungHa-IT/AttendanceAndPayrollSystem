@@ -18,7 +18,7 @@ namespace Repository.EmployeeRepository
         public List<AttendanceDTO> getAttendanceById(int emp) => EmployeeDAO.getAttendanceById(emp);
         public List<EmployeeDTO> GetEmployees() => EmployeeDAO.GetEmployees();
 
-        public List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year) => EmployeeDAO.GetEmployeesTotalTimeByMonth(month, year);
+        public List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year, int? departmenId) => EmployeeDAO.GetEmployeesTotalTimeByMonth(month, year, departmenId);
 
         public Employee? Login(LoginDTO loginDTO) => EmployeeDAO.Login(loginDTO);
         

@@ -1,6 +1,7 @@
 ﻿using BusinessObject.Models;
 using ClosedXML.Excel;
 using DataTransferObject.AttendanceDTO;
+using DataTransferObject.DepartmentDTO;
 using DataTransferObject.EmployeeDTO;
 using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
@@ -12,46 +13,57 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
     {
         private readonly string _baseUrl;
         private readonly JsonSerializerOptions _jsonOptions;
+        private readonly HttpClient _client;
 
-        public StaffController(IConfiguration configuration)
+        public StaffController(IConfiguration configuration, HttpClient client)
         {
             _baseUrl = configuration["ApiUrls:Base"]!;
             _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            _client = client;
         }
         public IActionResult Dashboard()
         {
             return View();
         }
 
-        public async Task<IActionResult> Payroll(int? month, int? year)
+        public async Task<IActionResult> Payroll(int? month, int? year, int? department)
         {
-            HttpClient client = new HttpClient();
+            string urlDepart = $"{_baseUrl}/api/Department/getDepartment";
+            string url = $"{_baseUrl}/Employee/getTotalHourByEmployee?month={month}&year={year}&departmenId={department}";
 
-            string url = $"{_baseUrl}/Employee/getTotalHourByEmployee?month={month}&year={year}";
+            var reponseDepartment = await _client.GetAsync(urlDepart);
+            var departmentss = await reponseDepartment.Content.ReadAsStringAsync();
 
-            var response = await client.GetAsync(url);
+            var response = await _client.GetAsync(url);
             var employeeRes = await response.Content.ReadAsStringAsync();
+
+            var departments = JsonSerializer.Deserialize<List<DepartmentDTO>>(departmentss, _jsonOptions);
             var employees = JsonSerializer.Deserialize<List<EmployeeDTO>>(employeeRes, _jsonOptions);
 
+            ViewBag.departments = departments;
             ViewBag.Employees = employees;
             return View();
         }
 
         [HttpGet]
-        public async Task<IActionResult> ExportTimeSheetToExcel(int? month, int? year)
+        public async Task<IActionResult> ExportTimeSheetToExcel(int? month, int? year, int? department)
         {
-            HttpClient client = new HttpClient();
             int currentMonth = month ?? DateTime.Now.Month;
             int currentYear = year ?? DateTime.Now.Year;
 
             string url = $"{_baseUrl}/Employee/getTotalHourByEmployee?month={currentMonth}&year={currentYear}";
+
+            if (department.HasValue)
+            {
+                url += $"&departmenId={department.Value}";
+            }
 
             var option = new JsonSerializerOptions
             {
                 PropertyNameCaseInsensitive = true
             };
 
-            HttpResponseMessage response = await client.GetAsync(url);
+            HttpResponseMessage response = await _client.GetAsync(url);
             var strData = await response.Content.ReadAsStringAsync();
 
             List<EmployeeDTO> employees = JsonSerializer.Deserialize<List<EmployeeDTO>>(strData, option);
