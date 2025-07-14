@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 
 namespace DataTransferObject.AuthDTO
 {
@@ -11,7 +12,10 @@ namespace DataTransferObject.AuthDTO
         public int EmployId { get; set; }
 
         public string? EmployeeName { get; set; }
-        public string? Image { get; set; }
+      
+        public IFormFile Image { get; set; }
+
+        public string ImageUrl { get; set; }
 
         public DateTime? Dob { get; set; }
 
