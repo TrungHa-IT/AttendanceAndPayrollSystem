@@ -42,7 +42,7 @@
                             int currentYear = DateTime.Now.Year;
                             for (int ye = currentYear - 5; ye <= currentYear + 1; ye++)
                             {
-                                <option value="@y" selected="@(y == selectedYear ? "selected" : null)">
+                                <option value="@ye" selected="@(ye == selectedYear ? "selected" : null)">
                                     @ye
                                 </option>
                             }
