@@ -20,6 +20,8 @@ namespace Repository.EmployeeRepository
 
         public List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year, int? departmenId) => EmployeeDAO.GetEmployeesTotalTimeByMonth(month, year, departmenId);
 
+        public List<EmployeeDTO> GetStaffs() => EmployeeDAO.GetStaffs();
+
         public Employee? Login(LoginDTO loginDTO) => EmployeeDAO.Login(loginDTO);
         
         public bool Register(RegisterDTO registerDTO) => EmployeeDAO.Register(registerDTO);

@@ -1,4 +1,5 @@
-﻿using DataTransferObject.EmployeeDTO;
+﻿using DataTransferObject.DepartmentDTO;
+using DataTransferObject.EmployeeDTO;
 using DataTransferObject.LeaveTypeDTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -15,32 +16,38 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.LeaveType
         [HttpGet("getLeaveType")]
         public ActionResult<IEnumerable<LeaveTypeDTO>> GetLeaveType() => repository.GetLeaveTypes();
 
-        [HttpGet("updateLeaveType")]
-        public ActionResult<LeaveTypeDTO> UpdateLeaveType(int id, LeaveTypeDTO leaveType)
+        [HttpPut("updateLeaveType")]
+        public bool UpdateLeaveType([FromBody] LeaveTypeDTO leaveType)
         {
-            if (id != leaveType.LeaveTypeId)
+            if (leaveType == null || leaveType.LeaveTypeId <= 0)
             {
-                return BadRequest("Leave type ID mismatch.");
+                return false; // Invalid input
             }
-            var updatedLeaveType = repository.UpdateLeaveTypes(leaveType);
-            if (updatedLeaveType == null)
-            {
-                return NotFound("Leave type not found.");
-            }
-            return Ok(updatedLeaveType);
+            return repository.UpdateLeaveTypes(leaveType);
         }
 
-        [HttpGet("deleteLeaveType")]
-        public ActionResult DeleteLeaveType(int id)
+        [HttpDelete("deleteLeaveType/{id}")]
+        public IActionResult DeleteLeaveType(int id)
         {
-            var leaveType = repository.GetLeaveTypes().FirstOrDefault(l => l.LeaveTypeId == id);
+            var leaveType = repository.GetLeaveTypes()
+                                      .FirstOrDefault(l => l.LeaveTypeId == id);
+
             if (leaveType == null)
             {
-                return NotFound("Leave type not found.");
+                return NotFound(new
+                {
+                    Message = $"Leave type with ID {id} not found."
+                });
             }
+
             repository.DeleteLeaveTypes(id);
-            return NoContent();
+
+            return Ok(new
+            {
+                Message = $"Leave type with ID {id} has been deleted successfully."
+            });
         }
+
 
         [HttpPost("createLeaveType")]
         public ActionResult<LeaveTypeDTO> CreateLeaveType(LeaveTypeDTO leaveType)

@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(FunattendanceAndPayrollSystemContext))]
-    [Migration("20250630062307_AddIsCheckInDefaultToOvertimeRequest")]
-    partial class AddIsCheckInDefaultToOvertimeRequest
+    [Migration("20250712020818_NewDb")]
+    partial class NewDb
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)

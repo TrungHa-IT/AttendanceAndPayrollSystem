@@ -11,7 +11,13 @@ namespace FUNAttendanceAndPayrollSystemClient
 
             builder.Services.AddHttpClient();
 
-            builder.Services.AddSession();
+            builder.Services.AddSession(options =>
+            {
+                options.IdleTimeout = TimeSpan.FromMinutes(3600);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.IsEssential = true; 
+            });
+
             builder.Services.AddHttpContextAccessor();
 
 

@@ -10,11 +10,14 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
 {
     [Route("Employee/")]
     [ApiController]
-    public class EmployeeController : Controller
+    public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeRepository repository = new EmployeeRepository();
         [HttpGet("ListEmployees")]
         public ActionResult<IEnumerable<EmployeeDTO>> GetEmployees() => repository.GetEmployees();
+
+        [HttpGet("ListStaff")]
+        public ActionResult<IEnumerable<EmployeeDTO>> GetStaffs() => repository.GetStaffs();
 
         [HttpGet("MyAttendance")]
         public IActionResult GetAttendanceById(int emp)

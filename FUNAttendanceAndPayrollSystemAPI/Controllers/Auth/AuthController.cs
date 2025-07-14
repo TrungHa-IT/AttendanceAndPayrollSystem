@@ -11,16 +11,28 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Auth
     {
         private readonly JwtTokenGenerator _tokenGenerator;
         private readonly IEmployeeRepository _repository;
+        private readonly PhotoService _photoService;
 
-        public AuthController(IConfiguration configuration)
+        public AuthController(
+            IConfiguration configuration,
+            IEmployeeRepository repository,
+            PhotoService photoService)
         {
             _tokenGenerator = new JwtTokenGenerator(configuration);
-            _repository = new EmployeeRepository(); 
+            _repository = repository;
+            _photoService = photoService;
         }
 
         [HttpPost("register")]
-        public IActionResult Register([FromBody] RegisterDTO registerDTO)
+        public async Task<IActionResult> Register([FromForm] RegisterDTO registerDTO)
         {
+            
+            if (registerDTO.Image != null && registerDTO.Image.Length > 0)
+            {
+                var photoUrl = await _photoService.UploadPhotoAsync(registerDTO.Image);
+                registerDTO.ImageUrl = photoUrl;
+            }
+
             var result = _repository.Register(registerDTO);
             if (!result)
                 return BadRequest("Email already exists!");

@@ -294,7 +294,7 @@ namespace BusinessObject.Migrations
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("datetime");
 
-                    b.Property<bool?>("IsPaid")
+                    b.Property<bool>("IsPaid")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("bit")
                         .HasDefaultValue(true);

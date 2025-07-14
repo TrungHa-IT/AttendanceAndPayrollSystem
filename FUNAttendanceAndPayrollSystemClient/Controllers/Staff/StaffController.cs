@@ -3,8 +3,10 @@ using ClosedXML.Excel;
 using DataTransferObject.AttendanceDTO;
 using DataTransferObject.DepartmentDTO;
 using DataTransferObject.EmployeeDTO;
+using DataTransferObject.LeaveDTO;
 using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
+using System.Text;
 using System.Text.Json;
 
 namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
@@ -118,6 +120,71 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
 
             return File(stream, contentType, fileName);
         }
+
+        public async Task<IActionResult> ManageLeave()
+        {
+            using HttpClient client = new();
+
+            var empId = HttpContext.Session.GetInt32("employeeId");
+            if (empId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var response = await client.GetAsync($"{_baseUrl}/api/Leave/getLeaveStaff?id={empId}");
+            List<LeaveDTO> leaves = new();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrWhiteSpace(json))
+                {
+                    leaves = JsonSerializer.Deserialize<List<LeaveDTO>>(json, _jsonOptions) ?? new();
+                }
+            }
+
+            return View(leaves);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateStatus(int leaveId, string status)
+        {
+            var empId = HttpContext.Session.GetInt32("employeeId");
+            if (empId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            using HttpClient client = new();
+
+            // Tạo object gửi đi
+            var leaveToUpdate = new
+            {
+                LeaveId = leaveId,
+                Status = status,
+                ApprovedBy = empId // gán người duyệt là user đang đăng nhập
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(leaveToUpdate),
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            var response = await client.PutAsync($"{_baseUrl}/api/Leave/updateLeave", content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Leave status updated successfully.";
+            }
+            else
+            {
+                TempData["Error"] = "Failed to update leave status.";
+            }
+
+            return RedirectToAction("ManageLeave");
+        }
+
     }
 
 }

@@ -1,0 +1,97 @@
+﻿@model DataTransferObject.LeaveDTO.LeaveDTO
+
+@{
+    ViewBag.Title = "Register Leave";
+    var staffList = ViewBag.Staff as List<DataTransferObject.EmployeeDTO.EmployeeDTO>;
+    var leaveTypes = ViewBag.LeaveTypes as List<DataTransferObject.LeaveTypeDTO.LeaveTypeDTO>;
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-primary text-white">
+                    <h4 class="mb-0">Register a New Leave</h4>
+                </div>
+                <div class="card-body">
+                    <form asp-action="Create" method="post">
+
+                        <input type="hidden" name="Status" value="Pending" />
+
+                        <div class="mb-3">
+                            <label class="form-label">Leave Type</label>
+                            <select name="LeaveTypeId" class="form-select" required>
+                                <option disabled selected>-- Select Leave Type --</option>
+                                @foreach (var type in leaveTypes)
+                                {
+                                    <option value="@type.LeaveTypeId">@type.LeaveTypeName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">Start Date</label>
+                                <input type="date" name="StartDate" id="StartDate" class="form-control" required />
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label">End Date</label>
+                                <input type="date" name="EndDate" id="EndDate" class="form-control" required />
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Reason</label>
+                            <textarea name="Reason" class="form-control" rows="3" placeholder="Optional..."></textarea>
+                        </div> 
+
+                        <div class="mb-3">
+                            <label class="form-label">Approved By</label>
+                            <select name="ApprovedBy" class="form-select">
+                                <option value="">-- Not Approved Yet --</option>
+                                @foreach (var staff in staffList)
+                                {
+                                    <option value="@staff.EmployId">@staff.EmployeeName</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-between">
+                            <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-success">Submit Leave</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const today = new Date().toISOString().split('T')[0];
+
+            const startDateInput = document.getElementById("StartDate");
+            const endDateInput = document.getElementById("EndDate");
+
+            // Set min attribute to today
+            startDateInput.min = today;
+            endDateInput.min = today;
+
+            // When user changes Start Date, update min of End Date
+            startDateInput.addEventListener("change", function () {
+                const selectedStart = startDateInput.value;
+                endDateInput.min = selectedStart;
+
+                // If endDate is before new startDate, clear endDate
+                if (endDateInput.value < selectedStart) {
+                    endDateInput.value = "";
+                }
+            });
+        });
+    </script>
+}
+

@@ -1,10 +1,13 @@
 
 using BusinessObject.Models;
+using DataTransferObject.EmailDTO;
+using FUNAttendanceAndPayrollSystemAPI.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Repository.DateTimeSchedule;
+using Repository.EmployeeRepository;
 using System.Text;
 
 namespace FUNAttendanceAndPayrollSystemAPI
@@ -54,6 +57,14 @@ namespace FUNAttendanceAndPayrollSystemAPI
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]))
                 };
             });
+
+            builder.Services.Configure<CloudinarySettings>(
+            builder.Configuration.GetSection("CloudinarySettings"));
+            builder.Services.AddScoped<PhotoService>();
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+            builder.Services.Configure<EmailSettings>(
+            builder.Configuration.GetSection("EmailSettings"));
+            builder.Services.AddScoped<EmailService>();
 
             builder.Services.AddAuthorization();
 
