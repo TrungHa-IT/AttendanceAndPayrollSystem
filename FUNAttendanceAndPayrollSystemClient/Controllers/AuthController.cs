@@ -1,9 +1,11 @@
 ﻿using DataTransferObject.AuthDTO;
-using Microsoft.AspNetCore.Mvc;
-using System.Text.Json;
-using System.Text;
 using DataTransferObject.DepartmentDTO;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Text.Json;
 
 namespace FUNAttendanceAndPayrollSystemClient.Controllers
 {
@@ -17,7 +19,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
         public AuthController(IConfiguration configuration, IHttpClientFactory httpClientFactory)
         {
-            var baseUrl = configuration["ApiUrls:Base"]; // "https://localhost:7192"
+            var baseUrl = configuration["ApiUrls:Base"]; // ví dụ: "https://localhost:7192"
             _loginUrl = $"{baseUrl}/api/Auth/login";
             _registerUrl = $"{baseUrl}/api/Auth/register";
             _baseUrl = baseUrl;
@@ -26,10 +28,8 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
         }
 
         [HttpGet]
-        public IActionResult Login()
-        {
-            return View();
-        }
+        public IActionResult Login() => View();
+
         [HttpPost]
         public async Task<IActionResult> Login(LoginDTO loginDTO)
         {
@@ -57,18 +57,13 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             HttpContext.Session.SetString("role", role);
             HttpContext.Session.SetInt32("employeeId", employeeId);
 
-            switch (role.ToLower())
+            return role.ToLower() switch
             {
-                case "employee":
-                    return RedirectToAction("Dashboard", "Employee");
-                case "staff":
-                    return RedirectToAction("Dashboard", "Staff");
-                case "hr":
-                    return RedirectToAction("Dashboard", "Hr");
-                default:
-                    TempData["Error"] = "Unknown role.";
-                    return View();
-            }
+                "employee" => RedirectToAction("Dashboard", "Employee"),
+                "staff" => RedirectToAction("Dashboard", "Staff"),
+                "hr" => RedirectToAction("Dashboard", "Hr"),
+                _ => (TempData["Error"] = "Unknown role.") == null ? View() : View()
+            };
         }
 
         [HttpGet]
@@ -89,53 +84,55 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
                 var departmentJson = await response.Content.ReadAsStringAsync();
                 var departments = JsonSerializer.Deserialize<List<DepartmentDTO>>(departmentJson, _jsonOptions);
-
                 ViewBag.Departments = departments ?? new List<DepartmentDTO>();
                 return View();
             }
-            catch (Exception ex)
+            catch
             {
-                // Log exception if needed
                 TempData["Error"] = "An error occurred while loading departments.";
                 ViewBag.Departments = new List<DepartmentDTO>();
                 return View();
             }
         }
 
-
         [HttpPost]
-        public async Task<IActionResult> Register(RegisterDTO registerDTO)
+        public async Task<IActionResult> Register(IFormCollection form, IFormFile AvatarImage)
         {
             var client = _httpClientFactory.CreateClient();
+            var content = new MultipartFormDataContent();
 
-            var content = new StringContent(JsonSerializer.Serialize(registerDTO), Encoding.UTF8, "application/json");
-            var response = await client.PostAsync(_registerUrl, content);
-
-            if (!response.IsSuccessStatusCode)
+            // Add form fields
+            foreach (var key in form.Keys)
             {
-
-                // 👉 Đọc nội dung phản hồi lỗi chi tiết
-                var errorJson = await response.Content.ReadAsStringAsync();
-
-                var departmentRes = await client.GetAsync($"{_baseUrl}/api/Department/getDepartment");
-                if (departmentRes.IsSuccessStatusCode)
-                {
-                    var departmentJson = await departmentRes.Content.ReadAsStringAsync();
-                    var departments = JsonSerializer.Deserialize<List<DepartmentDTO>>(departmentJson, _jsonOptions);
-                    ViewBag.Departments = departments ?? new List<DepartmentDTO>();
-                }
-                else
-                {
-                    ViewBag.Departments = new List<DepartmentDTO>();
-                }
-
-                TempData["Error"] = "Email already exists!";
-                return View(registerDTO);
+                content.Add(new StringContent(form[key]), key);
             }
 
-            TempData["Success"] = "Registered successfully!";
-            return RedirectToAction("Login");
-        }
+            // Add file
+            if (AvatarImage != null && AvatarImage.Length > 0)
+            {
+                var streamContent = new StreamContent(AvatarImage.OpenReadStream());
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue(AvatarImage.ContentType);
+                content.Add(streamContent, "AvatarImage", AvatarImage.FileName);
+            }
 
+            var response = await client.PostAsync(_registerUrl, content);
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Success"] = "Registered successfully!";
+                return RedirectToAction("Login");
+            }
+
+            var depRes = await client.GetAsync($"{_baseUrl}/api/Department/getDepartment");
+            if (depRes.IsSuccessStatusCode)
+            {
+                var depJson = await depRes.Content.ReadAsStringAsync();
+                var departments = JsonSerializer.Deserialize<List<DepartmentDTO>>(depJson, _jsonOptions);
+                ViewBag.Departments = departments ?? new List<DepartmentDTO>();
+            }
+
+            TempData["Error"] = "Failed to register. Email may already exist.";
+            return View();
+        }
     }
 }

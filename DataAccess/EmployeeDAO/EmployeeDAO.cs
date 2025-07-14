@@ -27,7 +27,7 @@ namespace DataAccess.EmployeeDAO
             {
                 using (var context = new FunattendanceAndPayrollSystemContext())
                 {
-                    listEmployees = context.Employees.Include(emp => emp.Department).Where(ep => ep.Position.Equals("Employee"))
+                    listEmployees = context.Employees.Include(emp => emp.Department)
                         .Select(ep => new EmployeeDTO
                         {
                             EmployId = ep.EmployId,
@@ -176,7 +176,7 @@ namespace DataAccess.EmployeeDAO
                 var newEmployee = new Employee
                 {
                     EmployeeName = registerDTO.EmployeeName,
-                    Image = registerDTO.Image,
+                    Image = registerDTO.ImageUrl,
                     Dob = registerDTO.Dob,
                     Email = registerDTO.Email,
                     PhoneNumber = registerDTO.PhoneNumber,

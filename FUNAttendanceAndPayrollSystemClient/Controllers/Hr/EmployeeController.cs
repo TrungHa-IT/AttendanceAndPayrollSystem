@@ -18,7 +18,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Hr
         public async Task<IActionResult> Employee()
         {
             using HttpClient client = new();
-            var employeeRes = await client.GetAsync($"{_baseUrl}/api/Employee/ListEmployees");
+            var employeeRes = await client.GetAsync($"{_baseUrl}/Employee/ListEmployees");
             var employeeJson = await employeeRes.Content.ReadAsStringAsync();
             var employees = JsonSerializer.Deserialize<List<EmployeeDTO>>(employeeJson, _jsonOptions);
             return View("~/Views/Hr/Employee.cshtml", employees);
