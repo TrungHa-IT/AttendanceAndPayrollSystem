@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace BusinessObject.Models;
 
@@ -12,6 +13,7 @@ public partial class Employee
 
     public DateTime? Dob { get; set; }
 
+    [StringLength(500)]
     public string Email { get; set; } = null!;
 
     public string? PhoneNumber { get; set; }
