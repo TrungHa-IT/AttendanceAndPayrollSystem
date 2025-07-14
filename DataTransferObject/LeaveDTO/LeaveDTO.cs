@@ -27,9 +27,13 @@ namespace DataTransferObject.LeaveDTO
         public int? ApprovedBy { get; set; }
 
         public string? LeaveTypeName { get; set; }
+
         public string? ApprovedByName { get; set; }
+
         public string? EmployeeName { get; set; }
 
+        public string EmployeeEmail { get; set; }
+      
         public DateTime? ApprovedDate { get; set; }
 
         public DateTime? CreatedAt { get; set; }

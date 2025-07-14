@@ -1,4 +1,5 @@
 ﻿using DataTransferObject.LeaveDTO;
+using FUNAttendanceAndPayrollSystemAPI.Helpers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repository.LeaveRepository;
@@ -10,6 +11,12 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Leaves
     public class LeaveController : ControllerBase
     {
         private readonly ILeaveRepository repository = new LeaveRepository();
+        private readonly EmailService _emailService;
+
+        public LeaveController(EmailService emailService)
+        {
+            _emailService = emailService;
+        }
 
         [HttpGet("getLeave")]
         public ActionResult<IEnumerable<LeaveDTO>> GetLeaves()
@@ -43,14 +50,27 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Leaves
         }
 
         [HttpPut("updateLeave")]
-        public bool UpdateLeave([FromBody] LeaveDTO leaveDTO)
+        public async Task<IActionResult> UpdateLeave([FromBody] LeaveDTO leaveDTO)
         {
             if (leaveDTO == null || leaveDTO.LeaveId <= 0)
-            {
-                return false;
-            }
-            return repository.UpdateLeave(leaveDTO);
+                return BadRequest();
+
+            var result = repository.UpdateLeave(leaveDTO);
+            if (!result)
+                return BadRequest("Update failed.");
+
+            string subject = $"Your Leave Request has been {leaveDTO.Status}";
+            string body = $@"
+            <h3>Hello {leaveDTO.EmployeeName},</h3>
+            <p>Your leave request from <strong>{leaveDTO.StartDate:dd/MM/yyyy}</strong> to <strong>{leaveDTO.EndDate:dd/MM/yyyy}</strong> has been 
+            <span style='color:{(leaveDTO.Status == "Approved" ? "green" : "red")}'><strong>{leaveDTO.Status}</strong></span>.</p>
+            <p>Regards,<br/>HR Department</p>";
+
+            await _emailService.SendEmailAsync(leaveDTO.EmployeeEmail, subject, body);
+
+            return Ok("Leave updated and email sent.");
         }
+
 
         [HttpDelete("deleteLeave/{id}")]
         public bool DeleteLeave(int id)
