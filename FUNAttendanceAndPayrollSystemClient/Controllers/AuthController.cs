@@ -50,10 +50,12 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             var token = result.GetProperty("token").GetString() ?? "";
             var name = result.GetProperty("name").GetString() ?? "";
             var role = result.GetProperty("role").GetString() ?? "";
+            var email = result.GetProperty("email").GetString() ?? "";
             var employeeId = result.TryGetProperty("employeeId", out var empIdProp) ? empIdProp.GetInt32() : 0;
 
             HttpContext.Session.SetString("token", token);
             HttpContext.Session.SetString("name", name);
+            HttpContext.Session.SetString("email", email);
             HttpContext.Session.SetString("role", role);
             HttpContext.Session.SetInt32("employeeId", employeeId);
 

@@ -35,6 +35,9 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Employee
             }
             ViewBag.Staff = staffs;
 
+            //Email Employee
+            var employeeEmail = HttpContext.Session.GetString("email");
+            ViewBag.EmployeeEmail = employeeEmail;
             // Leave Types
             var leaveTypeRes = await client.GetAsync($"{_baseUrl}/api/LeaveType/getLeaveType");
             List<LeaveTypeDTO> leaveTypes = new();

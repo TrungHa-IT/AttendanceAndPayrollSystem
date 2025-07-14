@@ -104,6 +104,7 @@ namespace DataAccess.LeaveDAO
                             LeaveTypeName = at.LeaveType.LeaveTypeName,
                             ApprovedByName = at.Employee.EmployeeName,
                             EmployeeName = at.Employee.EmployeeName
+                           
                         }).ToList();
 
                     return listLeaves;

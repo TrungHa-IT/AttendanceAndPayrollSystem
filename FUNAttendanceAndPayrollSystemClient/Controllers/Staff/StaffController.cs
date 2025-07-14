@@ -119,6 +119,10 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
                 return RedirectToAction("Login", "Auth");
             }
 
+            //Email Employee
+            var employeeEmail = HttpContext.Session.GetString("email");
+            ViewBag.EmployeeEmail = employeeEmail;
+
             var response = await client.GetAsync($"{_baseUrl}/api/Leave/getLeaveStaff?id={empId}");
             List<LeaveDTO> leaves = new();
 
@@ -135,7 +139,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(int leaveId, string status)
+        public async Task<IActionResult> UpdateStatus(int leaveId, string status, string EmployeeEmail)
         {
             var empId = HttpContext.Session.GetInt32("employeeId");
             if (empId == null)
@@ -144,13 +148,13 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             }
 
             using HttpClient client = new();
-
-            // Tạo object gửi đi
+ 
             var leaveToUpdate = new
             {
                 LeaveId = leaveId,
                 Status = status,
-                ApprovedBy = empId // gán người duyệt là user đang đăng nhập
+                ApprovedBy = empId,
+                EmployeeEmail = EmployeeEmail
             };
 
             var content = new StringContent(
@@ -160,6 +164,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             );
 
             var response = await client.PutAsync($"{_baseUrl}/api/Leave/updateLeave", content);
+            var errorContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
@@ -167,8 +172,9 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             }
             else
             {
-                TempData["Error"] = "Failed to update leave status.";
+                TempData["Error"] = $"Failed to update leave status. API response: {response.StatusCode} - {errorContent}";
             }
+
 
             return RedirectToAction("ManageLeave");
         }
