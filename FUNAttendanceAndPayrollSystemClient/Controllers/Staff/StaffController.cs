@@ -73,7 +73,6 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             using var workbook = new XLWorkbook();
             var worksheet = workbook.Worksheets.Add("Timesheet");
 
-            // Header
             worksheet.Cell(1, 1).Value = "Employee ID";
             worksheet.Cell(1, 2).Value = "Name";
             worksheet.Cell(1, 3).Value = "Date of Birth";

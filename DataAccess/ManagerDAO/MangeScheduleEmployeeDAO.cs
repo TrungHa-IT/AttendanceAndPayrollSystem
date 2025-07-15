@@ -136,15 +136,27 @@ namespace DataAccess.ManagerDAO
 
 
 
-        public static void CheckIn(int empId)
+        public static string CheckIn(int empId)
         {
             using var contextDB = new FunattendanceAndPayrollSystemContext();
             var now = DateTime.Now;
 
             var checkInTime = TimeOnly.FromDateTime(now);
             var earliest = new TimeOnly(8, 30);
+            var latestAllowed = new TimeOnly(14, 0);
+            var autoSetTime = new TimeOnly(12, 0);
+            var lateThreshold = new TimeOnly(10, 30);
 
-            if (checkInTime < earliest)
+            if (checkInTime > latestAllowed)
+            {
+                return "Check-in not allowed after 2:00 PM.";
+            }
+
+            if (checkInTime > lateThreshold)
+            {
+                checkInTime = autoSetTime;
+            }
+            else if (checkInTime < earliest)
             {
                 checkInTime = earliest;
             }
@@ -158,7 +170,10 @@ namespace DataAccess.ManagerDAO
 
             contextDB.Attendances.Add(attendance);
             contextDB.SaveChanges();
+
+            return "Check-in successful";
         }
+
 
 
 

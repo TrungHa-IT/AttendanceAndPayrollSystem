@@ -17,8 +17,15 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Employee
         {
             if (string.IsNullOrWhiteSpace(model.Reason))
             {
-                ViewBag.Message = "Reason is required.";
-                return View("Dashboard");
+                TempData["Error"] = "Reason is required.";
+                return RedirectToAction("Dashboard");
+            }
+
+            var today = DateOnly.FromDateTime(DateTime.Now);
+            if (model.OtDate <= today)
+            {
+                TempData["Error"] = "Please select a date after today.";
+                return RedirectToAction("Dashboard");
             }
 
             using (var client = new HttpClient())
@@ -29,7 +36,6 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Employee
 
                 if (response.IsSuccessStatusCode)
                 {
-                    var result = await response.Content.ReadAsStringAsync();
                     TempData["Success"] = "OT registered successfully.";
                     return RedirectToAction("Dashboard");
                 }
@@ -41,6 +47,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Employee
                 }
             }
         }
+
 
     }
 }

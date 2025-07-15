@@ -148,7 +148,6 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
         [HttpPost("checkIn")]
         public IActionResult CheckIn([FromBody] int empId)
         {
-
             if (repository.HasCheckedInToday(empId))
             {
                 return BadRequest(new { message = "Already checked in today." });
@@ -156,14 +155,20 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
 
             try
             {
-                repository.CheckIn(empId);
-                return Ok(new { message = "Check-in successful" });
+                var resultMessage = repository.CheckIn(empId);
+                if (resultMessage == "Check-in not allowed after 2:00 PM.")
+                {
+                    return BadRequest(new { message = resultMessage });
+                }
+
+                return Ok(new { message = resultMessage });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "Check-in failed", error = ex.Message });
             }
         }
+
 
         [HttpPost("checkOut")]
         public IActionResult CheckOut([FromBody] int empId)

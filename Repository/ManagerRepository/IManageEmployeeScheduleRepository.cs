@@ -16,7 +16,7 @@ namespace Repository.ManagerRepository
         List<DateOnly> GetExistingScheduleDates(int employeeId, DateOnly startDate, DateOnly endDate);
         List<ScheduleDTO> getListScheduleById(int employeeId);
         List<Schedule> GenerateFixedWeekSchedule(int employeeId, DateTime weekStart);
-        void CheckIn(int empId);
+        string CheckIn(int empId);
         bool HasCheckedInToday (int empId);
         bool HasCheckedInOTToday(int empId);
         void CheckOut(int empId);

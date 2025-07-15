@@ -144,23 +144,31 @@
 
         function handleCheckIn() {
             fetch('/ManageSchedule/CheckIn', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
-                .then(res => res.json())
-                .then(() => {
-                    const idSuffix = new Date().toISOString().split('T')[0].replaceAll('-', '');
-                    const checkInBtn = document.getElementById("checkInBtn_" + idSuffix);
-                    const checkOutBtn = document.getElementById("checkOutBtn_" + idSuffix);
-                    if (checkInBtn) {
-                        checkInBtn.disabled = true;
-                        checkInBtn.innerText = "✔ Checked In";
-                    }
-                    if (checkOutBtn) {
-                        checkOutBtn.disabled = false;
-                        checkOutBtn.classList.remove("btn-secondary");
-                        checkOutBtn.classList.add("btn-primary");
+                .then(res => res.json().then(data => ({ status: res.status, body: data })))
+                .then(({ status, body }) => {
+                    if (status === 200) {
+                        const idSuffix = new Date().toISOString().split('T')[0].replaceAll('-', '');
+                        const checkInBtn = document.getElementById("checkInBtn_" + idSuffix);
+                        const checkOutBtn = document.getElementById("checkOutBtn_" + idSuffix);
+
+                        if (checkInBtn) {
+                            checkInBtn.disabled = true;
+                            checkInBtn.innerText = "✔ Checked In (" + new Date().toLocaleTimeString() + ")";
+                        }
+                        if (checkOutBtn) {
+                            checkOutBtn.disabled = false;
+                            checkOutBtn.classList.remove("btn-secondary");
+                            checkOutBtn.classList.add("btn-primary");
+                        }
+
+                        alert(body.message); 
+                    } else {
+                        alert(body.message); 
                     }
                 })
-                .catch(() => alert("Check-in failed."));
+                .catch(() => alert("Check-in failed due to network or server issue."));
         }
+
 
         function handleCheckOut() {
             fetch('/ManageSchedule/CheckOut', { method: 'POST', headers: { 'Content-Type': 'application/json' } })
