@@ -80,7 +80,7 @@ namespace DataAccess.EmployeeDAO
             return listEmployees;
         }
 
-        public static List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year)
+        public static List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year, int? departmenId)
         {
             var listEmployees = new List<EmployeeDTO>();
 
@@ -93,7 +93,7 @@ namespace DataAccess.EmployeeDAO
 
                     listEmployees = context.Employees
                         .Include(emp => emp.Department)
-                        .Where(ep => ep.Position.Equals("Employee"))
+                        .Where(ep => ep.Position.Equals("Employee") && (departmenId == null || ep.DepartmentId == departmenId))
                         .Select(ep => new EmployeeDTO
                         {
                             EmployId = ep.EmployId,

@@ -60,7 +60,7 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
         }
 
         [HttpGet("getTotalHourByEmployee")]
-        public ActionResult<IEnumerable<EmployeeDTO>> getTotalHourByEmployee(int? month, int? year) => repository.GetEmployeesTotalTimeByMonth(month,year);
+        public ActionResult<IEnumerable<EmployeeDTO>> getTotalHourByEmployee(int? month, int? year, int? departmenId) => repository.GetEmployeesTotalTimeByMonth(month,year,departmenId);
 
 
     }

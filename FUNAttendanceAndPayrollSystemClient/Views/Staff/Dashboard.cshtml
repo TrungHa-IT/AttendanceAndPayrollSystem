@@ -2,26 +2,82 @@
     ViewData["Title"] = "Manager Dashboard";
 }
 
-<div class="container d-flex justify-content-center align-items-center" style="height: 80vh;">
-    <div class="text-center">
-        <h2 class="mb-4">Manager Dashboard</h2>
+<style>
+    .dashboard-container {
+        min-height: 80vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        background: linear-gradient(135deg, #f0f8ff, #e6f7ff);
+        padding: 40px 20px;
+    }
 
-        <div class="d-grid gap-3">
-            <a href="@Url.Action("ManageOverTime", "ManageSchedule")" class="btn btn-success btn-lg rounded-pill px-5">
-                OverTime Request
-            </a>
+    .dashboard-card {
+        background-color: #ffffff;
+        padding: 40px;
+        border-radius: 25px;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+        width: 100%;
+        max-width: 700px;
+    }
 
-            <a href="@Url.Action("ManageAttendance", "Attendance")" class="btn btn-primary btn-lg rounded-pill px-5">
-                View Attendance
-            </a>
+    .dashboard-title {
+        font-size: 2.5rem;
+        margin-bottom: 30px;
+        color: #2c3e50;
+        font-weight: bold;
+        text-align: center;
+    }
 
-            <a href="@Url.Action("Payroll", "Staff")" class="btn btn-warning btn-lg rounded-pill px-5 text-white">
-                Trigger Payroll Calculation
-            </a>
+    .dashboard-btn {
+        width: 100%;
+        padding: 30px 20px;
+        font-size: 1.5rem;
+        border-radius: 20px;
+        transition: all 0.3s ease;
+        white-space: nowrap;
+    }
 
-            <a href="@Url.Action("ManageLeave", "Staff")" class="btn btn-warning btn-lg rounded-pill px-5 text-white">
-                Manage Leave
-            </a>
+    .dashboard-btn:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+    .dashboard-row {
+        margin-bottom: 20px;
+    }
+
+    }
+</style>
+
+<div class="dashboard-container">
+    <div class="dashboard-card">
+        <h2 class="dashboard-title">Manager Dashboard</h2>
+
+        <div class="row dashboard-row">
+            <div class="col-md-6 mb-3">
+                <a href="@Url.Action("ManageOverTime", "ManageSchedule")" class="btn btn-success dashboard-btn">
+                    🕒 OverTime Request
+                </a>
+            </div>
+            <div class="col-md-6 mb-3">
+                <a href="@Url.Action("ManageAttendance", "Attendance")" class="btn btn-primary dashboard-btn">
+                    📋 View Attendance
+                </a>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <a href="@Url.Action("Payroll", "Staff")" class="btn btn-warning text-white dashboard-btn">
+                    💵 Trigger Payroll
+                </a>
+            </div>
+            <div class="col-md-6 mb-3">
+                <a href="@Url.Action("ManageLeave", "Staff")" class="btn btn-danger dashboard-btn">
+                    🌴 Manage Leave
+                </a>
+            </div>
         </div>
     </div>
 </div>

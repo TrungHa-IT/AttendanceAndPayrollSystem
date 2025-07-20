@@ -12,9 +12,10 @@ namespace Repository.ManagerRepository
 {
     public class ManageEmployeeScheduleeRepository : IManageEmployeeScheduleRepository
     {
-        public void CheckIn(int empId) => MangeScheduleEmployeeDAO.CheckIn(empId);
+        public string CheckIn(int empId) => MangeScheduleEmployeeDAO.CheckIn(empId);
 
-        public bool CheckInOT(int requestId) => MangeScheduleEmployeeDAO.CheckInOT(requestId);
+        public (bool success, string message) CheckInOT(int requestId)     => MangeScheduleEmployeeDAO.CheckInOT(requestId);
+
 
         public void CheckOut(int empId) => MangeScheduleEmployeeDAO.CheckOut(empId);
 

@@ -5,107 +5,191 @@
 <!-- Bootstrap CSS -->
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-<!-- Custom Modal Styling -->
 <style>
-    .modal-content {
-        border-radius: 1rem;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        border: none;
-        padding: 1.5rem;
-        box-sizing: border-box;
+    body {
+        background: linear-gradient(135deg, #f0f2f5, #d9e4f5);
+        font-family: 'Segoe UI', sans-serif;
     }
 
-    .modal-header, .modal-footer {
+    .dashboard-card {
+        max-width: 700px;
+        margin: auto;
+        padding: 2rem;
+        border-radius: 20px;
+        background-color: #ffffff;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+
+    h3.text-primary {
+        font-weight: 700;
+    }
+
+    .dashboard-btn {
+        font-size: 1rem;
+        padding: 1rem;
+        border-radius: 12px;
+        font-weight: 500;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .dashboard-btn:hover {
+            transform: scale(1.03);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+    /* Register OT Modal Styles */
+    .modal-content {
+        border-radius: 16px;
+        padding: 1.8rem;
         border: none;
+        background: #ffffff;
+        box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+    }
+
+    .modal-header {
+        border-bottom: none;
+        padding-bottom: 0;
     }
 
     .modal-title {
-        font-weight: bold;
-        font-size: 1.5rem;
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #0d6efd;
     }
 
-    .modal.fade .modal-dialog {
-        transform: translateY(-20px);
-        transition: transform 0.3s ease-out;
+    .modal-body .form-label {
+        font-weight: 600;
+        margin-bottom: 0.3rem;
     }
 
-    .modal.show .modal-dialog {
-        transform: translateY(0);
+    .modal-body input,
+    .modal-body textarea {
+        border-radius: 10px;
+        border: 1px solid #ced4da;
+        transition: border-color 0.3s, box-shadow 0.3s;
     }
 
-    textarea.form-control {
-        min-height: 100px;
+        .modal-body input:focus,
+        .modal-body textarea:focus {
+            border-color: #0d6efd;
+            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.25);
+        }
+
+    .modal-footer {
+        border-top: none;
+        padding-top: 0;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+        border: none;
+        border-radius: 10px;
+        padding: 0.6rem 1.2rem;
+        font-weight: 600;
+        transition: background-color 0.3s ease;
+    }
+
+        .btn-success:hover {
+            background-color: #218838;
+        }
+
+    .btn-secondary {
+        border-radius: 10px;
     }
 
     .alert {
-        position: absolute;
+        position: fixed;
         top: 20px;
         right: 20px;
-        z-index: 1055;
+        z-index: 9999;
     }
 </style>
 
-<!-- Dashboard Container -->
-<div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
-    <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px;">
-        <h4 class="text-center mb-4">Welcome</h4>
 
-        <div class="d-grid gap-3">
-            <a href="/TimeKeep/Index" class="btn btn-primary">View Schedule</a>
-            <button class="btn btn-success" data-bs-toggle="modal" data-bs-target="#registerOTModal">Register OT</button>
-            <a href="/Leave/Create" class="btn btn-primary">Register Leave</a>
-            <a href="/Leave/Index" class="btn btn-primary">View list leaves</a>
-            <a href="/Attendance/ShowTimeSheet" class="btn btn-primary">View Time Sheet</a>
+<div class="container py-5">
+    <div class="dashboard-card">
+        <h3 class="text-center mb-4 text-primary">Welcome to Your Dashboard</h3>
+
+        <div class="row g-3">
+            <div class="col-md-6 d-grid">
+                <a href="/TimeKeep/Index" class="btn btn-outline-primary dashboard-btn">
+                    📅 View Schedule
+                </a>
+            </div>
+            <div class="col-md-6 d-grid">
+                <button class="btn btn-outline-success dashboard-btn" data-bs-toggle="modal" data-bs-target="#registerOTModal">
+                    🕒 Register OT
+                </button>
+            </div>
+
+            <div class="col-md-6 d-grid">
+                <a href="/Leave/Create" class="btn btn-outline-warning dashboard-btn">
+                    ✍️ Register Leave
+                </a>
+            </div>
+            <div class="col-md-6 d-grid">
+                <a href="/Leave/Index" class="btn btn-outline-info dashboard-btn">
+                    📋 Leave List
+                </a>
+            </div>
+
+            <div class="col-12 d-grid">
+                <a href="/Attendance/ShowTimeSheet" class="btn btn-outline-secondary dashboard-btn">
+                    🧾 View Timesheet
+                </a>
+            </div>
         </div>
     </div>
-
-    <!-- Success/Error Message -->
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            @TempData["Success"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
-    else if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            @TempData["Error"]
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-    }
 </div>
 
-<!-- Register OT Modal -->
+<!-- Alerts -->
+@if (TempData["Success"] != null)
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @TempData["Success"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+else if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+        @TempData["Error"]
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Modal: Register OT -->
 <div class="modal fade" id="registerOTModal" tabindex="-1" aria-labelledby="registerOTModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="registerOTModalLabel">Register OT</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-
             <form method="post" action="/Employee/RegisterTimeOT">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="registerOTModalLabel">Register Overtime</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+
                 <input type="hidden" name="Emp" value="@ViewBag.EmployeeId" />
 
-                <div class="mb-3">
-                    <label class="form-label">Date</label>
-                    <input type="date" name="OtDate" class="form-control" required />
-                </div>
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input type="date" name="OtDate" class="form-control" required />
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Start Time</label>
-                    <input type="time" name="StartTime" class="form-control" required />
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">Start Time</label>
+                        <input type="time" name="StartTime" class="form-control" required />
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">End Time</label>
-                    <input type="time" name="EndTime" class="form-control" required />
-                </div>
+                    <div class="mb-3">
+                        <label class="form-label">End Time</label>
+                        <input type="time" name="EndTime" class="form-control" required />
+                    </div>
 
-                <div class="mb-3">
-                    <label class="form-label">Reason</label>
-                    <textarea name="Reason" class="form-control" required></textarea>
+                    <div class="mb-3">
+                        <label class="form-label">Reason</label>
+                        <textarea name="Reason" class="form-control" required></textarea>
+                    </div>
                 </div>
 
                 <div class="modal-footer">
@@ -117,4 +201,5 @@
     </div>
 </div>
 
+<!-- Bootstrap Bundle JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
