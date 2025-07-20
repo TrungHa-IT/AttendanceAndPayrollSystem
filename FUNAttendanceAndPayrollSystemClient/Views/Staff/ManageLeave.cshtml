@@ -58,7 +58,6 @@
                                     <form asp-action="UpdateStatus" asp-controller="Staff" method="post" class="d-flex gap-1 justify-content-center">
                                         <input type="hidden" name="LeaveId" value="@leave.LeaveId" />
                                         <input type="hidden" name="ApprovedBy" value="@approverId" />
-                                        <input type="hidden" name="EmployeeEmail" value="@ViewBag.EmployeeEmail" />
 
                                         <button name="Status" value="Approved" class="btn btn-sm btn-success"
                                                 onclick="return confirm('Are you sure you want to approve this leave request?');">

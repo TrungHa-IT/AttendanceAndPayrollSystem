@@ -98,7 +98,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(IFormCollection form, IFormFile AvatarImage)
+        public async Task<IActionResult> Register(IFormCollection form, IFormFile Image)
         {
             var client = _httpClientFactory.CreateClient();
             var content = new MultipartFormDataContent();
@@ -110,11 +110,11 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             }
 
             // Add file
-            if (AvatarImage != null && AvatarImage.Length > 0)
+            if (Image != null && Image.Length > 0)
             {
-                var streamContent = new StreamContent(AvatarImage.OpenReadStream());
-                streamContent.Headers.ContentType = new MediaTypeHeaderValue(AvatarImage.ContentType);
-                content.Add(streamContent, "AvatarImage", AvatarImage.FileName);
+                var streamContent = new StreamContent(Image.OpenReadStream());
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue(Image.ContentType);
+                content.Add(streamContent, "Image", Image.FileName);
             }
 
             var response = await client.PostAsync(_registerUrl, content);

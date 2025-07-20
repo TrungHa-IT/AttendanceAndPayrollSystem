@@ -54,7 +54,8 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Leaves
         {
             if (leaveDTO == null || leaveDTO.LeaveId <= 0)
                 return BadRequest();
-
+            var employeeEmail = repository.GetEmailEmployee(leaveDTO.LeaveId);
+            leaveDTO.EmployeeEmail = employeeEmail;
             var result = repository.UpdateLeave(leaveDTO);
             if (!result)
                 return BadRequest("Update failed.");
@@ -62,7 +63,7 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Leaves
             string subject = $"Your Leave Request has been {leaveDTO.Status}";
             string body = $@"
             <h3>Hello {leaveDTO.EmployeeName},</h3>
-            <p>Your leave request from <strong>{leaveDTO.StartDate:dd/MM/yyyy}</strong> to <strong>{leaveDTO.EndDate:dd/MM/yyyy}</strong> has been 
+            <p>Your leave request has been 
             <span style='color:{(leaveDTO.Status == "Approved" ? "green" : "red")}'><strong>{leaveDTO.Status}</strong></span>.</p>
             <p>Regards,<br/{leaveDTO.ApprovedByName} Staff Department></p>";
 

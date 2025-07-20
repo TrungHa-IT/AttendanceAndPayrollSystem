@@ -17,5 +17,7 @@ namespace Repository.LeaveRepository
         bool AddLeave(LeaveDTO leaveDTO);
         bool UpdateLeave(LeaveDTO leaveDTO);
         bool DeleteLeave(int id);
+
+        string GetEmailEmployee(int leaveId);
     }
 }

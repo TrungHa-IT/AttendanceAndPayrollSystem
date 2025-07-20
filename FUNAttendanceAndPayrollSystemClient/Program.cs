@@ -1,3 +1,6 @@
+using BusinessObject.Models;
+using Microsoft.EntityFrameworkCore;
+
 namespace FUNAttendanceAndPayrollSystemClient
 {
     public class Program
@@ -17,6 +20,9 @@ namespace FUNAttendanceAndPayrollSystemClient
                 options.Cookie.HttpOnly = true;
                 options.Cookie.IsEssential = true; 
             });
+            builder.Services.AddDbContext<FunattendanceAndPayrollSystemContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("MyCnn")));
+
 
             builder.Services.AddHttpContextAccessor();
 

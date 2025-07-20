@@ -1,6 +1,7 @@
 ﻿using BusinessObject.Models;
 using DataTransferObject.LeaveDTO;
 using DataTransferObject.LeaveTypeDTO;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +36,9 @@ namespace DataAccess.LeaveDAO
                        LeaveTypeId = at.LeaveTypeId,
                        Reason = at.Reason,
                        StartDate = at.StartDate,
-                       Status = at.Status
+                       Status = at.Status,
+                       ApprovedByName = at.Employee.EmployeeName,
+                       ApprovedDate = at.ApprovedDate,
                     }).ToList();
                 }
             }
@@ -72,6 +75,28 @@ namespace DataAccess.LeaveDAO
                         }).ToList();
 
                     return listLeaves;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error retrieving leave records: " + e.Message);
+            }
+        }
+
+        //Get email of employee when approve leave
+        public static string GetLeaveEmployeeEmail(int leaveID)
+        {
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    var email = context.Leaves
+                        .Include(l => l.Employee)
+                        .Where(l => l.LeaveId == leaveID)
+                        .Select(l => l.Employee.Email)
+                        .FirstOrDefault(); 
+
+                    return email ?? string.Empty;
                 }
             }
             catch (Exception e)
@@ -135,6 +160,7 @@ namespace DataAccess.LeaveDAO
                         StartDate = leaveDTO.StartDate,
                         Status = leaveDTO.Status,
                         CreatedAt = DateTime.Now,
+                        
                     };
 
                     context.Leaves.Add(leave);

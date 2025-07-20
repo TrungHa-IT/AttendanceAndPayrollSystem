@@ -26,19 +26,27 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Auth
         [HttpPost("register")]
         public async Task<IActionResult> Register([FromForm] RegisterDTO registerDTO)
         {
-            
+            // ✅ Kiểm tra dữ liệu đầu vào có hợp lệ theo DataAnnotations không
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState); // Trả về 400 với danh sách lỗi
+            }
+
+            // ✅ Nếu có ảnh, xử lý upload ảnh
             if (registerDTO.Image != null && registerDTO.Image.Length > 0)
             {
                 var photoUrl = await _photoService.UploadPhotoAsync(registerDTO.Image);
                 registerDTO.ImageUrl = photoUrl;
             }
 
+            // ✅ Đăng ký tài khoản (ví dụ kiểm tra trùng email)
             var result = _repository.Register(registerDTO);
             if (!result)
                 return BadRequest("Email already exists!");
 
             return Ok("Registered successfully.");
         }
+
 
         [HttpPost("login")]
         public IActionResult Login([FromBody] LoginDTO loginDTO)

@@ -5,6 +5,8 @@ using DataTransferObject.EmployeeDTO;
 using DataTransferObject.LeaveDTO;
 using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Repository.LeaveRepository;
 using System.Text;
 using System.Text.Json;
 
@@ -14,11 +16,14 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
     {
         private readonly string _baseUrl;
         private readonly JsonSerializerOptions _jsonOptions;
+        private readonly ILeaveRepository repository = new LeaveRepository();
+        private readonly FunattendanceAndPayrollSystemContext _context;
 
-        public StaffController(IConfiguration configuration)
+        public StaffController(IConfiguration configuration, FunattendanceAndPayrollSystemContext context)
         {
             _baseUrl = configuration["ApiUrls:Base"]!;
             _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
+            _context = context;
         }
         public IActionResult Dashboard()
         {
@@ -91,9 +96,9 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
                 worksheet.Cell(row, 7).Value = item.Address;
                 worksheet.Cell(row, 8).Value = item.Position;
                 worksheet.Cell(row, 9).Value = item.DepartmentName;
-                worksheet.Cell(row, 10).Value = item.Salary ?? 0;
+                worksheet.Cell(row, 10).Value = item.Salary;
                 worksheet.Cell(row, 11).Value = Math.Round(item.TotalTimeWorked, 2);
-                worksheet.Cell(row, 12).Value = Math.Round((decimal)(item.Salary ?? 0) * (decimal)item.TotalTimeWorked, 2);
+                worksheet.Cell(row, 12).Value = Math.Round((decimal)(item.Salary ) * (decimal)item.TotalTimeWorked, 2);
                 row++;
             }
 
@@ -119,10 +124,6 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
                 return RedirectToAction("Login", "Auth");
             }
 
-            //Email Employee
-            var employeeEmail = HttpContext.Session.GetString("email");
-            ViewBag.EmployeeEmail = employeeEmail;
-
             var response = await client.GetAsync($"{_baseUrl}/api/Leave/getLeaveStaff?id={empId}");
             List<LeaveDTO> leaves = new();
 
@@ -139,14 +140,14 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
         }
 
         [HttpPost]
-        public async Task<IActionResult> UpdateStatus(int leaveId, string status, string EmployeeEmail)
+        public async Task<IActionResult> UpdateStatus(int leaveId, string status)
         {
             var empId = HttpContext.Session.GetInt32("employeeId");
             if (empId == null)
             {
                 return RedirectToAction("Login", "Auth");
             }
-
+            var employeeEmail = _context.Leaves.Include(e => e.Employee).Where(e => e.LeaveId == leaveId).FirstOrDefault();
             using HttpClient client = new();
  
             var leaveToUpdate = new
@@ -154,7 +155,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
                 LeaveId = leaveId,
                 Status = status,
                 ApprovedBy = empId,
-                EmployeeEmail = EmployeeEmail
+                EmployeeEmail = employeeEmail.Employee.Email
             };
 
             var content = new StringContent(

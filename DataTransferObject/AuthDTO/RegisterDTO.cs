@@ -15,7 +15,7 @@ namespace DataTransferObject.AuthDTO
       
         public IFormFile Image { get; set; }
 
-        public string ImageUrl { get; set; }
+        public string? ImageUrl { get; set; }
 
         public DateTime? Dob { get; set; }
 
