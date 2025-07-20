@@ -11,6 +11,7 @@ namespace DataTransferObject.EmployeeDTO
         public int EmployId { get; set; }
 
         public string? EmployeeName { get; set; }
+        public string? Image { get; set; }
 
         public DateTime? Dob { get; set; }
 
@@ -21,7 +22,7 @@ namespace DataTransferObject.EmployeeDTO
         public string? Gender { get; set; }
 
         public string? Address { get; set; }
-
+        public DateTime CreateAt { get; set; }
         public string? Position { get; set; }
         public int DepartmentId { get; set; }
         public string DepartmentName { get; set; }

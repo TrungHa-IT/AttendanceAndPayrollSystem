@@ -23,7 +23,6 @@
                         <th>Leave Type ID</th>
                         <th>Start Date</th>
                         <th>End Date</th>
-                        <th>Approved Date</th>
                         <th>Duration (Days)</th>
                         <th>Status</th>
                         <th>Reason</th>
@@ -38,9 +37,6 @@
                             <td class="text-center">@Model[i].LeaveTypeName</td>
                             <td class="text-center">@Model[i].StartDate.ToString("yyyy-MM-dd")</td>
                             <td class="text-center">@Model[i].EndDate.ToString("yyyy-MM-dd")</td>
-                            <td class="text-center">
-                                @(Model[i].ApprovedDate.HasValue ? Model[i].ApprovedDate.Value.ToString("yyyy-MM-dd") : "N/A")
-                            </td>
 
                             <td class="text-center">@Model[i].DurationInDays</td>
                             <td class="text-center">

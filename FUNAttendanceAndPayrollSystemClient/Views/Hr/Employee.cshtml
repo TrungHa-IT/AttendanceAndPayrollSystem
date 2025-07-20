@@ -10,8 +10,12 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h2>Employee Management</h2>
-        <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#createModal">+ Add Employee</button>
+        <a href="https://localhost:7145/Auth/Register" class="btn btn-primary">Add Employee</a>
     </div>
+
+   
+
+
 
     <table class="table table-hover table-bordered align-middle">
         <thead class="table-dark">
@@ -37,32 +41,51 @@
         {
             <tr>
                 <td>@emp.EmployId</td>
-                
+                <td>
+                @if (!string.IsNullOrEmpty(emp.Image))
+                {
+                    <img src="@emp.Image" alt="Photo" style="width: 50px; height: 50px; object-fit: cover;" class="rounded-circle" />
+                }
+                else
+                {
+                    <span>No Image</span>
+                }
+            </td>
                 <td>@emp.EmployeeName</td>
                 <td>@emp.Dob?.ToString("dd/MM/yyyy")</td>
                 <td>@emp.Email</td>
                 <td>@emp.PhoneNumber</td>
-                <td>@emp.Gender</td>
-                <td>@emp.Address</td>
-                <td>@emp.Position</td>
-                <td>@emp.Salary?.ToString("C")</td>
                 <td>
-                    @if (emp.Status == 1)
+                    @if (emp.Gender == "1")
                     {
-                        <span class="badge bg-success">Active</span>
+                        <span class="badge bg-success">Male</span>
                     }
                     else
                     {
-                        <span class="badge bg-secondary">Inactive</span>
+                        <span class="badge bg-secondary">Female</span>
                     }
                 </td>
+                <td>@emp.Address</td>
+                <td>@emp.Position</td>
+                <td>@emp.Salary??.ToString("C")</td>
+                 <td>
+                    @if (emp.Status == 1)
+                    {
+                        <span class="badge bg-success">Inactive</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-secondary">Active</span>
+                    }
+                 </td>
                 <td>@emp.DepartmentName</td>
-                <td>@emp..ToString("dd/MM/yyyy")</td>
-                <td>
+                <td>@emp.CreateAt.ToString("dd/MM/yyyy")</td>
+                @* <td>
                     <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal-@emp.EmployId">Edit</button>
                     <a asp-action="Delete" asp-route-id="@emp.EmployId" onclick="return confirm('Are you sure you want to delete this employee?')" class="btn btn-sm btn-danger">Delete</a>
-                </td>
+                </td> *@
             </tr>
+
 
             <!-- Edit Modal -->
             <div class="modal fade" id="editModal-@emp.EmployId" tabindex="-1" aria-hidden="true">
@@ -75,6 +98,11 @@
                             </div>
                             <div class="modal-body row g-3 px-3">
                                 <input type="hidden" name="EmployId" value="@emp.EmployId" />
+                                <div class="col-md-6 mb-3">
+                                    <label>Current Photo</label><br />
+                                    <img src="@emp.Image" alt="Employee Photo" style="max-width: 200px; height: auto;" class="img-thumbnail" />
+                                </div>
+
                                 <div class="col-md-6">
                                     <label>Name</label>
                                     <input type="text" name="EmployeeName" class="form-control" value="@emp.EmployeeName" />
@@ -92,13 +120,21 @@
                                     <input type="text" name="PhoneNumber" class="form-control" value="@emp.PhoneNumber" />
                                 </div>
                                 <div class="col-md-6">
-                                    <label>Gender</label>
-                                    <select name="Gender" class="form-select">
-                                        <option selected disabled>Select</option>
-                                        @* <option value="Male" @(emp.Gender == "Male" ? "selected" : "")>Male</option>
-                                        <option value="Female" @(emp.Gender == "Female" ? "selected" : "")>Female</option> *@
+                                    <label>Status</label>
+                                    <select name="Status" class="form-select">
+                                        @if (emp.Status == 1)
+                                        {
+                                            <option value="1" selected>Active</option>
+                                            <option value="0">Inactive</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="1">Active</option>
+                                            <option value="0" selected>Inactive</option>
+                                        }
                                     </select>
                                 </div>
+
                                 <div class="col-md-6">
                                     <label>Address</label>
                                     <input type="text" name="Address" class="form-control" value="@emp.Address" />
@@ -113,11 +149,12 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label>Status</label>
-                                    @* <select name="Status" class="form-select">
-                                        <option value="1" @(emp.Status == 1 ? "selected" : "")>Active</option>
-                                        <option value="0" @(emp.Status == 0 ? "selected" : "")>Inactive</option>
-                                    </select> *@
+                                    <select name="Status" class="form-select">
+                                        <option value="1" selected="@(emp.Status == 1)">Active</option>
+                                        <option value="0" selected="@(emp.Status == 0)">Inactive</option>
+                                    </select>
                                 </div>
+
                                 <div class="col-md-6">
                                     <label>Department ID</label>
                                     <input type="number" name="DepartmentId" class="form-control" value="@emp.DepartmentId" />
@@ -136,71 +173,5 @@
     </table>
 </div>
 
-<!-- Create Modal -->
-<div class="modal fade" id="createModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content">
-            <form asp-action="Create">
-                <div class="modal-header">
-                    <h5 class="modal-title">Add New Employee</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body row g-3 px-3">
-                    <div class="col-md-6">
-                        <label>Name</label>
-                        <input type="text" name="EmployeeName" class="form-control" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Email</label>
-                        <input type="email" name="Email" class="form-control" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label>DOB</label>
-                        <input type="date" name="Dob" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Phone</label>
-                        <input type="text" name="PhoneNumber" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Gender</label>
-                        <select name="Gender" class="form-select">
-                            <option selected disabled>Select</option>
-                            <option value="Male">Male</option>
-                            <option value="Female">Female</option>
-                        </select>
-                    </div>
-                    <div class="col-md-6">
-                        <label>Position</label>
-                        <input type="text" name="Position" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Salary</label>
-                        <input type="number" name="Salary" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Department ID</label>
-                        <input type="number" name="DepartmentId" class="form-control" />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Password</label>
-                        <input type="password" name="Password" class="form-control" required />
-                    </div>
-                    <div class="col-md-6">
-                        <label>Status</label>
-                        <select name="Status" class="form-select">
-                            <option value="1">Active</option>
-                            <option value="0">Inactive</option>
-                        </select>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Create</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

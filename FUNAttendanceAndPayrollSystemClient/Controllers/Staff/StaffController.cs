@@ -6,6 +6,8 @@ using DataTransferObject.EmployeeDTO;
 using DataTransferObject.LeaveDTO;
 using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Repository.LeaveRepository;
 using System.Text;
 using System.Text.Json;
 
@@ -15,13 +17,14 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
     {
         private readonly string _baseUrl;
         private readonly JsonSerializerOptions _jsonOptions;
-        private readonly HttpClient _client;
+        private readonly ILeaveRepository repository = new LeaveRepository();
+        private readonly FunattendanceAndPayrollSystemContext _context;
 
-        public StaffController(IConfiguration configuration, HttpClient client)
+        public StaffController(IConfiguration configuration, FunattendanceAndPayrollSystemContext context)
         {
             _baseUrl = configuration["ApiUrls:Base"]!;
             _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
-            _client = client;
+            _context = context;
         }
         public IActionResult Dashboard()
         {
@@ -102,9 +105,9 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
                 worksheet.Cell(row, 7).Value = item.Address;
                 worksheet.Cell(row, 8).Value = item.Position;
                 worksheet.Cell(row, 9).Value = item.DepartmentName;
-                worksheet.Cell(row, 10).Value = item.Salary ?? 0;
+                worksheet.Cell(row, 10).Value = item.Salary;
                 worksheet.Cell(row, 11).Value = Math.Round(item.TotalTimeWorked, 2);
-                worksheet.Cell(row, 12).Value = Math.Round((decimal)(item.Salary ?? 0) * (decimal)item.TotalTimeWorked, 2);
+                worksheet.Cell(row, 12).Value = Math.Round((decimal)(item.Salary ) * (decimal)item.TotalTimeWorked, 2);
                 row++;
             }
 
@@ -153,15 +156,15 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             {
                 return RedirectToAction("Login", "Auth");
             }
-
+            var employeeEmail = _context.Leaves.Include(e => e.Employee).Where(e => e.LeaveId == leaveId).FirstOrDefault();
             using HttpClient client = new();
-
-            // Tạo object gửi đi
+ 
             var leaveToUpdate = new
             {
                 LeaveId = leaveId,
                 Status = status,
-                ApprovedBy = empId // gán người duyệt là user đang đăng nhập
+                ApprovedBy = empId,
+                EmployeeEmail = employeeEmail.Employee.Email
             };
 
             var content = new StringContent(
@@ -171,6 +174,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             );
 
             var response = await client.PutAsync($"{_baseUrl}/api/Leave/updateLeave", content);
+            var errorContent = await response.Content.ReadAsStringAsync();
 
             if (response.IsSuccessStatusCode)
             {
@@ -178,8 +182,9 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             }
             else
             {
-                TempData["Error"] = "Failed to update leave status.";
+                TempData["Error"] = $"Failed to update leave status. API response: {response.StatusCode} - {errorContent}";
             }
+
 
             return RedirectToAction("ManageLeave");
         }

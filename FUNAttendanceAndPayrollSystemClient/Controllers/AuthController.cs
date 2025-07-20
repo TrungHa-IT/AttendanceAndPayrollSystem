@@ -50,10 +50,12 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             var token = result.GetProperty("token").GetString() ?? "";
             var name = result.GetProperty("name").GetString() ?? "";
             var role = result.GetProperty("role").GetString() ?? "";
+            var email = result.GetProperty("email").GetString() ?? "";
             var employeeId = result.TryGetProperty("employeeId", out var empIdProp) ? empIdProp.GetInt32() : 0;
 
             HttpContext.Session.SetString("token", token);
             HttpContext.Session.SetString("name", name);
+            HttpContext.Session.SetString("email", email);
             HttpContext.Session.SetString("role", role);
             HttpContext.Session.SetInt32("employeeId", employeeId);
 
@@ -96,7 +98,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Register(IFormCollection form, IFormFile AvatarImage)
+        public async Task<IActionResult> Register(IFormCollection form, IFormFile Image)
         {
             var client = _httpClientFactory.CreateClient();
             var content = new MultipartFormDataContent();
@@ -108,11 +110,11 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             }
 
             // Add file
-            if (AvatarImage != null && AvatarImage.Length > 0)
+            if (Image != null && Image.Length > 0)
             {
-                var streamContent = new StreamContent(AvatarImage.OpenReadStream());
-                streamContent.Headers.ContentType = new MediaTypeHeaderValue(AvatarImage.ContentType);
-                content.Add(streamContent, "AvatarImage", AvatarImage.FileName);
+                var streamContent = new StreamContent(Image.OpenReadStream());
+                streamContent.Headers.ContentType = new MediaTypeHeaderValue(Image.ContentType);
+                content.Add(streamContent, "Image", Image.FileName);
             }
 
             var response = await client.PostAsync(_registerUrl, content);
