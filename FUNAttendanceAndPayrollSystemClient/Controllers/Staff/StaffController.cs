@@ -87,9 +87,11 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             worksheet.Cell(1, 7).Value = "Address";
             worksheet.Cell(1, 8).Value = "Position";
             worksheet.Cell(1, 9).Value = "Department";
-            worksheet.Cell(1, 10).Value = "Salary (per hour)";
-            worksheet.Cell(1, 11).Value = "Total Time Worked (hrs)";
-            worksheet.Cell(1, 12).Value = "Total Salary";
+            worksheet.Cell(1, 10).Value = "Total Payroll Hours";
+            worksheet.Cell(1, 11).Value = "Total OT Hours";
+            worksheet.Cell(1, 12).Value = "Salary (per hour)";
+            worksheet.Cell(1, 13).Value = "Total Time Worked (hrs)";
+            worksheet.Cell(1, 14).Value = "Total Salary";
 
             var headerRange = worksheet.Range("A1:L1");
             headerRange.Style.Font.Bold = true;
@@ -108,6 +110,8 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
                 worksheet.Cell(row, 8).Value = item.Position;
                 worksheet.Cell(row, 9).Value = item.DepartmentName;
                 worksheet.Cell(row, 10).Value = item.Salary;
+                worksheet.Cell(row, 11).Value = item.PayrollTime;
+                worksheet.Cell(row, 10).Value = item.OvertimeTime;
                 worksheet.Cell(row, 11).Value = Math.Round(item.TotalTimeWorked, 2);
                 worksheet.Cell(row, 12).Value = Math.Round((decimal)(item.Salary ) * (decimal)item.TotalTimeWorked, 2);
                 row++;
