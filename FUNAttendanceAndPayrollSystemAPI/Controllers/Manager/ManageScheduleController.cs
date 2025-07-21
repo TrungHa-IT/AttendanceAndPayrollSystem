@@ -238,15 +238,17 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
         {
             try
             {
-                var checkInOt = repository.CheckInOT(requestId);
-
-                return Ok(checkInOt);
+                var result = repository.CheckInOT(requestId);
+                return Ok(new { success = result.success, message = result.message });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Server error", detail = ex.Message });
+                return StatusCode(500, new { success = false, message = "Server error", detail = ex.Message });
             }
         }
+
+
+
 
         [HttpPost("CheckOutOt")]
         public IActionResult CheckOutOt([FromQuery] int requestId)

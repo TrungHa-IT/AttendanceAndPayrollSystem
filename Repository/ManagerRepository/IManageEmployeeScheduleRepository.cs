@@ -23,7 +23,8 @@ namespace Repository.ManagerRepository
         List<BookingOTDTO> ManageOT();
         BookingOTDTO UpdateBooking(int otRequestId, string status, int approvedBy);
         List<ApprovedOTDTO> GetApprovedOTDatesByEmployee(int employeeId);
-        bool CheckInOT(int requestId);
+        (bool success, string message) CheckInOT(int requestId);
+
         bool CheckOutOT(int requestId);
     }
 }

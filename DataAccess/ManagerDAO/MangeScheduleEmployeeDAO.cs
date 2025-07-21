@@ -277,27 +277,39 @@ namespace DataAccess.ManagerDAO
                 .ToList();
         }
 
-        public static bool CheckInOT(int requestId)
+        public static (bool success, string message) CheckInOT(int requestId)
         {
             using var _context = new FunattendanceAndPayrollSystemContext();
-            var otRequest =  _context.OvertimeRequests.FirstOrDefault(ot => ot.OvertimeRequestId == requestId);
+            var otRequest = _context.OvertimeRequests.FirstOrDefault(ot => ot.OvertimeRequestId == requestId);
 
-            if (otRequest == null || otRequest.Status != "approved")
-                return false;
+            if (otRequest == null)
+                return (false, "Yêu cầu OT không tồn tại.");
+
+            if (otRequest.Status != "approved")
+                return (false, "Yêu cầu OT chưa được phê duyệt.");
 
             DateTime now = DateTime.Now;
 
             DateTime registeredStart = otRequest.OvertimeDate.ToDateTime(otRequest.StartTime);
+            DateTime registeredEnd = otRequest.OvertimeDate.ToDateTime(otRequest.EndTime);
 
-            TimeOnly finalStartTime = (now < registeredStart) ? otRequest.StartTime : TimeOnly.FromDateTime(now);
+            if (registeredStart >= registeredEnd)
+                return (false, "Thông tin thời gian OT không hợp lệ.");
 
-            otRequest.StartTime = finalStartTime;
+            if (now < registeredStart)
+                return (false, "Chưa đến giờ OT, không thể check-in.");
+
+            if (now > registeredEnd)
+                return (false, "Đã quá thời gian OT đăng ký, không thể check-in.");
+            otRequest.StartTime = TimeOnly.FromDateTime(now);
             otRequest.IsCheckIn = true;
-            otRequest.UpdatedAt = DateTime.Now;
+            otRequest.UpdatedAt = now;
 
-             _context.SaveChangesAsync();
-            return true;
+            _context.SaveChanges();
+            return (true, "Check-in OT thành công.");
         }
+
+
 
         public static bool CheckOutOT(int requestId)
         {

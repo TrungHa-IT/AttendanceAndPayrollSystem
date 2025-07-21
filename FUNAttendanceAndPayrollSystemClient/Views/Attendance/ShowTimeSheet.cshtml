@@ -7,93 +7,99 @@
 
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
 
-<div class="container mt-5">
-    <div class="card shadow-lg border border-primary">
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card shadow-lg w-100" style="max-width: 1100px;">
         <div class="card-body">
-            <h2 class="text-center text-primary mb-4">Employee Timesheet</h2>
+            <h2 class="text-center text-primary mb-4">📊 Employee Timesheet</h2>
 
-            <table class="table table-bordered table-hover text-center">
-                <thead class="table-dark">
-                    <tr>
-                        <th>Employee ID</th>
-                        <th>Name</th>
-                        <th>Department</th>
-                        <th>Work Date</th>
-                        <th>Check In</th>
-                        <th>Check Out</th>
-                        <th>Total Time (hrs)</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (attendances != null && attendances.Any())
-                    {
-                        int i = 0;
-                        foreach (var item in attendances)
-                        {
-                            var colorClass = rowColors[i % rowColors.Length];
-                            TimeSpan? totalTime = (item.CheckOut.HasValue && item.CheckIn != null)
-                            ? item.CheckOut.Value - item.CheckIn
-                            : null;
-
-                            <tr class="@colorClass">
-                                <td>@item.EmployeeId</td>
-                                <td>@item.EmployeeName</td>
-                                <td>@item.DepartmentName</td>
-                                <td>@item.WorkDate.ToString("yyyy-MM-dd")</td>
-                                <td>@item.CheckIn.ToString("HH:mm")</td>
-                                <td>@item.CheckOut?.ToString("HH:mm")</td>
-                                <td>@(totalTime?.TotalHours.ToString("0.00") ?? "-")</td>
-                            </tr>
-                            i++;
-                        }
-                    }
-                    else
-                    {
+            <div class="table-responsive">
+                <table class="table table-bordered table-hover text-center align-middle">
+                    <thead class="table-dark">
                         <tr>
-                            <td colspan="8" class="text-danger">No attendance records found.</td>
+                            <th>Employee ID</th>
+                            <th>Name</th>
+                            <th>Department</th>
+                            <th>Work Date</th>
+                            <th>Check In</th>
+                            <th>Check Out</th>
+                            <th>Total Time (hrs)</th>
                         </tr>
-                    }
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        @if (attendances != null && attendances.Any())
+                        {
+                            int i = 0;
+                            foreach (var item in attendances)
+                            {
+                                var colorClass = rowColors[i % rowColors.Length];
+                                TimeSpan? totalTime = (item.CheckOut.HasValue && item.CheckIn != null)
+                                ? item.CheckOut.Value - item.CheckIn
+                                : null;
+
+                                <tr class="@colorClass">
+                                    <td>@item.EmployeeId</td>
+                                    <td>@item.EmployeeName</td>
+                                    <td>@item.DepartmentName</td>
+                                    <td>@item.WorkDate.ToString("yyyy-MM-dd")</td>
+                                    <td>@item.CheckIn.ToString("HH:mm")</td>
+                                    <td>@item.CheckOut?.ToString("HH:mm")</td>
+                                    <td class="fw-bold text-dark">@((totalTime?.TotalHours.ToString("0.00") ?? "-"))</td>
+                                </tr>
+                                i++;
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="7" class="text-danger fw-bold">No attendance records found.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
             @if (role == "staff")
             {
-                <div class="d-flex justify-content-center mt-4 gap-3">
-                    <a id="exportExcelBtn" class="btn btn-success">Xuất file Excel</a>
+                <div class="d-flex justify-content-center mt-4 gap-3 flex-wrap">
+                    <a id="exportExcelBtn" class="btn btn-outline-success px-4 py-2">⬇️ Export to Excel</a>
+                    <button class="btn btn-outline-primary px-4 py-2" onclick="calculateMonthlySalary()">💰 Calculate Salary</button>
                 </div>
             }
+
             <div class="text-center mt-4">
                 <h5 id="salaryResult" class="text-primary fw-bold"></h5>
             </div>
-
         </div>
     </div>
 </div>
 
 <script>
-        function calculateMonthlySalary() {
-            const row = document.querySelector("tbody tr");
-            if (!row || row.cells.length < 4) {
-                document.getElementById("salaryResult").innerText = "Không tìm thấy dữ liệu chấm công.";
-                return;
-            }
-
-            const employeeId = row.cells[0].textContent.trim();
-            const workDate = row.cells[3].textContent.trim(); 
-            const [year, month] = workDate.split('-');
-            fetch(`/Attendance/CaculateSalary?employeeId=${employeeId}&month=${parseInt(month)}&year=${year}`, {
-                method: 'POST'
-            })
-                .then(response => {
-                    if (!response.ok) throw new Error("Lỗi từ server");
-                    return response.json();
-                })
-                .then(data => {
-                    document.getElementById("salaryResult").innerText = "✅ " + data.message;
-                })
-                .catch(error => {
-                    document.getElementById("salaryResult").innerText = "❌ Tính lương thất bại: " + error.message;
-                });
+    function calculateMonthlySalary() {
+        const row = document.querySelector("tbody tr");
+        if (!row || row.cells.length < 4) {
+            document.getElementById("salaryResult").innerText = "❌ Không tìm thấy dữ liệu chấm công.";
+            return;
         }
+
+        const employeeId = row.cells[0].textContent.trim();
+        const workDate = row.cells[3].textContent.trim();
+        const [year, month] = workDate.split('-');
+
+        fetch(`/Attendance/CaculateSalary?employeeId=${employeeId}&month=${parseInt(month)}&year=${year}`, {
+            method: 'POST'
+        })
+            .then(response => {
+                if (!response.ok) throw new Error("Lỗi từ server");
+                return response.json();
+            })
+            .then(data => {
+                document.getElementById("salaryResult").innerText = "✅ " + data.message;
+            })
+            .catch(error => {
+                document.getElementById("salaryResult").innerText = "❌ Tính lương thất bại: " + error.message;
+            });
+    }
+
     window.onload = () => {
         const row = document.querySelector("tbody tr");
         if (row && row.cells.length >= 1) {
@@ -102,4 +108,3 @@
         }
     }
 </script>
-
