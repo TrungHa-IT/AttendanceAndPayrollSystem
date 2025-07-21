@@ -48,6 +48,5 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Employee
             }
         }
 
-
     }
 }

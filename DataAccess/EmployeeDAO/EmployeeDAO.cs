@@ -114,11 +114,22 @@ namespace DataAccess.EmployeeDAO
                             .ToList();
 
                         decimal totalOTHours = matchedOTs.Sum(o => o.TotalHours ?? 0);
+
                         System.Diagnostics.Debug.WriteLine($"Employee {emp.EmployId} - Payroll: {totalPayrollHours}h, OT: {totalOTHours}h");
 
+                        decimal totalStandardMinutesPerMonth = 24 * 8 * 60;
+                        decimal salaryPerMinute = emp.Salary / totalStandardMinutesPerMonth;
+
+                        decimal totalPayrollMinutes = totalPayrollHours * 60;
+                        decimal totalOTMinutes = totalOTHours * 60;
+
+                        decimal totalSalary = Math.Round(
+                            (totalPayrollMinutes * salaryPerMinute) +
+                            (totalOTMinutes * salaryPerMinute * 2),
+                            2, MidpointRounding.AwayFromZero);
+
+
                         decimal totalTimeWorked = totalPayrollHours + totalOTHours;
-                        decimal salaryPerHour = emp.Salary;
-                        decimal totalSalary = (decimal)totalTimeWorked * salaryPerHour;
 
                         listEmployees.Add(new EmployeeDTO
                         {
@@ -148,6 +159,7 @@ namespace DataAccess.EmployeeDAO
 
             return listEmployees;
         }
+
 
 
         public static List<AttendanceDTO> getAttendanceById(int emp)
@@ -235,11 +247,32 @@ namespace DataAccess.EmployeeDAO
             }
         }
 
-        public static BookingOTDTO bookScheduleOverTime(int emp,DateOnly otDate, TimeOnly startTime, TimeOnly endTime,string reason)
+        public static BookingOTDTO bookScheduleOverTime(int emp, DateOnly otDate, TimeOnly startTime, TimeOnly endTime, string reason)
         {
             using var _db = new FunattendanceAndPayrollSystemContext();
             try
             {
+                var allowedStart = new TimeOnly(18, 0);
+                var allowedEnd = new TimeOnly(22, 0);
+
+                if (startTime < allowedStart || endTime > allowedEnd || startTime >= endTime)
+                {
+                    throw new Exception("Thời gian OT chỉ được đăng ký trong khoảng từ 18:00 đến 22:00.");
+                }
+
+                bool hasRegisteredOT = _db.OvertimeRequests
+                                      .Where(ot => ot.OvertimeDate == otDate
+                                                && ot.EmployeeId == emp
+                                                && ot.DeletedAt == null)
+                                      .Any();
+
+                Console.WriteLine("hasRegisteredOT: " + hasRegisteredOT);
+
+                if (hasRegisteredOT)
+                {
+                    throw new Exception("Bạn đã đăng ký OT trong ngày này rồi.");
+                }
+
                 var newRequest = new OvertimeRequest
                 {
                     EmployeeId = emp,
@@ -249,8 +282,10 @@ namespace DataAccess.EmployeeDAO
                     Reason = reason,
                     Status = "processing"
                 };
+
                 _db.OvertimeRequests.Add(newRequest);
                 _db.SaveChanges();
+
                 return new BookingOTDTO
                 {
                     EmployeeId = newRequest.EmployeeId,
@@ -260,7 +295,8 @@ namespace DataAccess.EmployeeDAO
                     Status = newRequest.Status,
                     Reason = newRequest.Reason
                 };
-            }catch (Exception e)
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }

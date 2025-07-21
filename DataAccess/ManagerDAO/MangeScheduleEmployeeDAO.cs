@@ -176,7 +176,6 @@ namespace DataAccess.ManagerDAO
 
 
 
-
         public static void CheckOut(int empId)
         {
             using var contextDB = new FunattendanceAndPayrollSystemContext();
@@ -210,7 +209,27 @@ namespace DataAccess.ManagerDAO
             using var _db = new FunattendanceAndPayrollSystemContext();
             try
             {
-                var listBooking = _db.OvertimeRequests.Include(ot => ot.Employee).Where(ot => ot.Status.Equals("processing"))
+                var now = DateTime.Now;
+
+                var processingOTs = _db.OvertimeRequests
+                    .Include(ot => ot.Employee)
+                    .Where(ot => ot.Status.Equals("processing"))
+                    .ToList();
+
+                foreach (var ot in processingOTs)
+                {
+                    var startDateTime = ot.OvertimeDate.ToDateTime(ot.StartTime);
+
+                    if (now >= startDateTime.AddHours(-3))
+                    {
+                        ot.Status = "rejected";
+                    }
+                }
+
+                _db.SaveChanges();
+
+                var listBooking = processingOTs
+                    .Where(ot => ot.Status.Equals("processing")) 
                     .Select(ot => new BookingOTDTO
                     {
                         OvertimeRequestId = ot.OvertimeRequestId,
@@ -220,13 +239,15 @@ namespace DataAccess.ManagerDAO
                         Status = ot.Status,
                         Reason = ot.Reason,
                         OvertimeDate = ot.OvertimeDate
-                    }).ToList();
+                    })
+                    .ToList();
+
                 return listBooking;
-            }catch(Exception e)
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
-
         }
 
         public static BookingOTDTO UpdateBooking(int otRequestId, string status, int approvedBy)

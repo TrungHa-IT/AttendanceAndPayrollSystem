@@ -20,14 +20,15 @@ namespace DataAccess.ManagerDAO
                 .Where(a => a.EmployeeId == employeeId && a.WorkDate.Month == month && a.WorkDate.Year == year)
                 .ToList();
 
-            double totalHours = empAttendances.Sum(a =>
+            double totalMinutes = empAttendances.Sum(a =>
             {
-                if (a.CheckOut != null && a.CheckIn != null)
-                    return (a.CheckOut.Value - a.CheckIn).TotalHours;
+                if (a.CheckIn != null && a.CheckOut != null)
+                    return (a.CheckOut.Value - a.CheckIn).TotalMinutes;
                 return 0;
             });
 
-            double totalSalary = totalHours * (double)emp.Salary;
+            double salaryPerMinute = (double)emp.Salary / (24 * 8 * 60);
+            double totalSalary = totalMinutes * salaryPerMinute;
 
             var existing = db.Payrolls.FirstOrDefault(p =>
                 p.EmployeeId == employeeId && p.Month == month && p.Year == year);
@@ -39,19 +40,20 @@ namespace DataAccess.ManagerDAO
                     EmployeeId = employeeId,
                     Month = month,
                     Year = year,
-                    TotalWorkHour = (decimal)totalHours,
+                    TotalWorkHour = (decimal)(totalMinutes / 60),
                     TotalSalary = (decimal)totalSalary,
                 });
             }
             else
             {
-                existing.TotalWorkHour = (decimal)totalHours;
+                existing.TotalWorkHour = (decimal)(totalMinutes / 60);
                 existing.TotalSalary = (decimal)totalSalary;
             }
 
             db.SaveChanges();
 
-            return $"Tính lương thành công cho {emp.EmployeeName} - Tháng {month} - {totalHours:0.00} giờ - {totalSalary:N0} VND";
+            return $"Tính lương thành công cho {emp.EmployeeName} - Tháng {month} - {(totalMinutes / 60):0.00} giờ - {totalSalary:N0} VND";
         }
+
     }
 }
