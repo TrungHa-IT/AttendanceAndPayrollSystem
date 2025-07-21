@@ -91,51 +91,64 @@ namespace DataAccess.EmployeeDAO
                     int currentMonth = month ?? DateTime.Now.Month;
                     int currentYear = year ?? DateTime.Now.Year;
 
-                    listEmployees = context.Employees
+                    var employees = context.Employees
                         .Include(emp => emp.Department)
-                        .Where(ep => ep.Position.Equals("Employee") && (departmenId == null || ep.DepartmentId == departmenId))
-                        .Select(ep => new EmployeeDTO
-                        {
-                            EmployId = ep.EmployId,
-                            EmployeeName = ep.EmployeeName,
-                            Dob = ep.Dob,
-                            Email = ep.Email,
-                            PhoneNumber = ep.PhoneNumber,
-                            Gender = ep.Gender,
-                            Address = ep.Address,
-                            Salary = ep.Salary,
-                            Position = ep.Position,
-                            DepartmentId = ep.DepartmentId,
-                            DepartmentName = ep.Department.DepartmentName,
-
-                            TotalTimeWorked =
-                                context.Payrolls
-                                    .Where(p => p.EmployeeId == ep.EmployId
-                                             && p.Month == currentMonth
-                                             && p.Year == currentYear)
-                                    .Sum(p => (double?)p.TotalWorkHour ?? 0)
-                                +
-                                context.OvertimeRequests
-                                    .Where(o => o.EmployeeId == ep.EmployId
-                                             && o.OvertimeDate.Month == currentMonth
-                                             && o.OvertimeDate.Year == currentYear
-                                             && o.Status == "success")
-                                    .Sum(o => (double?)o.TotalHours ?? 0)
-                        })
+                        .Where(ep => ep.Position.Equals("Employee") &&
+                                    (departmenId == null || ep.DepartmentId == departmenId))
                         .ToList();
-                    foreach (var emp in listEmployees)
+
+                    foreach (var emp in employees)
                     {
-                        emp.TotalSalary = (decimal)emp.TotalTimeWorked * emp.Salary.GetValueOrDefault(0);
+                        decimal totalPayrollHours = context.Payrolls
+                            .Where(p => p.EmployeeId == emp.EmployId
+                                     && p.Month == currentMonth
+                                     && p.Year == currentYear)
+                            .Sum(p => (decimal?)p.TotalWorkHour ?? 0);
+
+                        var matchedOTs = context.OvertimeRequests
+                            .Where(o => o.EmployeeId == emp.EmployId
+                                     && o.OvertimeDate.Month == currentMonth
+                                     && o.OvertimeDate.Year == currentYear
+                                     && o.Status != null
+                                     && (o.Status.ToLower() == "presented"))
+                            .ToList();
+
+                        decimal totalOTHours = matchedOTs.Sum(o => o.TotalHours ?? 0);
+                        System.Diagnostics.Debug.WriteLine($"Employee {emp.EmployId} - Payroll: {totalPayrollHours}h, OT: {totalOTHours}h");
+
+                        decimal totalTimeWorked = totalPayrollHours + totalOTHours;
+                        decimal salaryPerHour = emp.Salary;
+                        decimal totalSalary = (decimal)totalTimeWorked * salaryPerHour;
+
+                        listEmployees.Add(new EmployeeDTO
+                        {
+                            EmployId = emp.EmployId,
+                            EmployeeName = emp.EmployeeName,
+                            Dob = emp.Dob,
+                            Email = emp.Email,
+                            PhoneNumber = emp.PhoneNumber,
+                            Gender = emp.Gender,
+                            Address = emp.Address,
+                            Salary = emp.Salary,
+                            Position = emp.Position,
+                            DepartmentId = emp.DepartmentId,
+                            DepartmentName = emp.Department?.DepartmentName,
+                            PayrollTime = (double)totalPayrollHours,
+                            OvertimeTime = (double)totalOTHours,
+                            TotalTimeWorked = (double)totalTimeWorked,
+                            TotalSalary = totalSalary
+                        });
                     }
                 }
             }
             catch (Exception e)
             {
-                throw new Exception(e.Message);
+                throw new Exception("Error in GetEmployeesTotalTimeByMonth: " + e.Message);
             }
 
             return listEmployees;
         }
+
 
         public static List<AttendanceDTO> getAttendanceById(int emp)
         {

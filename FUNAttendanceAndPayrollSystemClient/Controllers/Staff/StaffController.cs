@@ -19,12 +19,14 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
         private readonly JsonSerializerOptions _jsonOptions;
         private readonly ILeaveRepository repository = new LeaveRepository();
         private readonly FunattendanceAndPayrollSystemContext _context;
+        private readonly HttpClient _client;
 
-        public StaffController(IConfiguration configuration, FunattendanceAndPayrollSystemContext context)
+        public StaffController(IConfiguration configuration, FunattendanceAndPayrollSystemContext context, HttpClient client)
         {
             _baseUrl = configuration["ApiUrls:Base"]!;
             _jsonOptions = new JsonSerializerOptions { PropertyNameCaseInsensitive = true };
             _context = context;
+            _client = client;
         }
         public IActionResult Dashboard()
         {

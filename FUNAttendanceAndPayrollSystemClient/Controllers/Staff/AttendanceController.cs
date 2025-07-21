@@ -69,7 +69,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
         }
 
         [HttpPost]
-        public async Task<IActionResult> CaculateSalary(int employeeId, int month, int year)
+        public async Task<IActionResult> CaculateSalary([FromQuery] int employeeId, [FromQuery] int month, [FromQuery] int year)
         {
             HttpClient client = new HttpClient();
             string baseUrl = _configuration["ApiUrls:Base"];

@@ -28,6 +28,8 @@ namespace DataTransferObject.EmployeeDTO
         public string DepartmentName { get; set; }
         public decimal? Salary { get; set; }
         public int Status { get; set; }
+        public double PayrollTime { get; set; }
+        public double OvertimeTime { get; set; }
         public double TotalTimeWorked { get; set; }
         public decimal TotalSalary { get; set; }
 

@@ -76,16 +76,18 @@
 <script>
     function calculateMonthlySalary() {
         const row = document.querySelector("tbody tr");
-        if (!row || row.cells.length < 4) {
+        if (!row || row.cells.length < 1) {
             document.getElementById("salaryResult").innerText = "❌ Không tìm thấy dữ liệu chấm công.";
             return;
         }
 
         const employeeId = row.cells[0].textContent.trim();
-        const workDate = row.cells[3].textContent.trim();
-        const [year, month] = workDate.split('-');
 
-        fetch(`/Attendance/CaculateSalary?employeeId=${employeeId}&month=${parseInt(month)}&year=${year}`, {
+        const today = new Date();
+        const month = today.getMonth() + 1;
+        const year = today.getFullYear();
+
+        fetch(`/Attendance/CaculateSalary?employeeId=${employeeId}&month=${month}&year=${year}`, {
             method: 'POST'
         })
             .then(response => {
@@ -99,6 +101,7 @@
                 document.getElementById("salaryResult").innerText = "❌ Tính lương thất bại: " + error.message;
             });
     }
+
 
     window.onload = () => {
         const row = document.querySelector("tbody tr");

@@ -27,8 +27,7 @@ namespace DataAccess.ManagerDAO
                 return 0;
             });
 
-            double hourlyRate = (double)emp.Salary; 
-            double totalSalary = totalHours * hourlyRate;
+            double totalSalary = totalHours * (double)emp.Salary;
 
             var existing = db.Payrolls.FirstOrDefault(p =>
                 p.EmployeeId == employeeId && p.Month == month && p.Year == year);
@@ -42,19 +41,17 @@ namespace DataAccess.ManagerDAO
                     Year = year,
                     TotalWorkHour = (decimal)totalHours,
                     TotalSalary = (decimal)totalSalary,
-                    HourlyRate = (decimal)hourlyRate
                 });
             }
             else
             {
                 existing.TotalWorkHour = (decimal)totalHours;
                 existing.TotalSalary = (decimal)totalSalary;
-                existing.HourlyRate = (decimal)hourlyRate;
             }
 
             db.SaveChanges();
 
-            return $"Tính lương thành công cho {emp.EmployeeName} - {totalHours:0.00} giờ - {totalSalary:N0} VND";
+            return $"Tính lương thành công cho {emp.EmployeeName} - Tháng {month} - {totalHours:0.00} giờ - {totalSalary:N0} VND";
         }
     }
 }
