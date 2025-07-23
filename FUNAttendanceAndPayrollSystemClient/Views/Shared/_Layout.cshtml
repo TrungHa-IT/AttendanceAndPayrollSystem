@@ -26,6 +26,25 @@
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
                     </ul>
+                    <div class="d-flex align-items-center">
+                        <a class="btn btn-outline-primary me-2" asp-controller="Employee" asp-action="Profile">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-person-circle" viewBox="0 0 16 16">
+                                <path d="M13.468 12.37C12.758 11.226 11.481 10.5 10 10.5s-2.758.726-3.468 1.87A6.987 6.987 0 0 0 8 15a6.987 6.987 0 0 0 5.468-2.63z" />
+                                <path fill-rule="evenodd" d="M8 9a3 3 0 1 0 0-6 3 3 0 0 0 0 6zM8 1a7 7 0 1 0 0 14A7 7 0 0 0 8 1z" />
+                            </svg>
+                            Profile
+                        </a>
+                    </div>
+
+                    <form method="post" asp-controller="Auth" asp-action="Logout">
+                        <button type="submit" class="btn btn-outline-danger">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-box-arrow-right" viewBox="0 0 16 16">
+                                <path fill-rule="evenodd" d="M10 15a1 1 0 0 0 1-1v-3.5H5.5a.5.5 0 0 1 0-1H11V2a1 1 0 0 0-1-1H4a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h6zm4.854-6.354a.5.5 0 0 0 0-.708l-2-2a.5.5 0 1 0-.708.708L13.293 8H6.5a.5.5 0 0 0 0 1h6.793l-1.147 1.146a.5.5 0 0 0 .708.708l2-2z" />
+                            </svg>
+                            Logout
+                        </button>
+                    </form>
+
                 </div>
             </div>
         </nav>

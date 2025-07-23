@@ -20,6 +20,11 @@ namespace Repository.EmployeeRepository
         bool Register(RegisterDTO registerDTO);
         Employee? Login(LoginDTO loginDTO);
         List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year, int? departmenId);
+        EmployeeProfileDTO getInformationProfile(int empId);
+
+        bool UpdateBasicInfo(Employee updated);
+        bool UpdateSkills(int employeeId, List<EmployeeSkill> newSkills);
+        bool UpdateCertificates(int employeeId, List<EmployeeCertificate> newCertificates);
     }
 
 

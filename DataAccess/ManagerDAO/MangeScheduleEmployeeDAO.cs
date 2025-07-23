@@ -193,7 +193,7 @@ namespace DataAccess.ManagerDAO
             }
 
             var checkOutTime = TimeOnly.FromDateTime(now);
-            var latest = new TimeOnly(17, 00); 
+            var latest = new TimeOnly(17, 30); 
 
             if (checkOutTime > latest)
             {

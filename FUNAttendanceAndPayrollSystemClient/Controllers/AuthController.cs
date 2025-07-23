@@ -136,5 +136,13 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             TempData["Error"] = "Failed to register. Email may already exist.";
             return View();
         }
+
+        [HttpPost]
+        public IActionResult Logout()
+        {
+            HttpContext.Session.Clear(); 
+            return RedirectToAction("Login", "Auth");
+        }
+
     }
 }

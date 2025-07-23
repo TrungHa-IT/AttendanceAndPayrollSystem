@@ -33,6 +33,9 @@ public partial class FunattendanceAndPayrollSystemContext : DbContext
     public virtual DbSet<Payroll> Payrolls { get; set; }
 
     public virtual DbSet<Schedule> Schedules { get; set; }
+    public DbSet<EmployeeSkill> EmployeeSkills { get; set; }
+    public DbSet<EmployeeCertificate> EmployeeCertificates { get; set; }
+
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -102,6 +105,18 @@ public partial class FunattendanceAndPayrollSystemContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Employee_Department");
         });
+        modelBuilder.Entity<Employee>()
+            .HasMany(e => e.EmployeeSkills)
+            .WithOne(es => es.Employee)
+            .HasForeignKey(es => es.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<Employee>()
+            .HasMany(e => e.EmployeeCertificates)
+            .WithOne(ec => ec.Employee)
+            .HasForeignKey(ec => ec.EmployeeId)
+            .OnDelete(DeleteBehavior.Cascade);
+
 
         modelBuilder.Entity<Holiday>(entity =>
         {

@@ -259,6 +259,96 @@ namespace DataAccess.EmployeeDAO
             }
         }
 
+        public static EmployeeProfileDTO getInformationProfile(int empId)
+        {
+            using var context = new FunattendanceAndPayrollSystemContext();
+
+            var employee = context.Employees
+                .Where(e => e.EmployId == empId)
+                .Select(e => new EmployeeProfileDTO
+                {
+                    EmployId = e.EmployId,
+                    EmployeeName = e.EmployeeName,
+                    Image = e.Image,
+                    Dob = DateOnly.FromDateTime(e.Dob.Value),
+                    Email = e.Email,
+                    PhoneNumber = e.PhoneNumber,
+                    Gender = e.Gender,
+                    Address = e.Address,
+                    Position = e.Position,
+
+                    Skills = e.EmployeeSkills.Select(s => new SkillDTO
+                    {
+                        SkillId = s.Id,
+                        SkillName = s.SkillName,
+                        Level = s.Level
+                    }).ToList(),
+
+                    Certificates = e.EmployeeCertificates.Select(c => new CertificateDTO
+                    {
+                        CertificateId = c.Id,
+                        CertificateName = c.CertificateName,
+                        IssueDate = c.IssueDate,
+                        ExpiryDate = c.ExpiryDate
+                    }).ToList()
+                })
+                .FirstOrDefault();
+
+            return employee;
+        }
+
+        public static bool UpdateBasicInfo(Employee updated)
+        {
+            using var db = new FunattendanceAndPayrollSystemContext();
+            var emp = db.Employees.FirstOrDefault(e => e.EmployId == updated.EmployId);
+            if (emp == null) return false;
+
+            emp.EmployeeName = updated.EmployeeName;
+            emp.Dob = updated.Dob;
+            emp.Gender = updated.Gender;
+            emp.PhoneNumber = updated.PhoneNumber;
+            emp.Address = updated.Address;
+            emp.Position = updated.Position;
+
+            db.SaveChanges();
+            return true;
+        }
+
+
+        public static bool UpdateSkills(int employeeId, List<EmployeeSkill> newSkills)
+        {
+            using var db = new FunattendanceAndPayrollSystemContext();
+            var emp = db.Employees.Include(e => e.EmployeeSkills).FirstOrDefault(e => e.EmployId == employeeId);
+            if (emp == null) return false;
+
+            emp.EmployeeSkills.Clear();
+            foreach (var skill in newSkills)
+            {
+                emp.EmployeeSkills.Add(skill); 
+            }
+
+            db.SaveChanges();
+            return true;
+        }
+
+        public static bool UpdateCertificates(int employeeId, List<EmployeeCertificate> newCertificates)
+        {
+            using var db = new FunattendanceAndPayrollSystemContext();
+            var emp = db.Employees.Include(e => e.EmployeeCertificates).FirstOrDefault(e => e.EmployId == employeeId);
+            if (emp == null) return false;
+
+            emp.EmployeeCertificates.Clear();
+            foreach (var cert in newCertificates)
+            {
+                cert.FilePath ??= "NoFile.pdf";
+                emp.EmployeeCertificates.Add(cert);
+            }
+
+
+            db.SaveChanges();
+            return true;
+        }
+
         public static BookingOTDTO bookScheduleOverTime(int emp, DateOnly otDate, TimeOnly startTime, TimeOnly endTime, string reason)
         {
             using var _db = new FunattendanceAndPayrollSystemContext();
@@ -272,7 +362,6 @@ namespace DataAccess.EmployeeDAO
                     throw new Exception("Thời gian OT chỉ được đăng ký trong khoảng từ 18:00 đến 22:00.");
                 }
 
-                // Tìm bản ghi OT trong ngày này
                 var existingOT = _db.OvertimeRequests
                                     .FirstOrDefault(ot => ot.OvertimeDate == otDate
                                                        && ot.EmployeeId == emp);
@@ -281,7 +370,6 @@ namespace DataAccess.EmployeeDAO
                 {
                     if (existingOT.Status?.ToLower() == "rejected")
                     {
-                        // Nếu trạng thái là rejected, cập nhật lại
                         existingOT.StartTime = startTime;
                         existingOT.EndTime = endTime;
                         existingOT.Reason = reason;

@@ -48,4 +48,7 @@ public partial class Employee
     public virtual ICollection<Payroll> Payrolls { get; set; } = new List<Payroll>();
 
     public virtual ICollection<Schedule> Schedules { get; set; } = new List<Schedule>();
+    public virtual ICollection<EmployeeSkill> EmployeeSkills { get; set; } = new List<EmployeeSkill>();
+    public virtual ICollection<EmployeeCertificate> EmployeeCertificates { get; set; } = new List<EmployeeCertificate>();
+
 }

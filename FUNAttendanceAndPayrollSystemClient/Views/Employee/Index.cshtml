@@ -43,8 +43,40 @@
         right: 20px;
         z-index: 1055;
     }
-</style>
 
+    .back-button {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        text-decoration: none;
+        font-size: 1.1rem;
+        font-weight: 500;
+        color: #333;
+        transition: color 0.3s ease, transform 0.3s ease;
+        padding: 6px 12px;
+        border-radius: 8px;
+    }
+
+        .back-button i {
+            font-size: 1.4rem;
+            transition: transform 0.3s ease;
+        }
+
+        .back-button:hover {
+            color: #0d6efd;
+            background-color: #f1f1f1;
+            text-decoration: none;
+        }
+
+            .back-button:hover i {
+                transform: translateX(-3px);
+            }
+</style>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
+<a asp-controller="Employee" asp-action="Dashboard" class="back-button">
+    <i class="bi bi-arrow-left"></i>
+    <span>Back</span>
+</a>
 <!-- Dashboard Container -->
 <div class="container d-flex justify-content-center align-items-center" style="min-height: 100vh;">
     <div class="card shadow-lg p-4" style="width: 100%; max-width: 400px;">

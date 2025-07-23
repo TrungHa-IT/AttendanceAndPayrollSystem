@@ -1,0 +1,249 @@
+﻿@{
+    ViewData["Title"] = "Employee Profile";
+    var info = ViewBag.informations;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>@ViewData["Title"]</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #e0f7fa, #fff3e0);
+            font-family: 'Segoe UI', sans-serif;
+            padding: 30px;
+        }
+
+        .profile-card {
+            background-color: white;
+            border-radius: 20px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            max-width: 900px;
+            margin: auto;
+        }
+
+        .profile-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #00695c;
+            border-bottom: 2px solid #00695c;
+            padding-bottom: 5px;
+            margin-bottom: 15px;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #444;
+        }
+
+        .badge-skill {
+            font-size: 14px;
+            margin: 3px;
+            background-color: #00796b;
+        }
+
+        .certificate-card {
+            border: 1px solid #ccc;
+            border-left: 5px solid #00796b;
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .btn-update {
+            margin-top: 10px;
+            transition: all 0.3s ease;
+        }
+
+            .btn-update:hover {
+                background-color: #004d40 !important;
+                transform: scale(1.05);
+            }
+
+        .modal-title {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    @if (info != null)
+    {
+        <div class="profile-card">
+            <div class="profile-header">
+                <h2>Employee Profile</h2>
+                <h5>@info.EmployeeName</h5>
+            </div>
+
+            <div class="profile-section">
+                <div class="section-title d-flex justify-content-between">
+                    <span>Basic Information</span>
+                    <button class="btn btn-sm btn-outline-success btn-update" data-bs-toggle="modal" data-bs-target="#basicInfoModal">Update</button>
+                </div>
+                <div class="row">
+                    <div class="col-md-6"><span class="info-label">DOB:</span> @info.Dob?.ToString("MM/dd/yyyy")</div>
+                    <div class="col-md-6"><span class="info-label">Gender:</span> @info.Gender</div>
+                    <div class="col-md-6"><span class="info-label">Email:</span> @info.Email</div>
+                    <div class="col-md-6"><span class="info-label">Phone:</span> @info.PhoneNumber</div>
+                    <div class="col-md-6"><span class="info-label">Position:</span> @info.Position</div>
+                    <div class="col-md-6"><span class="info-label">Address:</span> @info.Address</div>
+                </div>
+            </div>
+
+            <div class="profile-section">
+                <div class="section-title d-flex justify-content-between">
+                    <span>Skills</span>
+                    <button class="btn btn-sm btn-outline-success btn-update" data-bs-toggle="modal" data-bs-target="#skillsModal">Update</button>
+                </div>
+                @foreach (var skill in info.Skills)
+                {
+                    <span class="badge bg-success badge-skill">@skill.SkillName - @skill.Level</span>
+                }
+            </div>
+
+            <div class="profile-section">
+                <div class="section-title d-flex justify-content-between">
+                    <span>Certificates</span>
+                    <button class="btn btn-sm btn-outline-success btn-update" data-bs-toggle="modal" data-bs-target="#certificatesModal">Update</button>
+                </div>
+                @foreach (var cert in info.Certificates)
+                {
+                    <div class="certificate-card">
+                        <strong>@cert.CertificateName</strong><br />
+                        Issued: @cert.IssueDate.ToString("MM/dd/yyyy") &nbsp; | &nbsp;
+                        Expires: @cert.ExpiryDate.ToString("MM/dd/yyyy")
+                    </div>
+                }
+            </div>
+        </div>
+
+        <!-- BASIC INFO Modal -->
+        <div class="modal fade" id="basicInfoModal" tabindex="-1" aria-labelledby="basicInfoModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" action="/Employee/UpdateBasicInfos">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update Basic Information</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input name="EmployId" value="@info.EmployId" hidden />
+                            <div class="mb-2">
+                                <label>FullName</label>
+                                <input class="form-control" name="EmployeeName" value="@info.EmployeeName" />
+                            </div>
+                            <div class="mb-2">
+                                <label>DOB</label>
+                                <input type="date" class="form-control" name="Dob" value="@info.Dob?.ToString("yyyy-MM-dd")" />
+                            </div>
+                            <div class="mb-2">
+                                <label>Gender</label>
+                                <input class="form-control" name="Gender" value="@info.Gender" />
+                            </div>
+                            <div class="mb-2">
+                                <label>Email</label>
+                                <input class="form-control" name="Email" value="@info.Email" />
+                            </div>
+                            <div class="mb-2">
+                                <label>Phone</label>
+                                <input class="form-control" name="PhoneNumber" value="@info.PhoneNumber" />
+                            </div>
+                            <div class="mb-2">
+                                <label>Address</label>
+                                <input class="form-control" name="Address" value="@info.Address" />
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Update</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- SKILLS Modal -->
+        <div class="modal fade" id="skillsModal" tabindex="-1" aria-labelledby="skillsModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" action="/Employee/UpdateSkills">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update Skills</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            @for (int i = 0; i < info.Skills.Count; i++)
+                            {
+                                <input name="Skills[@i].SkillId" value="@info.Skills[i].SkillId" hidden />
+                                <div class="mb-2">
+                                    <label>Skill Name</label>
+                                    <input class="form-control" name="Skills[@i].SkillName" value="@info.Skills[i].SkillName" />
+                                </div>
+                                <div class="mb-2">
+                                    <label>Level</label>
+                                    <input class="form-control" name="Skills[@i].Level" value="@info.Skills[i].Level" />
+                                </div>
+                                <hr />
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Update</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- CERTIFICATES Modal -->
+        <div class="modal fade" id="certificatesModal" tabindex="-1" aria-labelledby="certificatesModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form method="post" action="/Employee/UpdateCertificates">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Update Certificates</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            @for (int i = 0; i < info.Certificates.Count; i++)
+                            {
+                                <input name="Certificates[@i].CertificateId" value="@info.Certificates[i].CertificateId" hidden />
+                                <div class="mb-2">
+                                    <label>Certificate Name</label>
+                                    <input class="form-control" name="Certificates[@i].CertificateName" value="@info.Certificates[i].CertificateName" />
+                                </div>
+                                <div class="mb-2">
+                                    <label>Issue Date</label>
+                                    <input type="date" class="form-control" name="Certificates[@i].IssueDate" value="@info.Certificates[i].IssueDate.ToString("yyyy-MM-dd")" />
+                                </div>
+                                <div class="mb-2">
+                                    <label>Expiry Date</label>
+                                    <input type="date" class="form-control" name="Certificates[@i].ExpiryDate" value="@info.Certificates[i].ExpiryDate.ToString("yyyy-MM-dd")" />
+                                </div>
+                                <hr />
+                            }
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-success">Update</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-danger text-center">Profile not found.</div>
+    }
+</body>
+</html>

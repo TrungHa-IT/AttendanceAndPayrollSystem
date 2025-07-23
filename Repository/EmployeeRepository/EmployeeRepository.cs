@@ -20,10 +20,18 @@ namespace Repository.EmployeeRepository
 
         public List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year, int? departmenId) => EmployeeDAO.GetEmployeesTotalTimeByMonth(month, year, departmenId);
 
+        public EmployeeProfileDTO getInformationProfile(int empId) => EmployeeDAO.getInformationProfile(empId);
+
         public List<EmployeeDTO> GetStaffs() => EmployeeDAO.GetStaffs();
 
         public Employee? Login(LoginDTO loginDTO) => EmployeeDAO.Login(loginDTO);
         
         public bool Register(RegisterDTO registerDTO) => EmployeeDAO.Register(registerDTO);
+
+        public bool UpdateBasicInfo(Employee updated) => EmployeeDAO.UpdateBasicInfo(updated);
+
+        public bool UpdateCertificates(int employeeId, List<EmployeeCertificate> newCertificates) => EmployeeDAO.UpdateCertificates(employeeId, newCertificates);
+
+        public bool UpdateSkills(int employeeId, List<EmployeeSkill> newSkills) => EmployeeDAO.UpdateSkills(employeeId, newSkills);
     }
 }
