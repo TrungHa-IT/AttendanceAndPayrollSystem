@@ -39,6 +39,10 @@ namespace DataAccess.LeaveDAO
                        Status = at.Status,
                        ApprovedByName = at.Employee.EmployeeName,
                        ApprovedDate = at.ApprovedDate,
+                       Image = at.Employee.Image,
+                       CreatedAt = at.Employee.CreatedAt,
+                       UpdatedAt = at.Employee.UpdatedAt,
+                       DeletedAt = at.Employee.DeletedAt,
                     }).ToList();
                 }
             }

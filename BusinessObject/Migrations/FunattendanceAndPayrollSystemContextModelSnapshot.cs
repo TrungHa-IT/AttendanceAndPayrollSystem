@@ -542,7 +542,7 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.EmployeeCertificate", b =>
                 {
                     b.HasOne("BusinessObject.Models.Employee", "Employee")
-                        .WithMany()
+                        .WithMany("EmployeeCertificates")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -553,7 +553,7 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.EmployeeSkill", b =>
                 {
                     b.HasOne("BusinessObject.Models.Employee", "Employee")
-                        .WithMany()
+                        .WithMany("EmployeeSkills")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -621,6 +621,10 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.Employee", b =>
                 {
                     b.Navigation("Attendances");
+
+                    b.Navigation("EmployeeCertificates");
+
+                    b.Navigation("EmployeeSkills");
 
                     b.Navigation("Leaves");
 

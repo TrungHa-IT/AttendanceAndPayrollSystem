@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(FunattendanceAndPayrollSystemContext))]
-    [Migration("20250723142137_AddEmployeeSkillsAndCertificates")]
-    partial class AddEmployeeSkillsAndCertificates
+    [Migration("20250724152601_InitialDB")]
+    partial class InitialDB
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -545,7 +545,7 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.EmployeeCertificate", b =>
                 {
                     b.HasOne("BusinessObject.Models.Employee", "Employee")
-                        .WithMany()
+                        .WithMany("EmployeeCertificates")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -556,7 +556,7 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.EmployeeSkill", b =>
                 {
                     b.HasOne("BusinessObject.Models.Employee", "Employee")
-                        .WithMany()
+                        .WithMany("EmployeeSkills")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -624,6 +624,10 @@ namespace BusinessObject.Migrations
             modelBuilder.Entity("BusinessObject.Models.Employee", b =>
                 {
                     b.Navigation("Attendances");
+
+                    b.Navigation("EmployeeCertificates");
+
+                    b.Navigation("EmployeeSkills");
 
                     b.Navigation("Leaves");
 

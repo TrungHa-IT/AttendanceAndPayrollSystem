@@ -33,7 +33,8 @@ namespace DataTransferObject.LeaveDTO
         public string? EmployeeName { get; set; }
 
         public string EmployeeEmail { get; set; }
-      
+        public string Image { get; set; }
+        public decimal Salary { get; set; }
         public DateTime? ApprovedDate { get; set; }
 
         public DateTime? CreatedAt { get; set; }
