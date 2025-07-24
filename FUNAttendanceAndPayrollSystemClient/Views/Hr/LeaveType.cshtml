@@ -56,9 +56,10 @@
                                         <input type="number" name="MaxDaysAllowed" class="form-control" value="@leave.MaxDaysAllowed" />
                                     </div>
                                     <div class="mb-3 form-check">
-                                        <input type="hidden" name="IsPaid" value="false" />
-                                        <input type="checkbox" name="IsPaid" value="true" class="form-check-input" @(leave.IsPaid==true ? "checked" : "") />
+                                        <input type="checkbox" name="IsPaid" class="form-check-input"
+                                               value="true" @(leave.IsPaid ? "checked" : "") />
                                         <label class="form-check-label">Is Paid Leave</label>
+                                        <input type="hidden" name="IsPaid" value="false" />
                                     </div>
                                 </div>
                                 <div class="modal-footer">
@@ -93,10 +94,10 @@
                         <input type="number" class="form-control" name="MaxDaysAllowed" id="MaxDaysAllowed" />
                     </div>
                     <div class="mb-3 form-check">
-                        <!-- Hidden input ensures "false" is submitted if checkbox is unchecked -->
+                        <input type="checkbox" class="form-check-input" name="IsPaid" id="IsPaid"
+                               value="true" checked="@(Model?.FirstOrDefault()?.IsPaid ?? true)" />
+                        <label class="form-check-label" for="IsPaid">Is Paid Leave</label>  
                         <input type="hidden" name="IsPaid" value="false" />
-                        <input type="checkbox" class="form-check-input" name="IsPaid" value="true" id="IsPaid" />
-                        <label class="form-check-label" for="IsPaid">Is Paid Leave</label>
                     </div>
                 </div>
                 <div class="modal-footer">

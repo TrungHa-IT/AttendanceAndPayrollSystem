@@ -1,7 +1,6 @@
 ﻿using BusinessObject.Models;
 using DataTransferObject.AttendanceDTO;
 using DataTransferObject.AuthDTO;
-using DataTransferObject.EmployeeDTO;
 using DataTransferObject.EmployeeDTOS;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -27,7 +26,8 @@ namespace DataAccess.EmployeeDAO
             {
                 using (var context = new FunattendanceAndPayrollSystemContext())
                 {
-                    listEmployees = context.Employees.Include(emp => emp.Department).Where(ep => ep.Position.Equals("Employee"))
+                    listEmployees = context.Employees.Include(emp => emp.Department)
+                        .Where(ep => ep.Position != null) 
                         .Select(ep => new EmployeeDTO
                         {
                             EmployId = ep.EmployId,
@@ -38,6 +38,10 @@ namespace DataAccess.EmployeeDAO
                             Gender = ep.Gender,
                             Address = ep.Address,
                             Position = ep.Position,
+                            Salary = ep.Salary,
+                            Status = ep.Status,
+                            Image = ep.Image,
+                            CreateAt = ep.CreatedAt,
                             DepartmentId = ep.DepartmentId,
                             DepartmentName = ep.Department.DepartmentName
                         }).ToList();
@@ -49,7 +53,6 @@ namespace DataAccess.EmployeeDAO
             }
             return listEmployees;
         }
-
         public static List<EmployeeDTO> GetStaffs()
         {
             var listEmployees = new List<EmployeeDTO>();
@@ -422,6 +425,68 @@ namespace DataAccess.EmployeeDAO
                 throw new Exception(e.Message);
             }
         }
+        public static bool UpdateEmployee(EmployeeUpdateDTO updatedEmployee)
+        {
+            using var db = new FunattendanceAndPayrollSystemContext();
+            var existingEmployee = db.Employees.FirstOrDefault(e => e.EmployId == updatedEmployee.EmployId);
+
+            if (existingEmployee == null) return false;
+
+            existingEmployee.EmployeeName = updatedEmployee.EmployeeName;
+            existingEmployee.Dob = updatedEmployee.Dob;
+            existingEmployee.Email = updatedEmployee.Email;
+            existingEmployee.PhoneNumber = updatedEmployee.PhoneNumber;
+            existingEmployee.Gender = updatedEmployee.Gender;
+            existingEmployee.Address = updatedEmployee.Address;
+            existingEmployee.Position = updatedEmployee.Position;
+            existingEmployee.Salary = updatedEmployee.Salary;
+            existingEmployee.Status = updatedEmployee.Status;
+            existingEmployee.DepartmentId = updatedEmployee.DepartmentId;
+            existingEmployee.Image = updatedEmployee.Image;
+            existingEmployee.UpdatedAt = DateTime.Now;
+
+            db.SaveChanges();
+            return true;
+        }
+        public static bool DeleteEmployee(int id)
+        {
+            using var db = new FunattendanceAndPayrollSystemContext();
+            using var transaction = db.Database.BeginTransaction();
+
+            try
+            {
+                var overtimeRequests = db.OvertimeRequests.Where(o => o.EmployeeId == id).ToList();
+                db.OvertimeRequests.RemoveRange(overtimeRequests);
+
+                var attendances = db.Attendances.Where(a => a.EmployeeId == id).ToList();
+                db.Attendances.RemoveRange(attendances);
+
+                var payrolls = db.Payrolls.Where(p => p.EmployeeId == id).ToList();
+                db.Payrolls.RemoveRange(payrolls);
+
+                var leaves = db.Leaves.Where(l => l.EmployeeId == id).ToList();
+                db.Leaves.RemoveRange(leaves);
+
+                var schedules = db.Schedules.Where(s => s.EmployeeId == id).ToList();
+                db.Schedules.RemoveRange(schedules);
+
+                var employee = db.Employees.FirstOrDefault(e => e.EmployId == id);
+                if (employee == null) return false;
+
+                db.Employees.Remove(employee);
+                db.SaveChanges();
+
+                transaction.Commit();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                transaction.Rollback();
+                Console.WriteLine($"Error deleting employee: {ex.Message}");
+                return false;
+            }
+        }
+
 
     }
 }

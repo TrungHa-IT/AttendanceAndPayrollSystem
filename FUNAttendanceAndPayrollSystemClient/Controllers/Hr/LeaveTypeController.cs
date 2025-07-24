@@ -43,13 +43,17 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Hr
             return BadRequest("Error creating leaveType");
         }
 
-
-        // POST: Edit
+        //Edit
         [HttpPost]
         public async Task<IActionResult> Edit(LeaveTypeDTO model)
         {
             using HttpClient client = new();
             model.UpdatedAt = DateTime.Now;
+            if (model.IsPaid == null)
+            {
+                model.IsPaid = false;
+            }
+
             var content = new StringContent(JsonSerializer.Serialize(model), Encoding.UTF8, "application/json");
             var response = await client.PutAsync($"{_baseUrl}/api/LeaveType/updateLeaveType", content);
 

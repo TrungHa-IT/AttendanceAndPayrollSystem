@@ -1,6 +1,5 @@
 ﻿using BusinessObject.Models;
 using DataAccess.EmployeeDAO;
-using DataTransferObject.EmployeeDTO;
 using DataTransferObject.EmployeeDTOS;
 using Microsoft.AspNetCore.Mvc;
 using Repository.EmployeeRepository;
@@ -29,8 +28,7 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
             }
             return Ok(empAttendance);
         }
-
-
+     
         [HttpPost("RegisterScheduleOT")]
         public IActionResult RegisterScheduleOT([FromBody] OTRequestDTO model)
         {
@@ -166,8 +164,74 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
 
             return Ok("Certificates updated successfully.");
         }
+        [HttpPut("UpdateEmployee/{id}")]
+        public IActionResult UpdateEmployee(int id, [FromBody] EmployeeUpdateDTO updatedEmployee)
+        {
+            if (id != updatedEmployee.EmployId)
+            {
+                return BadRequest("ID mismatch");
+            }
+
+            bool result = repository.UpdateEmployee(updatedEmployee);
+
+            if (!result)
+            {
+                return NotFound("Employee not found");
+            }
+
+            return Ok("Employee updated successfully");
+        }
 
 
+
+        [HttpDelete("DeleteEmployee/{id}")]
+        public IActionResult DeleteEmployee(int id)
+        {
+            try
+            {
+                bool result = repository.DeleteEmployee(id);
+
+                if (!result)
+                {
+                    return NotFound("Employee not found or deletion failed");
+                }
+
+                return Ok(new { success = true, message = "Employee and all related data deleted successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { success = false, message = $"Error deleting employee: {ex.Message}" });
+            }
+        }
+
+        private async Task<string> SaveUploadedFile(IFormFile file)
+        {
+            if (file == null || file.Length == 0)
+                return string.Empty;
+
+            // Tạo tên file duy nhất
+            var fileName = Guid.NewGuid().ToString() + Path.GetExtension(file.FileName);
+
+            // Đường dẫn thư mục wwwroot/uploads
+            var uploadsFolder = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "uploads");
+
+            // Tạo thư mục nếu chưa có
+            if (!Directory.Exists(uploadsFolder))
+            {
+                Directory.CreateDirectory(uploadsFolder);
+            }
+
+            var filePath = Path.Combine(uploadsFolder, fileName);
+
+            // Ghi file lên server
+            using (var stream = new FileStream(filePath, FileMode.Create))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            // Trả về đường dẫn tương đối để lưu vào database
+            return "/uploads/" + fileName;
+        }
 
     }
 }

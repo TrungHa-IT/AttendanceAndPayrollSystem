@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Manage Attendance";
-    var employees = ViewBag.Employees as List<DataTransferObject.EmployeeDTO.EmployeeDTO>;
+    var employees = ViewBag.Employees as List<DataTransferObject.EmployeeDTOS.EmployeeDTO>;
     var departments = ViewBag.departments;
     string selectedDepartment = ViewContext.HttpContext.Request.Query["department"];
 }

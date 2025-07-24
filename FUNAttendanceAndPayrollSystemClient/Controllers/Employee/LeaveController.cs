@@ -1,5 +1,5 @@
 ﻿using DataTransferObject.DepartmentDTO;
-using DataTransferObject.EmployeeDTO;
+using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.LeaveDTO;
 using DataTransferObject.LeaveTypeDTO;
 using Microsoft.AspNetCore.Mvc;
