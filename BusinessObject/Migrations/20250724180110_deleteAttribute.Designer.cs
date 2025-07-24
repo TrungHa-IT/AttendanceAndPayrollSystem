@@ -12,8 +12,8 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(FunattendanceAndPayrollSystemContext))]
-    [Migration("20250724152601_InitialDB")]
-    partial class InitialDB
+    [Migration("20250724180110_deleteAttribute")]
+    partial class deleteAttribute
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -50,6 +50,28 @@ namespace BusinessObject.Migrations
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("Attendance", (string)null);
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.CertificateBonusRate", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<decimal>("BonusAmount")
+                        .HasPrecision(18, 2)
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<string>("CertificateName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CertificateBonusRates");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.Department", b =>
@@ -173,6 +195,12 @@ namespace BusinessObject.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("ApprovedBy")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("CertificateBonusRateId")
+                        .HasColumnType("int");
+
                     b.Property<string>("CertificateName")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -184,19 +212,42 @@ namespace BusinessObject.Migrations
                     b.Property<DateTime>("ExpiryDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasMaxLength(255)
-                        .HasColumnType("nvarchar(255)");
-
                     b.Property<DateTime>("IssueDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<string>("Status")
+                        .HasColumnType("nvarchar(max)");
+
                     b.HasKey("Id");
+
+                    b.HasIndex("CertificateBonusRateId");
 
                     b.HasIndex("EmployeeId");
 
                     b.ToTable("EmployeeCertificates");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.EmployeeCertificateImage", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("EmployeeCertificateId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("nvarchar(255)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("EmployeeCertificateId");
+
+                    b.ToTable("EmployeeCertificateImages");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.EmployeeSkill", b =>
@@ -544,13 +595,30 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.EmployeeCertificate", b =>
                 {
+                    b.HasOne("BusinessObject.Models.CertificateBonusRate", "CertificateBonusRate")
+                        .WithMany("EmployeeCertificates")
+                        .HasForeignKey("CertificateBonusRateId");
+
                     b.HasOne("BusinessObject.Models.Employee", "Employee")
                         .WithMany("EmployeeCertificates")
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("CertificateBonusRate");
+
                     b.Navigation("Employee");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.EmployeeCertificateImage", b =>
+                {
+                    b.HasOne("BusinessObject.Models.EmployeeCertificate", "EmployeeCertificate")
+                        .WithMany("Images")
+                        .HasForeignKey("EmployeeCertificateId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("EmployeeCertificate");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.EmployeeSkill", b =>
@@ -616,6 +684,11 @@ namespace BusinessObject.Migrations
                     b.Navigation("Employee");
                 });
 
+            modelBuilder.Entity("BusinessObject.Models.CertificateBonusRate", b =>
+                {
+                    b.Navigation("EmployeeCertificates");
+                });
+
             modelBuilder.Entity("BusinessObject.Models.Department", b =>
                 {
                     b.Navigation("Employees");
@@ -636,6 +709,11 @@ namespace BusinessObject.Migrations
                     b.Navigation("Payrolls");
 
                     b.Navigation("Schedules");
+                });
+
+            modelBuilder.Entity("BusinessObject.Models.EmployeeCertificate", b =>
+                {
+                    b.Navigation("Images");
                 });
 
             modelBuilder.Entity("BusinessObject.Models.LeaveType", b =>
