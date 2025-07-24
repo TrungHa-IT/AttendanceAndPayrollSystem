@@ -14,6 +14,8 @@ namespace Repository.EmployeeRepository
 {
     public class EmployeeRepository : IEmployeeRepository
     {
+        public bool AddSkill(SkillDTO skillDto) => EmployeeDAO.AddSkill(skillDto);
+
         public BookingOTDTO bookScheduleOverTime(int emp, DateOnly otDate, TimeOnly startTime, TimeOnly endTime, string reason) => EmployeeDAO.bookScheduleOverTime(emp, otDate, startTime, endTime, reason);
         public List<AttendanceDTO> getAttendanceById(int emp, int? month, int? year) => EmployeeDAO.getAttendanceById(emp, month,year);
         public List<EmployeeDTO> GetEmployees() => EmployeeDAO.GetEmployees();

@@ -10,6 +10,7 @@ namespace DataTransferObject.EmployeeDTOS
     {
         public int CertificateId { get; set; }
         public string CertificateName { get; set; }
+        public int EmployId { get; set; }
         public DateTime IssueDate { get; set; }
         public DateTime ExpiryDate { get; set; }
     }

@@ -110,6 +110,32 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
             return Ok("Basic information updated successfully.");
         }
 
+        [HttpPost("AddSkills")]
+        public IActionResult AddSkills([FromBody] SkillDTO skillDto)
+        {
+            if (skillDto == null)
+                return BadRequest("Invalid skill data");
+
+            var result = EmployeeDAO.AddSkill(skillDto);
+            if (result)
+                return Ok(new { message = "Skill added successfully" });
+
+            return BadRequest("Failed to add skill");
+        }
+
+        [HttpPost("AddCertificate")]
+        public IActionResult AddCertificate([FromBody] CertificateDTO certificate)
+        {
+            if (certificate == null)
+                return BadRequest("Invalid certificate data");
+
+            var result = EmployeeDAO.AddCertificate(certificate);
+            if (result)
+                return Ok(new { message = "Certificate added successfully" });
+
+            return BadRequest("Failed to add certificate");
+        }
+
 
         [HttpPost("UpdateSkills")]
         public IActionResult UpdateSkills([FromBody] UpdateSkillsRequest request)

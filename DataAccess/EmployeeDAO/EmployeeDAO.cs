@@ -313,6 +313,63 @@ namespace DataAccess.EmployeeDAO
             return true;
         }
 
+        public static bool AddSkill(SkillDTO skillDto)
+        {
+            try
+            {
+                using var db = new FunattendanceAndPayrollSystemContext();
+
+                var employee = db.Employees.FirstOrDefault(e => e.EmployId == skillDto.EmployId);
+                if (employee == null)
+                    return false; 
+
+                var newSkill = new EmployeeSkill
+                {
+                    EmployeeId = skillDto.EmployId,
+                    SkillName = skillDto.SkillName,
+                    Level = skillDto.Level,
+                };
+
+                db.EmployeeSkills.Add(newSkill);
+                db.SaveChanges();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error in AddSkill: " + e.Message);
+            }
+        }
+
+        public static bool AddCertificate(CertificateDTO certificateDto)
+        {
+            try
+            {
+                using var db = new FunattendanceAndPayrollSystemContext();
+
+                var employee = db.Employees.FirstOrDefault(e => e.EmployId == certificateDto.EmployId);
+                if (employee == null) return false;
+
+                var newCert = new EmployeeCertificate
+                {
+                    EmployeeId = certificateDto.EmployId,
+                    CertificateName = certificateDto.CertificateName,
+                    IssueDate = certificateDto.IssueDate,
+                    FilePath = "done.pdf",
+                    ExpiryDate = certificateDto.ExpiryDate
+                };
+
+                db.EmployeeCertificates.Add(newCert);
+                db.SaveChanges();
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error in AddCertificate: " + e.Message);
+            }
+        }
+
 
         public static bool UpdateSkills(int employeeId, List<EmployeeSkill> newSkills)
         {

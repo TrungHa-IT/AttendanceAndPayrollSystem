@@ -25,6 +25,7 @@ namespace Repository.EmployeeRepository
         bool UpdateBasicInfo(Employee updated);
         bool UpdateSkills(int employeeId, List<EmployeeSkill> newSkills);
         bool UpdateCertificates(int employeeId, List<EmployeeCertificate> newCertificates);
+        bool AddSkill(SkillDTO skillDto);
     }
 
 
