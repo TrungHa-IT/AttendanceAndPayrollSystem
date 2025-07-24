@@ -18,13 +18,10 @@ namespace FUNAttendanceAndPayrollSystemAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
-
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
-            builder.Services.AddScoped<ITimekeepingRepository, TimekeepingRepository>();
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowMVCClient",
@@ -38,7 +35,6 @@ namespace FUNAttendanceAndPayrollSystemAPI
 
             builder.Services.AddDbContext<FunattendanceAndPayrollSystemContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Mycnn")));
-
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -62,6 +58,7 @@ namespace FUNAttendanceAndPayrollSystemAPI
             builder.Configuration.GetSection("CloudinarySettings"));
             builder.Services.AddScoped<PhotoService>();
             builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+
             builder.Services.Configure<EmailSettings>(
             builder.Configuration.GetSection("EmailSettings"));
             builder.Services.AddScoped<EmailService>();
