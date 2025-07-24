@@ -1,0 +1,58 @@
+﻿@model DataTransferObject.EmployeeDTOS.CertificateDTO
+
+@{
+    ViewBag.Title = "Add Certificate";
+    var staffList = ViewBag.Staff as List<DataTransferObject.EmployeeDTO.EmployeeDTO>;
+    var listCertificate = ViewBag.ListCertificate as List<DataTransferObject.EmployeeDTOS.CertificateBonusDTO>;
+}
+
+<h2>Add Certificate</h2>
+
+<form asp-action="Create" method="post" enctype="multipart/form-data">
+   
+    <div class="mb-3">
+        <label asp-for="CertificateName" class="form-label">Certificate Name</label>
+        <input asp-for="CertificateName" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="IssueDate" class="form-label">Issue Date</label>
+        <input asp-for="IssueDate" type="date" class="form-control" />
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="ExpiryDate" class="form-label">Expiry Date</label>
+        <input asp-for="ExpiryDate" type="date" class="form-control" />
+    </div>
+
+    <input type="hidden" asp-for="Status" value="Pending" />
+
+    <div class="mb-3">
+        <label asp-for="ApprovedBy" class="form-label">Approved By</label>
+        <select asp-for="ApprovedBy" class="form-select">
+            <option value="">-- Select Approver --</option>
+            @foreach (var staff in staffList)
+            {
+                <option value="@staff.EmployId">@staff.EmployeeName (@staff.EmployId)</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label asp-for="CertificateBonusRateId" class="form-label">Certificate Bonus</label>
+        <select asp-for="CertificateBonusRateId" class="form-select">
+            <option value="">-- Select Bonus Rate --</option>
+            @foreach (var cert in listCertificate)
+            {
+                <option value="@cert.Id">@cert.CertificateName - @cert.BonusAmount.ToString("C")</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label class="form-label">Upload Certificate Images</label>
+        <input type="file" name="ImageFiles" class="form-control" accept="image/*" multiple />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Submit</button>
+</form>

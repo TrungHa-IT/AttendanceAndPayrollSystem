@@ -80,6 +80,67 @@ namespace DataAccess.EmployeeDAO
             return listEmployees;
         }
 
+        public static List<CertificateBonusDTO> GetCertificateBonus()
+        {
+            var listCertificateBonus = new List<CertificateBonusDTO>();
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    listCertificateBonus = context.CertificateBonusRates
+                        .Select(ep => new CertificateBonusDTO
+                        {
+                            BonusAmount = ep.BonusAmount,
+                            CertificateName = ep.CertificateName,
+                            Id = ep.Id,
+                        }).ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+            return listCertificateBonus;
+        }
+
+        public static List<CertificateDTO> GetCertificate()
+        {
+            var listCertificateBonus = new List<CertificateDTO>();
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    listCertificateBonus = context.EmployeeCertificates
+                        .Include(e => e.Employee)
+                        .Include(e => e.CertificateBonusRate)
+                        .Include(e => e.Images) 
+                        .Select(ep => new CertificateDTO
+                        {
+                            Id = ep.Id,
+                            EmployeeId = ep.EmployeeId,
+                            CertificateName = ep.CertificateName,
+                            IssueDate = ep.IssueDate,
+                            ExpiryDate = ep.ExpiryDate,
+                            Status = ep.Status,
+                            ApprovedBy = ep.ApprovedBy,
+                            ApprovedByName = ep.Employee.EmployeeName,
+                            CertificateBonusRateId = ep.CertificateBonusRateId,
+                            BonusRate = ep.CertificateBonusRate != null ? ep.CertificateBonusRate.BonusAmount : null,
+                            EmployeeName = ep.Employee.EmployeeName,
+                            ImageUrls = ep.Images.Select(img => img.ImageUrl).ToList()
+                        })
+                        .ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception(e.Message);
+            }
+
+            return listCertificateBonus;
+        }
+
+
         public static List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year, int? departmenId)
         {
             var listEmployees = new List<EmployeeDTO>();
@@ -286,7 +347,7 @@ namespace DataAccess.EmployeeDAO
 
                     Certificates = e.EmployeeCertificates.Select(c => new CertificateDTO
                     {
-                        CertificateId = c.Id,
+                        Id = c.Id,
                         CertificateName = c.CertificateName,
                         IssueDate = c.IssueDate,
                         ExpiryDate = c.ExpiryDate
@@ -347,19 +408,59 @@ namespace DataAccess.EmployeeDAO
             {
                 using var db = new FunattendanceAndPayrollSystemContext();
 
-                var employee = db.Employees.FirstOrDefault(e => e.EmployId == certificateDto.EmployId);
+                var employee = db.Employees.FirstOrDefault(e => e.EmployId == certificateDto.EmployeeId);
                 if (employee == null) return false;
 
+                // Thêm chứng chỉ trước
                 var newCert = new EmployeeCertificate
                 {
-                    EmployeeId = certificateDto.EmployId,
+                    EmployeeId = certificateDto.EmployeeId,
                     CertificateName = certificateDto.CertificateName,
                     IssueDate = certificateDto.IssueDate,
-                    FilePath = "done.pdf",
-                    ExpiryDate = certificateDto.ExpiryDate
+                    ExpiryDate = certificateDto.ExpiryDate,
+                    CertificateBonusRateId = certificateDto.CertificateBonusRateId,
+                    ApprovedBy = certificateDto.ApprovedBy,
+                    Status = certificateDto.Status
                 };
 
                 db.EmployeeCertificates.Add(newCert);
+                db.SaveChanges(); // newCert.Id được sinh ra ở đây
+
+                // Gắn ảnh nếu có
+                if (certificateDto.ImageUrls != null && certificateDto.ImageUrls.Any())
+                {
+                    var images = certificateDto.ImageUrls.Select(url => new EmployeeCertificateImage
+                    {
+                        ImageUrl = url,
+                        EmployeeCertificateId = newCert.Id // ⚠️ Dùng FK chứ KHÔNG gán navigation property!
+                    }).ToList();
+
+                    db.EmployeeCertificateImages.AddRange(images);
+                    db.SaveChanges();
+                }
+
+                return true;
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error in AddCertificate: " + e.Message, e);
+            }
+        }
+
+
+        public static bool AddCertificateBonus(CertificateBonusDTO certificateBonusDTO)
+        {
+            try
+            {
+                using var db = new FunattendanceAndPayrollSystemContext();
+
+                var cirtificateBonus = new CertificateBonusRate
+                {
+                    BonusAmount = certificateBonusDTO.BonusAmount,
+                    CertificateName = certificateBonusDTO.CertificateName,
+                };
+
+                db.CertificateBonusRates.Add(cirtificateBonus);
                 db.SaveChanges();
 
                 return true;
@@ -396,7 +497,6 @@ namespace DataAccess.EmployeeDAO
             emp.EmployeeCertificates.Clear();
             foreach (var cert in newCertificates)
             {
-                cert.FilePath ??= "NoFile.pdf";
                 emp.EmployeeCertificates.Add(cert);
             }
 

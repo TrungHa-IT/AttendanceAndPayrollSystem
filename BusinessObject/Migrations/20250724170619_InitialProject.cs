@@ -6,11 +6,25 @@ using Microsoft.EntityFrameworkCore.Migrations;
 namespace BusinessObject.Migrations
 {
     /// <inheritdoc />
-    public partial class InitialDB : Migration
+    public partial class InitialProject : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.CreateTable(
+                name: "CertificateBonusRate",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CertificateName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
+                    BonusAmount = table.Column<decimal>(type: "decimal(18,2)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_CertificateBonusRate", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "Department",
                 columns: table => new
@@ -125,13 +139,18 @@ namespace BusinessObject.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     EmployeeId = table.Column<int>(type: "int", nullable: false),
                     CertificateName = table.Column<string>(type: "nvarchar(100)", maxLength: 100, nullable: false),
-                    FilePath = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false),
                     IssueDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false)
+                    ExpiryDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CertificateBonusRateId = table.Column<int>(type: "int", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_EmployeeCertificates", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EmployeeCertificates_CertificateBonusRate_CertificateBonusRateId",
+                        column: x => x.CertificateBonusRateId,
+                        principalTable: "CertificateBonusRate",
+                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_EmployeeCertificates_Employee_EmployeeId",
                         column: x => x.EmployeeId,
@@ -269,6 +288,26 @@ namespace BusinessObject.Migrations
                         principalColumn: "EmployId");
                 });
 
+            migrationBuilder.CreateTable(
+                name: "EmployeeCertificateImage",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    EmployeeCertificateId = table.Column<int>(type: "int", nullable: false),
+                    ImageUrl = table.Column<string>(type: "nvarchar(255)", maxLength: 255, nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_EmployeeCertificateImage", x => x.Id);
+                    table.ForeignKey(
+                        name: "FK_EmployeeCertificateImage_EmployeeCertificates_EmployeeCertificateId",
+                        column: x => x.EmployeeCertificateId,
+                        principalTable: "EmployeeCertificates",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_Attendance_EmployeeId",
                 table: "Attendance",
@@ -278,6 +317,16 @@ namespace BusinessObject.Migrations
                 name: "IX_Employee_DepartmentID",
                 table: "Employee",
                 column: "DepartmentID");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeCertificateImage_EmployeeCertificateId",
+                table: "EmployeeCertificateImage",
+                column: "EmployeeCertificateId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_EmployeeCertificates_CertificateBonusRateId",
+                table: "EmployeeCertificates",
+                column: "CertificateBonusRateId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_EmployeeCertificates_EmployeeId",
@@ -334,7 +383,7 @@ namespace BusinessObject.Migrations
                 name: "Attendance");
 
             migrationBuilder.DropTable(
-                name: "EmployeeCertificates");
+                name: "EmployeeCertificateImage");
 
             migrationBuilder.DropTable(
                 name: "EmployeeSkills");
@@ -355,7 +404,13 @@ namespace BusinessObject.Migrations
                 name: "Schedule");
 
             migrationBuilder.DropTable(
+                name: "EmployeeCertificates");
+
+            migrationBuilder.DropTable(
                 name: "LeaveTypes");
+
+            migrationBuilder.DropTable(
+                name: "CertificateBonusRate");
 
             migrationBuilder.DropTable(
                 name: "Employee");

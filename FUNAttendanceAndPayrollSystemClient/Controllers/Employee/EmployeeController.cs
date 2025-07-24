@@ -138,7 +138,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Employee
         [HttpPost]
         public async Task<IActionResult> AddCertificate(CertificateDTO certificate)
         {
-            certificate.EmployId = certificate.EmployId == 0 ? Convert.ToInt32(Request.Form["EmployId"]) : certificate.EmployId;
+            certificate.EmployeeId = certificate.EmployeeId == 0 ? Convert.ToInt32(Request.Form["EmployeeId"]) : certificate.EmployeeId;
 
             string apiUrl = "https://localhost:7192/Employee/AddCertificate";
 
@@ -147,7 +147,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Employee
 
             if (response.IsSuccessStatusCode)
             {
-                return RedirectToAction("Profile", new { id = certificate.EmployId });
+                return RedirectToAction("Profile", new { id = certificate.EmployeeId });
             }
 
             ViewBag.Error = "Failed to add certificate.";
