@@ -1,5 +1,5 @@
 ﻿using DataTransferObject.DepartmentDTO;
-using DataTransferObject.EmployeeDTO;
+using DataTransferObject.EmployeeDTOS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repository.DepartmentRepository;

@@ -1,6 +1,6 @@
 ﻿@{
     ViewData["Title"] = "Manage Attendance";
-    var employees = ViewBag.Employees as List<DataTransferObject.EmployeeDTO.EmployeeDTO>;
+    var employees = ViewBag.Employees as List<DataTransferObject.EmployeeDTOS.EmployeeDTO>;
     var departments = ViewBag.departments;
 
     int selectedMonth = int.TryParse(ViewContext.HttpContext.Request.Query["month"], out var m) ? m : DateTime.Now.Month;

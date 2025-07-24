@@ -2,7 +2,7 @@
 using ClosedXML.Excel;
 using DataTransferObject.AttendanceDTO;
 using DataTransferObject.DepartmentDTO;
-using DataTransferObject.EmployeeDTO;
+using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.LeaveDTO;
 using DocumentFormat.OpenXml.Bibliography;
 using Microsoft.AspNetCore.Mvc;

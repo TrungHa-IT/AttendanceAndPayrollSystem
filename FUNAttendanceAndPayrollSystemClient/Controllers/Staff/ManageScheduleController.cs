@@ -1,4 +1,4 @@
-﻿using DataTransferObject.EmployeeDTO;
+﻿using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.ManagerDTO;
 using Microsoft.AspNetCore.Mvc;

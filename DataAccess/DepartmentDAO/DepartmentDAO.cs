@@ -1,6 +1,6 @@
 ﻿using BusinessObject.Models;
 using DataTransferObject.DepartmentDTO;
-using DataTransferObject.EmployeeDTO;
+using DataTransferObject.EmployeeDTOS;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
