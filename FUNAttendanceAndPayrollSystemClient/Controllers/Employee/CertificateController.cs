@@ -2,7 +2,6 @@
 using System.Text.Json;
 using System.Net.Http.Headers;
 using DataTransferObject.EmployeeDTOS;
-using DataTransferObject.EmployeeDTO;
 
 namespace FUNAttendanceAndPayrollSystemClient.Controllers.Employee
 {

@@ -75,16 +75,16 @@
                  <td>
                     @if (emp.Status == 1)
                     {
-                        <span class="badge bg-success">Inactive</span>
+                        <span class="badge bg-success">Active</span>
                     }
                     else
                     {
-                        <span class="badge bg-secondary">Active</span>
+                        <span class="badge bg-secondary">Inactive</span>
                     }
                  </td>
                 <td>@emp.DepartmentName</td>
                 <td>@emp.CreateAt.ToString("dd/MM/yyyy")</td>
-                    <td>
+                <td>
                         <button class="btn btn-sm btn-warning" data-bs-toggle="modal" data-bs-target="#editModal-@emp.EmployId">Edit</button>
 
                         <form asp-action="Delete" method="post" asp-controller="Employee" style="display:inline;">
@@ -93,7 +93,7 @@
                                 Delete
                             </button>
                         </form>
-                    </td>
+                </td>
 
             </tr>
 
