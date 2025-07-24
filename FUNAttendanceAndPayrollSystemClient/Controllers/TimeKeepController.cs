@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using DataTransferObject.AttendanceDTO;
 using DataTransferObject.DateTimeDTO;
 using DataTransferObject.ManagerDTO;
 using DocumentFormat.OpenXml.InkML;
@@ -28,21 +29,27 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
             var otResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/ManageSchedule/GetScheduleApproved?employeeId={currentEmployeeId}");
 
-            List<DateOnly> approvedOTDates = new List<DateOnly>();
             if (otResponse.IsSuccessStatusCode)
             {
                 var otJson = await otResponse.Content.ReadAsStringAsync();
-
                 var approvedOTs = JsonSerializer.Deserialize<List<ApprovedOTDTO>>(otJson, _jsonOptions);
-
                 ViewBag.ApprovedOTs = approvedOTs;
+            }
+
+            var statusResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/ManageSchedule/OTStatus?empId={currentEmployeeId}");
+
+            if (statusResponse.IsSuccessStatusCode)
+            {
+                var statusJson = await statusResponse.Content.ReadAsStringAsync();
+                var statusList = JsonSerializer.Deserialize<List<OTStatusDTO>>(statusJson, _jsonOptions);
+
+                ViewBag.OTStatusList = statusList;
 
             }
 
             if (year == 0)
                 year = DateTime.Now.Year;
 
-           
             var weekResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Timekeeping/weeks?year={year}");
             if (!weekResponse.IsSuccessStatusCode)
             {
@@ -53,7 +60,6 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
             var weeksJson = await weekResponse.Content.ReadAsStringAsync();
             var weekOptions = JsonSerializer.Deserialize<List<WeekOption>>(weeksJson, _jsonOptions);
 
-           
             if (string.IsNullOrEmpty(week))
             {
                 var today = DateTime.Today;
@@ -61,7 +67,6 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
                 week = currentWeek?.Display;
             }
 
-           
             var dayResponse = await _httpClient.GetAsync($"{_apiBaseUrl}/Timekeeping/days?year={year}&week={Uri.EscapeDataString(week)}");
             var dayJson = await dayResponse.Content.ReadAsStringAsync();
             var days = JsonSerializer.Deserialize<List<DateTime>>(dayJson, _jsonOptions);
@@ -73,6 +78,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers
 
             return View();
         }
+
 
         [HttpPost]
         public async Task<IActionResult> CheckInOT(int requestId)

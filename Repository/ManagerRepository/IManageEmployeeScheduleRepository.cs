@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using DataTransferObject.AttendanceDTO;
 using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.ManagerDTO;
 using System;
@@ -26,5 +27,6 @@ namespace Repository.ManagerRepository
         (bool success, string message) CheckInOT(int requestId);
 
         bool CheckOutOT(int requestId);
+        List<OTStatusDTO> GetStatusOT(int empId);
     }
 }

@@ -33,6 +33,27 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Manager
             });
         }
 
+        [HttpGet("OTStatus")]
+        public IActionResult GetOTStatus(int empId)
+        {
+            try
+            {
+                var statusList = repository.GetStatusOT(empId);
+
+                if (statusList == null || !statusList.Any())
+                {
+                    return NotFound($"No OT requests found for employee ID: {empId}");
+                }
+
+                return Ok(statusList);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while retrieving OT status: {ex.Message}");
+            }
+        }
+
+
 
         [HttpDelete("DeleteScheduleEmployee")]
         public IActionResult DeleteScheduleEmployee(

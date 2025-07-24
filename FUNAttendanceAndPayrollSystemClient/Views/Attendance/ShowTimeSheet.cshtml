@@ -2,6 +2,12 @@
     ViewData["Title"] = "Show TimeSheet";
     var attendances = ViewBag.attendances as List<DataTransferObject.AttendanceDTO.AttendanceDTO>;
     var role = Context.Session.GetString("role")?.ToLower();
+    var departments = ViewBag.departments;
+
+    int selectedMonth = int.TryParse(ViewContext.HttpContext.Request.Query["month"], out var m) ? m : DateTime.Now.Month;
+    int selectedYear = int.TryParse(ViewContext.HttpContext.Request.Query["year"], out var y) ? y : DateTime.Now.Year;
+    string selectedDepartment = ViewContext.HttpContext.Request.Query["department"];
+    
     string[] rowColors = new[] { "table-primary", "table-secondary", "table-success", "table-danger", "table-warning", "table-info", "table-light" };
 }
 
@@ -11,7 +17,40 @@
     <div class="card shadow-lg w-100" style="max-width: 1100px;">
         <div class="card-body">
             <h2 class="text-center text-primary mb-4">📊 Employee Timesheet</h2>
+            <div>
+                <form method="get" class="row row-cols-lg-auto g-3 align-items-end mb-4 justify-content-center">
+                    <div class="col">
+                        <label for="monthSelect" class="form-label">Month</label>
+                        <select id="monthSelect" name="month" class="form-select filter-select" style="width: 250px">
+                            @for (int i = 1; i <= 12; i++)
+                            {
+                                <option value="@i" selected="@(i == selectedMonth ? "selected" : null)">
+                                    @i
+                                </option>
+                            }
+                        </select>
+                    </div>
 
+                    <div class="col">
+                        <label for="yearSelect" class="form-label">Year</label>
+                        <select id="yearSelect" name="year" class="form-select filter-select" style="width: 250px">
+                            @{
+                                int currentYear = DateTime.Now.Year;
+                                for (int ye = currentYear - 5; ye <= currentYear + 1; ye++)
+                                {
+                                    <option value="@ye" selected="@(ye == selectedYear ? "selected" : null)">
+                                        @ye
+                                    </option>
+                                }
+                            }
+                        </select>
+                    </div>
+
+                    <div class="col">
+                        <button type="submit" class="btn btn-primary" style="width: 250px">🔍 Filter</button>
+                    </div>
+                </form>
+            </div>
             <div class="table-responsive">
                 <table class="table table-bordered table-hover text-center align-middle">
                     <thead class="table-dark">
@@ -33,7 +72,7 @@
                             {
                                 var colorClass = rowColors[i % rowColors.Length];
                                 TimeSpan? totalTime = (item.CheckOut.HasValue && item.CheckIn != null)
-                                ? item.CheckOut.Value - item.CheckIn
+                                ? item.CheckOut.Value - item.CheckIn - TimeSpan.FromHours(1)
                                 : null;
 
                                 <tr class="@colorClass">
@@ -107,7 +146,13 @@
         const row = document.querySelector("tbody tr");
         if (row && row.cells.length >= 1) {
             const employeeId = row.cells[0].textContent.trim();
-            document.getElementById("exportExcelBtn").href = `/Attendance/ExportTimeSheetToExcel?EmployId=${employeeId}`;
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const month = urlParams.get("month") || new Date().getMonth() + 1;
+            const year = urlParams.get("year") || new Date().getFullYear();
+
+            document.getElementById("exportExcelBtn").href = `/Attendance/ExportTimeSheetToExcel?EmployId=${employeeId}&month=${month}&year=${year}`;
         }
     }
+
 </script>

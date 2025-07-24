@@ -23,7 +23,7 @@ namespace DataAccess.ManagerDAO
             double totalMinutes = empAttendances.Sum(a =>
             {
                 if (a.CheckIn != null && a.CheckOut != null)
-                    return (a.CheckOut.Value - a.CheckIn).TotalMinutes;
+                    return (a.CheckOut.Value - a.CheckIn - TimeSpan.FromHours(1)).TotalMinutes;
                 return 0;
             });
 

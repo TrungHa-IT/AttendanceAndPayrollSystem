@@ -1,6 +1,8 @@
 ﻿@{
     ViewData["Title"] = "Manage Attendance";
     var employees = ViewBag.Employees as List<DataTransferObject.EmployeeDTO.EmployeeDTO>;
+    var departments = ViewBag.departments;
+    string selectedDepartment = ViewContext.HttpContext.Request.Query["department"];
 }
 
 <!-- Bootstrap 5 -->
@@ -64,7 +66,36 @@
 <div class="attendance-container">
     <div class="attendance-card">
         <h2 class="attendance-title">👨‍💼 Employee Attendance List</h2>
+        <div>
+            <form method="get" class="row row-cols-lg-auto g-3 align-items-end mb-4 justify-content-center">
+                <div class="col">
+                    <label for="name" class="form-label">Name</label>
+                    <input type="text" name="name" class="form-control" style="width: 250px"
+                            placeholder="Search by name..." />
+                </div>
 
+                <div class="col">
+                    <label for="departmentSelect" class="form-label">Department</label>
+                    <select id="departmentSelect" name="department" class="form-select filter-select" style="width: 250px">
+                        <option value="" selected="@(string.IsNullOrEmpty(selectedDepartment) ? "selected" : null)">All</option>
+                        @if (departments != null)
+                        {
+                            foreach (var dept in departments)
+                            {
+                                <option value="@dept.DepartmentId" selected="@(dept.DepartmentId.ToString() == selectedDepartment ? "selected" : null)">
+                                    @dept.DepartmentName
+                                </option>
+                            }
+                        }
+                    </select>
+                </div>
+
+                <div class="col">
+                    <button type="submit" class="btn btn-primary" style="width: 250px">🔍 Filter</button>
+                </div>
+            </form>
+
+        </div>
         <div class="table-responsive">
             <table class="table table-bordered table-hover text-center align-middle">
                 <thead>

@@ -1,5 +1,6 @@
 ﻿using BusinessObject.Models;
 using DataAccess.ManagerDAO;
+using DataTransferObject.AttendanceDTO;
 using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.ManagerDTO;
 using System;
@@ -33,6 +34,8 @@ namespace Repository.ManagerRepository
 
         public List<ScheduleDTO> getListScheduleById(int employeeId) => MangeScheduleEmployeeDAO.getListScheduleById(employeeId);
 
+        public List<OTStatusDTO> GetStatusOT(int empId) => MangeScheduleEmployeeDAO.GetStatusOT(empId);
+
         public bool HasCheckedInOTToday(int empId) => MangeScheduleEmployeeDAO.HasCheckedInOTToday(empId);
 
         public bool HasCheckedInToday(int empId) => MangeScheduleEmployeeDAO.HasCheckedInToday(empId);
@@ -40,5 +43,6 @@ namespace Repository.ManagerRepository
         public List<BookingOTDTO> ManageOT() => MangeScheduleEmployeeDAO.ManageOT();
 
         public BookingOTDTO UpdateBooking(int otRequestId, string status, int approvedBy) => MangeScheduleEmployeeDAO.UpdateBooking(otRequestId, status, approvedBy);
+
     }
 }

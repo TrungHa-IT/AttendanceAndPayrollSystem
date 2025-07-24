@@ -1,4 +1,5 @@
-﻿@using DataTransferObject.DateTimeDTO
+﻿@using DataTransferObject.AttendanceDTO
+@using DataTransferObject.DateTimeDTO
 @using DataTransferObject.ManagerDTO
 @{
     ViewData["Title"] = "Timekeeping";
@@ -7,6 +8,7 @@
     var selectedWeek = ViewBag.SelectedWeek as string;
     var days = ViewBag.DaysInWeek as List<DateTime>;
     var approvedOTDates = ViewBag.approvedOTs as List<ApprovedOTDTO> ?? new();
+    var statusList = ViewBag.OTStatusList as List<OTStatusDTO> ?? new();
 }
 
 <h2>Timekeeping</h2>
@@ -55,6 +57,7 @@
                     {
                         var idSuffix = d.ToString("yyyyMMdd");
                         var dateOnly = DateOnly.FromDateTime(d);
+                        var otStatus = statusList.FirstOrDefault(s => s.OvertimeDate == dateOnly);
 
                         if (d.Date == DateTime.Today)
                         {
@@ -77,8 +80,11 @@
                                         onclick="handleCheckOutOT(this)" type="button" disabled>
                                     Check Out OT
                                 </button>
-
+                         
                             }
+                            <div class="mt-2">
+                                <span class="badge bg-info text-dark"> @ViewBag.LatestOTStatus</span>
+                            </div>
 
                         }
                         else if (d.Date < DateTime.Today)
@@ -90,6 +96,31 @@
                             <button class="btn btn-success btn-sm" type="button" disabled>Check In</button>
                             <button class="btn btn-secondary btn-sm mt-1" type="button" disabled>Check Out</button>
                         }
+                        @if (otStatus != null)
+                        {
+                            var statusClass = otStatus.Status.ToLower() switch
+                            {
+                                "approved" => "bg-success text-white",
+                                "rejected" => "bg-danger text-white",
+                                "presented" => "bg-primary text-white",
+                                _ => "bg-secondary text-white"
+                            };
+
+                            <div class="mt-1">
+                                <span class="badge @statusClass">
+                                    Trạng thái OT: @otStatus.Status
+                                </span>
+                            </div>
+
+                            <div class="mt-1">
+                                <span class="badge bg-light text-dark">
+                                    Thời gian OT: @otStatus.StartTime.ToString("HH\\:mm") - @otStatus.EndTime.ToString("HH\\:mm")
+                                </span>
+                            </div>
+                        }
+
+
+
                     }
                     else
                     {

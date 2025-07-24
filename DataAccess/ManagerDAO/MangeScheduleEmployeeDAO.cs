@@ -1,4 +1,5 @@
 ﻿using BusinessObject.Models;
+using DataTransferObject.AttendanceDTO;
 using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.ManagerDTO;
 using Microsoft.EntityFrameworkCore;
@@ -192,7 +193,7 @@ namespace DataAccess.ManagerDAO
             }
 
             var checkOutTime = TimeOnly.FromDateTime(now);
-            var latest = new TimeOnly(17, 30); 
+            var latest = new TimeOnly(17, 00); 
 
             if (checkOutTime > latest)
             {
@@ -361,6 +362,33 @@ namespace DataAccess.ManagerDAO
             _context.SaveChanges();
             return true;
         }
+
+        public static List<OTStatusDTO> GetStatusOT(int empId)
+        {
+            using var _context = new FunattendanceAndPayrollSystemContext();
+
+            try
+            {
+                var statusList = _context.OvertimeRequests
+                    .Where(ot => ot.EmployeeId == empId)
+                    .Select(ot => new OTStatusDTO
+                    {
+                        OvertimeRequestId = ot.OvertimeRequestId,
+                        EmployeeId = ot.EmployeeId,
+                        OvertimeDate = ot.OvertimeDate, 
+                        StartTime = ot.StartTime,
+                        EndTime = ot.EndTime,
+                        Status = ot.Status
+                    }).ToList();
+
+                return statusList;
+            }
+            catch (Exception ex)
+            {
+                throw new Exception("Error retrieving OT status: " + ex.Message);
+            }
+        }
+
 
 
     }

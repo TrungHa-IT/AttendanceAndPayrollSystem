@@ -15,7 +15,7 @@ namespace Repository.EmployeeRepository
     public class EmployeeRepository : IEmployeeRepository
     {
         public BookingOTDTO bookScheduleOverTime(int emp, DateOnly otDate, TimeOnly startTime, TimeOnly endTime, string reason) => EmployeeDAO.bookScheduleOverTime(emp, otDate, startTime, endTime, reason);
-        public List<AttendanceDTO> getAttendanceById(int emp) => EmployeeDAO.getAttendanceById(emp);
+        public List<AttendanceDTO> getAttendanceById(int emp, int? month, int? year) => EmployeeDAO.getAttendanceById(emp, month,year);
         public List<EmployeeDTO> GetEmployees() => EmployeeDAO.GetEmployees();
 
         public List<EmployeeDTO> GetEmployeesTotalTimeByMonth(int? month, int? year, int? departmenId) => EmployeeDAO.GetEmployeesTotalTimeByMonth(month, year, departmenId);

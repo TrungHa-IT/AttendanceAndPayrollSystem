@@ -27,7 +27,7 @@ namespace DataAccess.EmployeeDAO
             {
                 using (var context = new FunattendanceAndPayrollSystemContext())
                 {
-                    listEmployees = context.Employees.Include(emp => emp.Department)
+                    listEmployees = context.Employees.Include(emp => emp.Department).Where(ep => ep.Position.Equals("Employee"))
                         .Select(ep => new EmployeeDTO
                         {
                             EmployId = ep.EmployId,
@@ -162,14 +162,24 @@ namespace DataAccess.EmployeeDAO
 
 
 
-        public static List<AttendanceDTO> getAttendanceById(int emp)
+        public static List<AttendanceDTO> getAttendanceById(int emp, int? month, int? year)
         {
             using var _db = new FunattendanceAndPayrollSystemContext();
             try
             {
-                var attendanceEmp = _db.Attendances.Include(at => at.Employee)
-                    .ThenInclude(emp => emp.Department)
-                    .Where(at => at.EmployeeId == emp)
+                var query = _db.Attendances
+                    .Include(at => at.Employee)
+                        .ThenInclude(emp => emp.Department)
+                    .Where(at => at.EmployeeId == emp);
+
+                if (month.HasValue && year.HasValue)
+                {
+                    query = query.Where(at =>
+                        at.WorkDate.Month == month.Value &&
+                        at.WorkDate.Year == year.Value);
+                }
+
+                var attendanceEmp = query
                     .Select(at => new AttendanceDTO
                     {
                         EmployeeId = at.EmployeeId,
@@ -179,13 +189,15 @@ namespace DataAccess.EmployeeDAO
                         CheckIn = at.CheckIn,
                         CheckOut = at.CheckOut
                     }).ToList();
-                return attendanceEmp;
 
-            }catch(Exception e)
+                return attendanceEmp;
+            }
+            catch (Exception e)
             {
                 throw new Exception(e.Message);
             }
         }
+
 
         // Register
         public static bool Register(RegisterDTO registerDTO)
@@ -260,17 +272,38 @@ namespace DataAccess.EmployeeDAO
                     throw new Exception("Thời gian OT chỉ được đăng ký trong khoảng từ 18:00 đến 22:00.");
                 }
 
-                bool hasRegisteredOT = _db.OvertimeRequests
-                                      .Where(ot => ot.OvertimeDate == otDate
-                                                && ot.EmployeeId == emp
-                                                && ot.DeletedAt == null)
-                                      .Any();
+                // Tìm bản ghi OT trong ngày này
+                var existingOT = _db.OvertimeRequests
+                                    .FirstOrDefault(ot => ot.OvertimeDate == otDate
+                                                       && ot.EmployeeId == emp);
 
-                Console.WriteLine("hasRegisteredOT: " + hasRegisteredOT);
-
-                if (hasRegisteredOT)
+                if (existingOT != null)
                 {
-                    throw new Exception("Bạn đã đăng ký OT trong ngày này rồi.");
+                    if (existingOT.Status?.ToLower() == "rejected")
+                    {
+                        // Nếu trạng thái là rejected, cập nhật lại
+                        existingOT.StartTime = startTime;
+                        existingOT.EndTime = endTime;
+                        existingOT.Reason = reason;
+                        existingOT.Status = "processing";
+                        existingOT.UpdatedAt = DateTime.Now;
+
+                        _db.SaveChanges();
+
+                        return new BookingOTDTO
+                        {
+                            EmployeeId = existingOT.EmployeeId,
+                            OvertimeDate = existingOT.OvertimeDate,
+                            StartTime = existingOT.StartTime,
+                            EndTime = existingOT.EndTime,
+                            Status = existingOT.Status,
+                            Reason = existingOT.Reason
+                        };
+                    }
+                    else
+                    {
+                        throw new Exception("Bạn đã đăng ký OT trong ngày này rồi.");
+                    }
                 }
 
                 var newRequest = new OvertimeRequest
@@ -280,7 +313,8 @@ namespace DataAccess.EmployeeDAO
                     StartTime = startTime,
                     EndTime = endTime,
                     Reason = reason,
-                    Status = "processing"
+                    Status = "processing",
+                    CreatedAt = DateTime.Now
                 };
 
                 _db.OvertimeRequests.Add(newRequest);
@@ -301,5 +335,6 @@ namespace DataAccess.EmployeeDAO
                 throw new Exception(e.Message);
             }
         }
+
     }
 }

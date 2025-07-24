@@ -20,15 +20,16 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
         public ActionResult<IEnumerable<EmployeeDTO>> GetStaffs() => repository.GetStaffs();
 
         [HttpGet("MyAttendance")]
-        public IActionResult GetAttendanceById(int emp)
+        public IActionResult GetAttendanceById(int emp, int? month = null, int? year = null)
         {
-            var empAttendance = repository.getAttendanceById(emp);
+            var empAttendance = repository.getAttendanceById(emp, month, year);
             if (empAttendance == null)
             {
                 return BadRequest("emp id values must not be null.");
             }
             return Ok(empAttendance);
         }
+
 
         [HttpPost("RegisterScheduleOT")]
         public IActionResult RegisterScheduleOT([FromBody] OTRequestDTO model)
