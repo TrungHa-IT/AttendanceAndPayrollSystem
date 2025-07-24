@@ -13,7 +13,7 @@ namespace DataTransferObject.AuthDTO
 
         public string? EmployeeName { get; set; }
       
-        public IFormFile Image { get; set; }
+        public IFormFile? Image { get; set; }
 
         public string? ImageUrl { get; set; }
 

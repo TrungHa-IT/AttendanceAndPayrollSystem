@@ -9,6 +9,8 @@ public partial class Employee
     public int EmployId { get; set; }
 
     public string? EmployeeName { get; set; }
+
+    [StringLength(500)]
     public string? Image { get; set; }
 
     public DateTime? Dob { get; set; }

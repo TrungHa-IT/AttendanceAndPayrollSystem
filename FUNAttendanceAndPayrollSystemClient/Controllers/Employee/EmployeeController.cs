@@ -116,6 +116,47 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Employee
         }
 
         [HttpPost]
+        public async Task<IActionResult> AddSkill(SkillDTO skill)
+        {
+            string apiUrl = "https://localhost:7192/Employee/AddSkills";
+
+            using (var client = new HttpClient())
+            {
+                var response = await client.PostAsJsonAsync(apiUrl, skill);
+                if (response.IsSuccessStatusCode)
+                {
+                    return RedirectToAction("Profile");
+                }
+                else
+                {
+                    ViewBag.Error = "Failed to add skill.";
+                    return View("Error");
+                }
+            }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddCertificate(CertificateDTO certificate)
+        {
+            certificate.EmployeeId = certificate.EmployeeId == 0 ? Convert.ToInt32(Request.Form["EmployeeId"]) : certificate.EmployeeId;
+
+            string apiUrl = "https://localhost:7192/Employee/AddCertificate";
+
+            using var client = new HttpClient();
+            var response = await client.PostAsJsonAsync(apiUrl, certificate);
+
+            if (response.IsSuccessStatusCode)
+            {
+                return RedirectToAction("Profile", new { id = certificate.EmployeeId });
+            }
+
+            ViewBag.Error = "Failed to add certificate.";
+            return View("Error");
+        }
+
+
+
+        [HttpPost]
         public async Task<IActionResult> UpdateCertificates(List<CertificateDTO> certificates)
         {
             int? employeeId = HttpContext.Session.GetInt32("employeeId");

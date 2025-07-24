@@ -4,6 +4,7 @@ using BusinessObject.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace BusinessObject.Migrations
 {
     [DbContext(typeof(FunattendanceAndPayrollSystemContext))]
-    partial class FunattendanceAndPayrollSystemContextModelSnapshot : ModelSnapshot
+    [Migration("20250724175817_UpdateModel")]
+    partial class UpdateModel
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -216,6 +219,8 @@ namespace BusinessObject.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("ApprovedBy");
 
                     b.HasIndex("CertificateBonusRateId");
 
@@ -592,6 +597,10 @@ namespace BusinessObject.Migrations
 
             modelBuilder.Entity("BusinessObject.Models.EmployeeCertificate", b =>
                 {
+                    b.HasOne("BusinessObject.Models.Employee", "Approver")
+                        .WithMany()
+                        .HasForeignKey("ApprovedBy");
+
                     b.HasOne("BusinessObject.Models.CertificateBonusRate", "CertificateBonusRate")
                         .WithMany("EmployeeCertificates")
                         .HasForeignKey("CertificateBonusRateId");
@@ -601,6 +610,8 @@ namespace BusinessObject.Migrations
                         .HasForeignKey("EmployeeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("Approver");
 
                     b.Navigation("CertificateBonusRate");
 

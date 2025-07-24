@@ -1,6 +1,7 @@
 ﻿using BusinessObject.Models;
 using DataAccess.EmployeeDAO;
 using DataTransferObject.EmployeeDTOS;
+using FUNAttendanceAndPayrollSystemAPI.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Repository.EmployeeRepository;
 using System.Collections;
@@ -11,12 +12,23 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
     [ApiController]
     public class EmployeeController : ControllerBase
     {
+        private readonly PhotoService _photoService;
+        public EmployeeController(PhotoService photoService)
+        {
+            _photoService = photoService;
+        }
         private readonly IEmployeeRepository repository = new EmployeeRepository();
         [HttpGet("ListEmployees")]
         public ActionResult<IEnumerable<EmployeeDTO>> GetEmployees() => repository.GetEmployees();
 
         [HttpGet("ListStaff")]
         public ActionResult<IEnumerable<EmployeeDTO>> GetStaffs() => repository.GetStaffs();
+
+        [HttpGet("GetCertificate")]
+        public ActionResult<IEnumerable<CertificateDTO>> GetCertificate() => EmployeeDAO.GetCertificate();
+
+        [HttpGet("ListCertificateBonus")]
+        public ActionResult<IEnumerable<CertificateBonusDTO>> GetCertificateBonus() => EmployeeDAO.GetCertificateBonus();
 
         [HttpGet("MyAttendance")]
         public IActionResult GetAttendanceById(int emp, int? month = null, int? year = null)
@@ -108,6 +120,65 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
             return Ok("Basic information updated successfully.");
         }
 
+        [HttpPost("AddSkills")]
+        public IActionResult AddSkills([FromBody] SkillDTO skillDto)
+        {
+            if (skillDto == null)
+                return BadRequest("Invalid skill data");
+
+            var result = EmployeeDAO.AddSkill(skillDto);
+            if (result)
+                return Ok(new { message = "Skill added successfully" });
+
+            return BadRequest("Failed to add skill");
+        }
+
+        [HttpPost("AddCertificate")]
+        public async Task<IActionResult> AddCertificate([FromForm] CertificateDTO certificate)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            // Upload ảnh nếu có
+            var imageUrls = new List<string>();
+            if (certificate.ImageFiles != null && certificate.ImageFiles.Count > 0)
+            {
+                foreach (var file in certificate.ImageFiles)
+                {
+                    if (file.Length > 0)
+                    {
+                        var url = await _photoService.UploadPhotoAsync(file); // 👈 thay bằng dịch vụ thật của bạn
+                        imageUrls.Add(url);
+                    }
+                }
+            }
+
+            // Gán lại danh sách ảnh vào DTO
+            certificate.ImageUrls = imageUrls;
+
+            // Lưu vào DB thông qua DAO
+            var result = EmployeeDAO.AddCertificate(certificate);
+            if (result)
+                return Ok(new { message = "Certificate added successfully" });
+
+            return BadRequest("Failed to add certificate");
+        }
+
+
+        [HttpPost("AddCertificateBonus")]
+        public IActionResult AddCertificateBonus([FromBody] CertificateBonusDTO certificateBonusDTO)
+        {
+            if (certificateBonusDTO == null)
+            {
+                return BadRequest("Invalid certificate bonus data");
+            }
+            var result = EmployeeDAO.AddCertificateBonus(certificateBonusDTO);
+            if (result)
+            {
+                return Ok(new { message = "Certificate bonus added successfully" });
+            }
+            return BadRequest("Failed to add certificate bonus");
+        }
 
         [HttpPost("UpdateSkills")]
         public IActionResult UpdateSkills([FromBody] UpdateSkillsRequest request)
@@ -149,7 +220,7 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
 
             var certEntities = certs.Select(c => new EmployeeCertificate
             {
-                Id = c.CertificateId,
+                Id = c.Id,
                 CertificateName = c.CertificateName,
                 ExpiryDate = c.ExpiryDate,
                 IssueDate = c.IssueDate,

@@ -26,7 +26,11 @@ public partial class FunattendanceAndPayrollSystemContext : DbContext
 
     public virtual DbSet<Leaf> Leaves { get; set; }
 
+    public virtual DbSet<CertificateBonusRate> CertificateBonusRates { get; set; }
+
     public virtual DbSet<LeaveType> LeaveTypes { get; set; }
+
+    public virtual DbSet<EmployeeCertificateImage> EmployeeCertificateImages { get; set; }
 
     public virtual DbSet<OvertimeRequest> OvertimeRequests { get; set; }
 
@@ -56,6 +60,11 @@ public partial class FunattendanceAndPayrollSystemContext : DbContext
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("FK_Attendance_Employee");
         });
+
+        modelBuilder.Entity<CertificateBonusRate>()
+            .Property(c => c.BonusAmount)
+            .HasPrecision(18, 2);
+
 
         modelBuilder.Entity<Department>(entity =>
         {
