@@ -612,6 +612,12 @@ namespace DataAccess.EmployeeDAO
 
             try
             {
+                var skills = db.EmployeeSkills.Where(s => s.EmployeeId == id).ToList();
+                db.EmployeeSkills.RemoveRange(skills);
+
+                var certificates = db.EmployeeCertificates.Where(c => c.EmployeeId == id).ToList();
+                db.EmployeeCertificates.RemoveRange(certificates);
+
                 var overtimeRequests = db.OvertimeRequests.Where(o => o.EmployeeId == id).ToList();
                 db.OvertimeRequests.RemoveRange(overtimeRequests);
 
