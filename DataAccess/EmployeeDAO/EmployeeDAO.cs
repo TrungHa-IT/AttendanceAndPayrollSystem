@@ -106,6 +106,95 @@ namespace DataAccess.EmployeeDAO
             return listCertificateBonus;
         }
 
+        // Get email of employee when approve certificate
+        public static string GetEmployeeEmailCertificate(int certificateId)
+        {
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    var email = context.EmployeeCertificates
+                        .Where(c => c.Id == certificateId)
+                        .Select(c => c.Employee.Email)
+                        .FirstOrDefault();
+
+                    return email ?? string.Empty;
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error retrieving employee email: " + e.Message);
+            }
+        }
+
+        public static List<CertificateDTO> GetCertificateByApprover(int id)
+        {
+            var listCertificateBonus = new List<CertificateDTO>();
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    listCertificateBonus = context.EmployeeCertificates
+                        .Include(e => e.Employee)
+                        .Include(e => e.CertificateBonusRate)
+                        .Include(e => e.Images)
+                        .Where(ep => ep.ApprovedBy == id)
+                        .OrderByDescending(ep => ep.IssueDate)
+                        .Select(ep => new CertificateDTO
+                        {
+                            Id = ep.Id,
+                            EmployeeId = ep.EmployeeId,
+                            CertificateName = ep.CertificateName,
+                            IssueDate = ep.IssueDate,
+                            ExpiryDate = ep.ExpiryDate,
+                            Status = ep.Status,
+                            ApprovedBy = ep.ApprovedBy,
+                            ApprovedByName = ep.Employee.EmployeeName,
+                            CertificateBonusRateId = ep.CertificateBonusRateId,
+                            BonusRate = ep.CertificateBonusRate != null ? ep.CertificateBonusRate.BonusAmount : null,
+                            EmployeeName = ep.Employee.EmployeeName,
+                            ImageUrls = ep.Images.Select(img => img.ImageUrl).ToList()
+                        })
+                        .ToList();
+                }
+            }
+            catch (Exception e)
+            {
+                throw new Exception("Error retrieving approved certificates: " + e.Message);
+            }
+
+            return listCertificateBonus;
+        }
+
+
+
+        public static bool UpdateCertificateStatus(CertificateDTO certificateDTO)
+        {
+            try
+            {
+                using (var context = new FunattendanceAndPayrollSystemContext())
+                {
+                    var certificate = context.EmployeeCertificates.Find(certificateDTO.Id);
+                    if (certificate == null)
+                    {
+                        return false; // Not found
+                    }
+
+                    certificate.Status = certificateDTO.Status;
+                    certificate.ApprovedBy = certificateDTO.ApprovedBy;
+                    context.SaveChanges();
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                // Log exception if needed
+                return false;
+            }
+        }
+
+
+
         public static List<CertificateDTO> GetCertificate()
         {
             var listCertificateBonus = new List<CertificateDTO>();

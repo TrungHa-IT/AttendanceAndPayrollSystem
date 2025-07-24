@@ -195,6 +195,78 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
             return RedirectToAction("ManageLeave");
         }
 
+        public async Task<IActionResult> ManageCertificate()
+        {
+            using HttpClient client = new();
+
+            var empId = HttpContext.Session.GetInt32("employeeId");
+            if (empId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            var response = await client.GetAsync($"{_baseUrl}/Employee/GetCertificateByApprover?id={empId}");
+            List<CertificateDTO> certificates = new();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrWhiteSpace(json))
+                {
+                    certificates = JsonSerializer.Deserialize<List<CertificateDTO>>(json, _jsonOptions) ?? new();
+                }
+            }
+
+            return View(certificates);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateCertificateStatus(int certificateId, string status)
+        {
+            var empId = HttpContext.Session.GetInt32("employeeId");
+            if (empId == null)
+            {
+                return RedirectToAction("Login", "Auth");
+            }
+
+            // Lấy email của nhân viên có certificate này
+            var employeeEmail = _context.EmployeeCertificates
+                .Include(e => e.Employee)
+                .Where(c => c.Id == certificateId)
+                .Select(c => c.Employee.Email)
+                .FirstOrDefault();
+
+            using HttpClient client = new();
+
+            var certificateToUpdate = new
+            {
+                Id = certificateId,
+                Status = status,
+                ApprovedBy = empId,
+                EmployeeEmail = employeeEmail
+            };
+
+            var content = new StringContent(
+                JsonSerializer.Serialize(certificateToUpdate),
+                Encoding.UTF8,
+                "application/json"
+            );
+
+            var response = await client.PutAsync($"{_baseUrl}/Employee/updateCertificate", content);
+            var errorContent = await response.Content.ReadAsStringAsync();
+
+            if (response.IsSuccessStatusCode)
+            {
+                TempData["Message"] = "Certificate status updated successfully.";
+            }
+            else
+            {
+                TempData["Error"] = $"Failed to update certificate status. API response: {response.StatusCode} - {errorContent}";
+            }
+
+            return RedirectToAction("ManageCertificate");
+        }
+
     }
 
 }

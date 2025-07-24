@@ -1,6 +1,7 @@
 ﻿using BusinessObject.Models;
 using DataAccess.EmployeeDAO;
 using DataTransferObject.EmployeeDTOS;
+using DataTransferObject.LeaveDTO;
 using FUNAttendanceAndPayrollSystemAPI.Helpers;
 using Microsoft.AspNetCore.Mvc;
 using Repository.EmployeeRepository;
@@ -13,11 +14,38 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
     public class EmployeeController : ControllerBase
     {
         private readonly PhotoService _photoService;
-        public EmployeeController(PhotoService photoService)
+        private readonly EmailService _emailService;
+        public EmployeeController(PhotoService photoService, EmailService emailService)
         {
             _photoService = photoService;
+            _emailService = emailService;
         }
         private readonly IEmployeeRepository repository = new EmployeeRepository();
+
+        [HttpPut("updateCertificate")]
+        public async Task<IActionResult> UpdateCertificate([FromBody] CertificateDTO certificateDTO)
+        {
+            if (certificateDTO == null || certificateDTO.Id <= 0)
+                return BadRequest("Invalid certificate data.");
+
+            var employeeEmail = EmployeeDAO.GetEmployeeEmailCertificate(certificateDTO.Id);
+
+            var result = EmployeeDAO.UpdateCertificateStatus(certificateDTO);
+            if (!result)
+                return BadRequest("Certificate update failed.");
+
+            string subject = $"Your Certificate Request has been {certificateDTO.Status}";
+            string body = $@"
+        <h3>Hello {certificateDTO.EmployeeName},</h3>
+        <p>Your certificate request has been 
+        <span style='color:{(certificateDTO.Status == "Approved" ? "green" : "red")}'><strong>{certificateDTO.Status}</strong></span>.</p>
+        <p>Regards,<br/>{certificateDTO.ApprovedByName} - HR Department</p>";
+
+            await _emailService.SendEmailAsync(employeeEmail, subject, body);
+
+            return Ok("Certificate updated and email sent.");
+        }
+       
         [HttpGet("ListEmployees")]
         public ActionResult<IEnumerable<EmployeeDTO>> GetEmployees() => repository.GetEmployees();
 
@@ -26,6 +54,9 @@ namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee
 
         [HttpGet("GetCertificate")]
         public ActionResult<IEnumerable<CertificateDTO>> GetCertificate() => EmployeeDAO.GetCertificate();
+
+        [HttpGet("GetCertificateByApprover")]
+        public ActionResult<IEnumerable<CertificateDTO>> GetCertificateByApprover(int id) => EmployeeDAO.GetCertificateByApprover(id);
 
         [HttpGet("ListCertificateBonus")]
         public ActionResult<IEnumerable<CertificateBonusDTO>> GetCertificateBonus() => EmployeeDAO.GetCertificateBonus();
