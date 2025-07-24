@@ -308,7 +308,6 @@ namespace DataAccess.EmployeeDAO
             emp.Gender = updated.Gender;
             emp.PhoneNumber = updated.PhoneNumber;
             emp.Address = updated.Address;
-            emp.Position = updated.Position;
 
             db.SaveChanges();
             return true;

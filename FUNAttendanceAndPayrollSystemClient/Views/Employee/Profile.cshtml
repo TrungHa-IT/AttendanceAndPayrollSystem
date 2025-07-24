@@ -84,6 +84,7 @@
                 <h5>@info.EmployeeName</h5>
             </div>
 
+            <!-- BASIC -->
             <div class="profile-section">
                 <div class="section-title d-flex justify-content-between">
                     <span>Basic Information</span>
@@ -99,10 +100,14 @@
                 </div>
             </div>
 
+            <!-- SKILLS -->
             <div class="profile-section">
-                <div class="section-title d-flex justify-content-between">
+                <div class="section-title d-flex justify-content-between align-items-center">
                     <span>Skills</span>
-                    <button class="btn btn-sm btn-outline-success btn-update" data-bs-toggle="modal" data-bs-target="#skillsModal">Update</button>
+                    <div>
+                        <button class="btn btn-sm btn-outline-success btn-update" data-bs-toggle="modal" data-bs-target="#skillsModal">Update</button>
+                        <button class="btn btn-sm btn-outline-primary btn-update" data-bs-toggle="modal" data-bs-target="#addSkillModal">Add Skill</button>
+                    </div>
                 </div>
                 @foreach (var skill in info.Skills)
                 {
@@ -110,10 +115,14 @@
                 }
             </div>
 
+            <!-- CERTIFICATES -->
             <div class="profile-section">
-                <div class="section-title d-flex justify-content-between">
+                <div class="section-title d-flex justify-content-between align-items-center">
                     <span>Certificates</span>
-                    <button class="btn btn-sm btn-outline-success btn-update" data-bs-toggle="modal" data-bs-target="#certificatesModal">Update</button>
+                    <div>
+                        <button class="btn btn-sm btn-outline-success btn-update" data-bs-toggle="modal" data-bs-target="#certificatesModal">Update</button>
+                        <button class="btn btn-sm btn-outline-primary btn-update" data-bs-toggle="modal" data-bs-target="#addCertificateModal">Add Certificate</button>
+                    </div>
                 </div>
                 @foreach (var cert in info.Certificates)
                 {
@@ -126,8 +135,8 @@
             </div>
         </div>
 
-        <!-- BASIC INFO Modal -->
-        <div class="modal fade" id="basicInfoModal" tabindex="-1" aria-labelledby="basicInfoModalLabel" aria-hidden="true">
+        <!-- BASIC MODAL -->
+        <div class="modal fade" id="basicInfoModal" tabindex="-1">
             <div class="modal-dialog">
                 <form method="post" action="/Employee/UpdateBasicInfos">
                     <div class="modal-content">
@@ -137,30 +146,12 @@
                         </div>
                         <div class="modal-body">
                             <input name="EmployId" value="@info.EmployId" hidden />
-                            <div class="mb-2">
-                                <label>FullName</label>
-                                <input class="form-control" name="EmployeeName" value="@info.EmployeeName" />
-                            </div>
-                            <div class="mb-2">
-                                <label>DOB</label>
-                                <input type="date" class="form-control" name="Dob" value="@info.Dob?.ToString("yyyy-MM-dd")" />
-                            </div>
-                            <div class="mb-2">
-                                <label>Gender</label>
-                                <input class="form-control" name="Gender" value="@info.Gender" />
-                            </div>
-                            <div class="mb-2">
-                                <label>Email</label>
-                                <input class="form-control" name="Email" value="@info.Email" />
-                            </div>
-                            <div class="mb-2">
-                                <label>Phone</label>
-                                <input class="form-control" name="PhoneNumber" value="@info.PhoneNumber" />
-                            </div>
-                            <div class="mb-2">
-                                <label>Address</label>
-                                <input class="form-control" name="Address" value="@info.Address" />
-                            </div>
+                            <div class="mb-2"><label>FullName</label><input class="form-control" name="EmployeeName" value="@info.EmployeeName" /></div>
+                            <div class="mb-2"><label>DOB</label><input type="date" class="form-control" name="Dob" value="@info.Dob?.ToString("yyyy-MM-dd")" /></div>
+                            <div class="mb-2"><label>Gender</label><input class="form-control" name="Gender" value="@info.Gender" /></div>
+                            <div class="mb-2"><label>Email</label><input class="form-control" name="Email" value="@info.Email" /></div>
+                            <div class="mb-2"><label>Phone</label><input class="form-control" name="PhoneNumber" value="@info.PhoneNumber" /></div>
+                            <div class="mb-2"><label>Address</label><input class="form-control" name="Address" value="@info.Address" /></div>
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-success">Update</button>
@@ -171,8 +162,8 @@
             </div>
         </div>
 
-        <!-- SKILLS Modal -->
-        <div class="modal fade" id="skillsModal" tabindex="-1" aria-labelledby="skillsModalLabel" aria-hidden="true">
+        <!-- SKILL UPDATE -->
+        <div class="modal fade" id="skillsModal" tabindex="-1">
             <div class="modal-dialog">
                 <form method="post" action="/Employee/UpdateSkills">
                     <div class="modal-content">
@@ -184,14 +175,8 @@
                             @for (int i = 0; i < info.Skills.Count; i++)
                             {
                                 <input name="Skills[@i].SkillId" value="@info.Skills[i].SkillId" hidden />
-                                <div class="mb-2">
-                                    <label>Skill Name</label>
-                                    <input class="form-control" name="Skills[@i].SkillName" value="@info.Skills[i].SkillName" />
-                                </div>
-                                <div class="mb-2">
-                                    <label>Level</label>
-                                    <input class="form-control" name="Skills[@i].Level" value="@info.Skills[i].Level" />
-                                </div>
+                                <div class="mb-2"><label>Skill Name</label><input class="form-control" name="Skills[@i].SkillName" value="@info.Skills[i].SkillName" /></div>
+                                <div class="mb-2"><label>Level</label><input class="form-control" name="Skills[@i].Level" value="@info.Skills[i].Level" /></div>
                                 <hr />
                             }
                         </div>
@@ -204,8 +189,8 @@
             </div>
         </div>
 
-        <!-- CERTIFICATES Modal -->
-        <div class="modal fade" id="certificatesModal" tabindex="-1" aria-labelledby="certificatesModalLabel" aria-hidden="true">
+        <!-- CERTIFICATE UPDATE -->
+        <div class="modal fade" id="certificatesModal" tabindex="-1">
             <div class="modal-dialog">
                 <form method="post" action="/Employee/UpdateCertificates">
                     <div class="modal-content">
@@ -217,23 +202,61 @@
                             @for (int i = 0; i < info.Certificates.Count; i++)
                             {
                                 <input name="Certificates[@i].CertificateId" value="@info.Certificates[i].CertificateId" hidden />
-                                <div class="mb-2">
-                                    <label>Certificate Name</label>
-                                    <input class="form-control" name="Certificates[@i].CertificateName" value="@info.Certificates[i].CertificateName" />
-                                </div>
-                                <div class="mb-2">
-                                    <label>Issue Date</label>
-                                    <input type="date" class="form-control" name="Certificates[@i].IssueDate" value="@info.Certificates[i].IssueDate.ToString("yyyy-MM-dd")" />
-                                </div>
-                                <div class="mb-2">
-                                    <label>Expiry Date</label>
-                                    <input type="date" class="form-control" name="Certificates[@i].ExpiryDate" value="@info.Certificates[i].ExpiryDate.ToString("yyyy-MM-dd")" />
-                                </div>
+                                <div class="mb-2"><label>Certificate Name</label><input class="form-control" name="Certificates[@i].CertificateName" value="@info.Certificates[i].CertificateName" /></div>
+                                <div class="mb-2"><label>Issue Date</label><input type="date" class="form-control" name="Certificates[@i].IssueDate" value="@info.Certificates[i].IssueDate.ToString("yyyy-MM-dd")" /></div>
+                                <div class="mb-2"><label>Expiry Date</label><input type="date" class="form-control" name="Certificates[@i].ExpiryDate" value="@info.Certificates[i].ExpiryDate.ToString("yyyy-MM-dd")" /></div>
                                 <hr />
                             }
                         </div>
                         <div class="modal-footer">
                             <button type="submit" class="btn btn-success">Update</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ADD SKILL MODAL -->
+        <div class="modal fade" id="addSkillModal" tabindex="-1">
+            <div class="modal-dialog">
+                <form method="post" action="/Employee/AddSkill">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Skill</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input name="EmployId" value="@info.EmployId" hidden />
+                            <div class="mb-2"><label>Skill Name</label><input class="form-control" name="SkillName" required /></div>
+                            <div class="mb-2"><label>Level</label><input class="form-control" name="Level" required /></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Add</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ADD CERTIFICATE MODAL -->
+        <div class="modal fade" id="addCertificateModal" tabindex="-1">
+            <div class="modal-dialog">
+                <form method="post" action="/Employee/AddCertificate">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title">Add Certificate</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        </div>
+                        <div class="modal-body">
+                            <input name="EmployId" value="@info.EmployId" hidden />
+                            <div class="mb-2"><label>Certificate Name</label><input class="form-control" name="CertificateName" required /></div>
+                            <div class="mb-2"><label>Issue Date</label><input type="date" class="form-control" name="IssueDate" required /></div>
+                            <div class="mb-2"><label>Expiry Date</label><input type="date" class="form-control" name="ExpiryDate" required /></div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Add</button>
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                         </div>
                     </div>
