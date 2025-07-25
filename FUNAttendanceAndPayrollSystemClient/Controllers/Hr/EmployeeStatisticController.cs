@@ -13,7 +13,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Hr
             _context = context;
         }
 
-        public IActionResult Index()
+        public IActionResult EmployeeStatistic()
         {
             var employees = _context.Employees.ToList();
 
