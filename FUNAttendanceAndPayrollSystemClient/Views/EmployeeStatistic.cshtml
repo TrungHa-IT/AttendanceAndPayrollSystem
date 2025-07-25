@@ -1,0 +1,67 @@
+﻿@model DataTransferObject.EmployeeDTOS.EmployeeStatisticDTO
+
+@{
+    ViewData["Title"] = "Employee Statistics";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4">Employee Statistics</h2>
+
+    <div id="employeeStatusChart" style="width: 100%; height: 400px;"></div>
+    <div id="genderChart" style="width: 100%; height: 400px;" class="mt-5"></div>
+
+    <ul class="list-group mt-5">
+        <li class="list-group-item">Total Employees: @Model.TotalEmployees</li>
+        <li class="list-group-item">Active Employees: @Model.ActiveEmployees</li>
+        <li class="list-group-item">Inactive Employees: @Model.InactiveEmployees</li>
+        <li class="list-group-item">Male Employees: @Model.MaleEmployees</li>
+        <li class="list-group-item">Female Employees: @Model.FemaleEmployees</li>
+        <li class="list-group-item">Total Departments: @Model.TotalDepartments</li>
+    </ul>
+</div>
+
+<!-- Load Google Charts -->
+<script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+<script>
+    // Load the Visualization API and the corechart package.
+    google.charts.load('current', { 'packages': ['corechart'] });
+
+    // Set callbacks to run when the API is loaded.
+    google.charts.setOnLoadCallback(drawStatusChart);
+    google.charts.setOnLoadCallback(drawGenderChart);
+
+    function drawStatusChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Status', 'Number'],
+            ['Active', @Model.ActiveEmployees],
+            ['Inactive', @Model.InactiveEmployees]
+        ]);
+
+        var options = {
+            title: 'Employee Status Distribution',
+            pieHole: 0.4,
+            colors: ['#28a745', '#dc3545']
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('employeeStatusChart'));
+        chart.draw(data, options);
+    }
+
+    function drawGenderChart() {
+        var data = google.visualization.arrayToDataTable([
+            ['Gender', 'Number'],
+            ['Male', @Model.MaleEmployees],
+            ['Female', @Model.FemaleEmployees]
+        ]);
+
+        var options = {
+            title: 'Gender Distribution',
+            pieHole: 0.4,
+            colors: ['#007bff', '#e83e8c']
+        };
+
+        var chart = new google.visualization.PieChart(document.getElementById('genderChart'));
+        chart.draw(data, options);
+    }
+</script>
