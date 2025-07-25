@@ -395,10 +395,10 @@ namespace DataAccess.EmployeeDAO
         // Login
         public static Employee? Login(LoginDTO loginDTO)
         {
-            using var _MyDb = new FunattendanceAndPayrollSystemContext();
+            using var db = new FunattendanceAndPayrollSystemContext();
             try
             {
-                var employee = _MyDb.Employees.FirstOrDefault(e => e.Email == loginDTO.Email);
+                var employee = db.Employees.FirstOrDefault(e => e.Email == loginDTO.Email);
                 if (employee == null) return null;
 
                 //check password

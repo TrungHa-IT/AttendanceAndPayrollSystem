@@ -18,16 +18,19 @@ namespace FUNAttendanceAndPayrollSystemAPI
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            // Add services to the container.
+
             builder.Services.AddControllers();
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
             builder.Services.AddSwaggerGen();
+            builder.Services.AddScoped<ITimekeepingRepository, TimekeepingRepository>();
             builder.Services.AddCors(options =>
             {
                 options.AddPolicy("AllowMVCClient",
                     policy =>
                     {
-                        policy.WithOrigins("https://localhost:7145/") 
+                        policy.WithOrigins("https://localhost:7145/")
                               .AllowAnyHeader()
                               .AllowAnyMethod();
                     });
@@ -35,6 +38,7 @@ namespace FUNAttendanceAndPayrollSystemAPI
 
             builder.Services.AddDbContext<FunattendanceAndPayrollSystemContext>(options =>
             options.UseSqlServer(builder.Configuration.GetConnectionString("Mycnn")));
+
             builder.Services.AddAuthentication(options =>
             {
                 options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
@@ -53,12 +57,12 @@ namespace FUNAttendanceAndPayrollSystemAPI
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["Secret"]))
                 };
             });
+            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
 
             builder.Services.Configure<CloudinarySettings>(
             builder.Configuration.GetSection("CloudinarySettings"));
             builder.Services.AddScoped<PhotoService>();
-            builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-
+            
             builder.Services.Configure<EmailSettings>(
             builder.Configuration.GetSection("EmailSettings"));
             builder.Services.AddScoped<EmailService>();

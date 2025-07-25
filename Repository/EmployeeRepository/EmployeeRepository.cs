@@ -3,7 +3,6 @@ using DataAccess.EmployeeDAO;
 using DataTransferObject.AttendanceDTO;
 using DataTransferObject.AuthDTO;
 using DataTransferObject.EmployeeDTOS;
-using DataTransferObject.EmployeeDTOS;
 using System;
 using System.Collections.Generic;
 using System.Linq;
