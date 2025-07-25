@@ -229,12 +229,19 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
                 return RedirectToAction("Login", "Auth");
             }
 
-            // Lấy email của nhân viên có certificate này
-            var employeeEmail = _context.EmployeeCertificates
-                .Include(e => e.Employee)
-                .Where(c => c.Id == certificateId)
-                .Select(c => c.Employee.Email)
-                .FirstOrDefault();
+            // Lấy email nhân viên để gửi API
+            var employeeCertificate = _context.EmployeeCertificates
+                .Include(ec => ec.Employee)
+                .Include(ec => ec.CertificateBonusRate)
+                .FirstOrDefault(c => c.Id == certificateId);
+
+            if (employeeCertificate == null)
+            {
+                TempData["Error"] = "Certificate not found.";
+                return RedirectToAction("ManageCertificate");
+            }
+
+            var employeeEmail = employeeCertificate.Employee.Email;
 
             using HttpClient client = new();
 
@@ -257,6 +264,19 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
 
             if (response.IsSuccessStatusCode)
             {
+                // ✅ Chỉ cập nhật lương nếu trạng thái là "Approved"
+                if (status == "Approved" && employeeCertificate.CertificateBonusRate != null)
+                {
+                    var bonus = employeeCertificate.CertificateBonusRate.BonusAmount;
+                    var employee = employeeCertificate.Employee;
+
+                    employee.Salary += bonus;
+                    employee.UpdatedAt = DateTime.Now;
+
+                    _context.Employees.Update(employee);
+                    await _context.SaveChangesAsync();
+                }
+
                 TempData["Message"] = "Certificate status updated successfully.";
             }
             else
@@ -266,6 +286,7 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
 
             return RedirectToAction("ManageCertificate");
         }
+
 
     }
 
