@@ -155,6 +155,70 @@ namespace FUNAttendanceAndPayrollSystemClient.Controllers.Staff
         }
 
         [HttpPost]
+        public async Task<IActionResult> CreateCertificateBonus(CertificateBonusDTO dto)
+        {
+            if (ModelState.IsValid)
+            {
+                var entity = new CertificateBonusRate
+                {
+                    CertificateName = dto.CertificateName,
+                    BonusAmount = dto.BonusAmount
+                };
+
+                _context.CertificateBonusRates.Add(entity);
+                await _context.SaveChangesAsync();
+
+                return RedirectToAction("ManageCertificateBonusRates");
+            }
+            return RedirectToAction("ManageCertificateBonusRates");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditCertificateBonus(CertificateBonusDTO dto)
+        {
+            if (ModelState.IsValid)
+            {
+                var entity = await _context.CertificateBonusRates.FindAsync(dto.Id);
+                if (entity != null)
+                {
+                    entity.CertificateName = dto.CertificateName;
+                    entity.BonusAmount = dto.BonusAmount;
+
+                    _context.CertificateBonusRates.Update(entity);
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("ManageCertificateBonusRates");
+                }
+                else
+                {
+                    return NotFound();
+                }
+            }
+
+            return RedirectToAction("ManageCertificateBonusRates");
+        }
+
+        public async Task<IActionResult> ManageCertificateBonusRates()
+        {
+            using HttpClient client = new();
+
+            var response = await client.GetAsync($"{_baseUrl}/Employee/ListCertificateBonus");
+            List<CertificateBonusDTO> certificateBonus = new();
+
+            if (response.IsSuccessStatusCode)
+            {
+                var json = await response.Content.ReadAsStringAsync();
+                if (!string.IsNullOrWhiteSpace(json))
+                {
+                    certificateBonus = JsonSerializer.Deserialize<List<CertificateBonusDTO>>(json, _jsonOptions) ?? new();
+                }
+            }
+
+            return View(certificateBonus);
+
+        }
+
+        [HttpPost]
         public async Task<IActionResult> UpdateStatus(int leaveId, string status)
         {
             var empId = HttpContext.Session.GetInt32("employeeId");
