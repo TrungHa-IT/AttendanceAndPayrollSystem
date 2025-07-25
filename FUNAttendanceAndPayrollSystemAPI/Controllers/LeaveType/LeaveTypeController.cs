@@ -3,7 +3,6 @@ using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.LeaveTypeDTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Repository.EmployeeRepository;
 using Repository.LeaveTypeRepository;
 
 namespace FUNAttendanceAndPayrollSystemAPI.Controllers.LeaveType

@@ -3,7 +3,6 @@ using DataTransferObject.EmployeeDTOS;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Repository.DepartmentRepository;
-using Repository.EmployeeRepository;
 
 namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Department
 {

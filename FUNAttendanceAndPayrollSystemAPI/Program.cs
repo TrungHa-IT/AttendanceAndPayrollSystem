@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using Repository.DateTimeSchedule;
-using Repository.EmployeeRepository;
+using Repository.EmRepository;
 using System.Text;
 
 namespace FUNAttendanceAndPayrollSystemAPI

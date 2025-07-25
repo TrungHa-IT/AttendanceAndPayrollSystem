@@ -4,7 +4,7 @@ using DataTransferObject.EmployeeDTOS;
 using DataTransferObject.LeaveDTO;
 using FUNAttendanceAndPayrollSystemAPI.Helpers;
 using Microsoft.AspNetCore.Mvc;
-using Repository.EmployeeRepository;
+using Repository.EmRepository;
 using System.Collections;
 
 namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Employee

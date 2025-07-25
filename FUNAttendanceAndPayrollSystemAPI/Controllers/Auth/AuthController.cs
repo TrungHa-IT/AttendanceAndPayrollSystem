@@ -1,7 +1,7 @@
 ﻿using FUNAttendanceAndPayrollSystemAPI.Helpers;
 using Microsoft.AspNetCore.Mvc;
-using Repository.EmployeeRepository;
 using DataTransferObject.AuthDTO;
+using Repository.EmRepository;
 
 namespace FUNAttendanceAndPayrollSystemAPI.Controllers.Auth
 {
